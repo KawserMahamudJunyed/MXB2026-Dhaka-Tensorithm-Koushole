@@ -20,7 +20,6 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Caveat (English Title), Galada (Bangla Title), Noto Sans Bengali (Bangla Body), Open Sans (English Body) -->
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Galada&family=Noto+Sans+Bengali:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -108,6 +107,12 @@
         .topic-card:active {
             transform: scale(0.98);
         }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
     </style>
 
     <script>
@@ -142,6 +147,7 @@
                         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 3s ease-in-out infinite',
                         'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'spin-slow': 'spin 3s linear infinite',
                     },
                     keyframes: {
                         shake: {
@@ -189,15 +195,26 @@
                 <button onclick="setLanguage('bn')" class="text-[10px] sm:text-xs font-bold text-text-secondary transition-colors hover:-translate-y-0.5 transition-transform" id="btn-bn">বাংলা</button>
             </div>
 
-            <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors hover:rotate-[360deg] duration-700 transition-transform">
-                <!-- Sun SVG (for switching to Light mode) -->
-                <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+            <!-- Theme Toggle with Specific Animations -->
+            <!-- Group class added for hover states -->
+            <button onclick="toggleTheme()" class="group w-8 h-8 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors">
+                
+                <!-- Sun SVG: Spins on Hover -->
+                <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 group-hover:animate-spin-slow">
                     <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
                 </svg>
-                <!-- Moon SVG (for switching to Dark mode, hidden by default) -->
+                
+                <!-- Moon SVG: Phase Change Animation via Mask -->
                 <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 hidden">
-                    <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd" />
+                    <defs>
+                        <mask id="moon-mask">
+                            <rect x="0" y="0" width="24" height="24" fill="white" />
+                            <!-- The shadow circle. By default it sits at cx="16" creating a crescent. 
+                                 On group-hover, it moves to cx="28" revealing the full circle. -->
+                            <circle cx="16" cy="10" r="8" fill="black" class="transition-all duration-700 ease-in-out group-hover:translate-x-4 group-hover:-translate-y-4" />
+                        </mask>
+                    </defs>
+                    <circle cx="12" cy="12" r="9" mask="url(#moon-mask)" />
                 </svg>
             </button>
 
@@ -435,10 +452,13 @@
                         </div>
                         <div>
                             <h4 class="text-text-primary font-bold text-sm">Higher Math_Ch3.pdf</h4>
-                            <p class="text-text-secondary text-[10px]">Added 2 days ago</p>
+                            <p class="text-text-secondary text-[10px] flex items-center gap-2">
+                                <span>Added 2 days ago</span>
+                                <span class="text-amber font-bold hidden" id="status-1">• Processing...</span>
+                            </p>
                         </div>
                     </div>
-                    <button class="w-8 h-8 rounded-full bg-amber text-black flex items-center justify-center hover:scale-110 transition-transform shadow-amber-glow" onclick="alert('Generating Custom Quiz from Higher Math_Ch3.pdf...')">
+                    <button class="w-8 h-8 rounded-full bg-amber text-black flex items-center justify-center hover:scale-110 transition-transform shadow-amber-glow" onclick="openQuizConfig('Higher Math_Ch3.pdf')">
                         <i class="fas fa-play text-xs"></i>
                     </button>
                 </div>
@@ -451,13 +471,73 @@
                         </div>
                         <div>
                             <h4 class="text-text-primary font-bold text-sm">Physics_Optics.pdf</h4>
-                            <p class="text-text-secondary text-[10px]">Added 5 days ago</p>
+                            <p class="text-text-secondary text-[10px] flex items-center gap-2">
+                                <span>Added 5 days ago</span>
+                                <span class="text-emerald font-bold">• Ready</span>
+                            </p>
                         </div>
                     </div>
-                    <button class="w-8 h-8 rounded-full bg-amber text-black flex items-center justify-center hover:scale-110 transition-transform shadow-amber-glow" onclick="alert('Generating Custom Quiz from Physics_Optics.pdf...')">
+                    <button class="w-8 h-8 rounded-full bg-amber text-black flex items-center justify-center hover:scale-110 transition-transform shadow-amber-glow" onclick="openQuizConfig('Physics_Optics.pdf')">
                         <i class="fas fa-play text-xs"></i>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- QUIZ SETUP MODAL (Hidden by default) -->
+        <div id="quiz-setup-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-5 fade-in">
+            <div class="bg-surface border border-divider rounded-2xl w-full max-w-sm p-6 relative shadow-2xl">
+                <!-- Close Button -->
+                <button onclick="closeQuizConfig()" class="absolute top-4 right-4 text-text-secondary hover:text-amber transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+
+                <!-- Modal Content -->
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-amber/10 text-amber flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-sliders-h text-xl"></i>
+                    </div>
+                    <h3 class="text-text-primary font-bold text-xl title-font">Configure Quiz</h3>
+                    <p class="text-text-secondary text-xs mt-1" id="modal-book-title">Selected: Book Name</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Chapter Selection -->
+                    <div>
+                        <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block">Focus Chapter</label>
+                        <select class="w-full bg-midnight border border-divider rounded-lg p-3 text-text-primary text-sm focus:border-amber outline-none">
+                            <option>All Chapters</option>
+                            <option>Chapter 1: Intro</option>
+                            <option>Chapter 2: Motion</option>
+                            <option>Chapter 3: Force</option>
+                        </select>
+                    </div>
+
+                    <!-- Difficulty -->
+                    <div>
+                        <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block">Difficulty</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="border border-divider rounded-lg p-2 text-sm text-text-secondary hover:border-emerald hover:text-emerald transition-colors focus:border-emerald focus:text-emerald">Easy</button>
+                            <button class="border border-amber rounded-lg p-2 text-sm text-amber bg-amber/10">Medium</button>
+                            <button class="border border-divider rounded-lg p-2 text-sm text-text-secondary hover:border-rose hover:text-rose transition-colors focus:border-rose focus:text-rose">Hard</button>
+                        </div>
+                    </div>
+
+                    <!-- Questions -->
+                    <div>
+                        <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block">Number of Questions</label>
+                        <div class="flex justify-between bg-midnight border border-divider rounded-lg p-1">
+                            <button class="flex-1 rounded-md py-1.5 text-xs text-text-secondary hover:text-primary">5</button>
+                            <button class="flex-1 rounded-md py-1.5 text-xs bg-surface text-amber shadow-sm font-bold">10</button>
+                            <button class="flex-1 rounded-md py-1.5 text-xs text-text-secondary hover:text-primary">20</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action -->
+                <button onclick="startCustomQuiz()" class="w-full mt-6 bg-amber text-black font-bold py-3 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                    Start Quiz <i class="fas fa-arrow-right ml-1"></i>
+                </button>
             </div>
         </div>
 
@@ -881,6 +961,22 @@
         function nextQuestion() {
             alert(currentLang === 'en' ? "Great job! Moving to the next question..." : "চমৎকার! পরের প্রশ্নে যাচ্ছি...");
             resetQuiz();
+        }
+
+        // --- QUIZ CONFIGURATION LOGIC ---
+        function openQuizConfig(bookName) {
+            document.getElementById('modal-book-title').innerText = 'Selected: ' + bookName;
+            document.getElementById('quiz-setup-modal').classList.remove('hidden');
+        }
+
+        function closeQuizConfig() {
+            document.getElementById('quiz-setup-modal').classList.add('hidden');
+        }
+
+        function startCustomQuiz() {
+            closeQuizConfig();
+            switchTab('quiz');
+            // In a real app, we would pass config parameters here
         }
 
         // --- CHAT LOGIC ---
