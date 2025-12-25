@@ -139,8 +139,10 @@
 
         /* Draggable / Match Styles */
         .match-selected {
-            background-color: rgba(245, 158, 11, 0.2) !important;
+            background-color: rgba(245, 158, 11, 0.15) !important;
             border-color: #F59E0B !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
         }
         .match-correct {
             background-color: rgba(16, 185, 129, 0.2) !important;
@@ -415,8 +417,8 @@
                     </div>
                 </div>
                 <div class="text-center mt-4">
-                    <h3 class="text-xl font-bold text-text-primary animate-pulse">Designing Quiz...</h3>
-                    <p class="text-sm text-text-secondary">AI is preparing your materials...</p>
+                    <h3 class="text-xl font-bold text-text-primary animate-pulse" data-key="designing">Designing Quiz...</h3>
+                    <p class="text-sm text-text-secondary" data-key="aiPrep">AI is preparing your materials...</p>
                 </div>
             </div>
 
@@ -468,27 +470,27 @@
                 <div class="w-24 h-24 rounded-full bg-amber/20 flex items-center justify-center text-amber text-4xl mb-4 shadow-amber-glow animate-float">
                     <i class="fas fa-trophy"></i>
                 </div>
-                <h2 class="text-3xl font-bold text-text-primary title-font mb-2">Quiz Completed!</h2>
-                <p class="text-text-secondary text-sm mb-6">Great job! You've mastered some new concepts.</p>
+                <h2 class="text-3xl font-bold text-text-primary title-font mb-2" data-key="quizComp">Quiz Completed!</h2>
+                <p class="text-text-secondary text-sm mb-6" data-key="quizCompSub">Great job! You've mastered some new concepts.</p>
                 
                 <div class="bg-surface border border-divider rounded-xl p-6 w-full max-w-xs mb-8">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="text-center border-r border-divider">
                             <div class="text-2xl font-bold text-emerald" id="result-score">80%</div>
-                            <div class="text-[10px] uppercase text-text-secondary tracking-widest">Score</div>
+                            <div class="text-[10px] uppercase text-text-secondary tracking-widest" data-key="score">Score</div>
                         </div>
                         <div class="text-center">
                             <div class="text-2xl font-bold text-amber">+50</div>
-                            <div class="text-[10px] uppercase text-text-secondary tracking-widest">XP Earned</div>
+                            <div class="text-[10px] uppercase text-text-secondary tracking-widest" data-key="xpEarned">XP Earned</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="w-full max-w-xs space-y-3">
                     <button onclick="openQuizConfig()" class="w-full bg-amber text-black font-bold py-3.5 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <i class="fas fa-redo"></i> Start New Quiz
+                        <i class="fas fa-redo"></i> <span data-key="startNew">Start New Quiz</span>
                     </button>
-                    <button onclick="switchTab('dashboard')" class="w-full bg-surface border border-divider text-text-primary font-bold py-3.5 rounded-xl hover:bg-divider/50 active:scale-95 transition-transform">
+                    <button onclick="switchTab('dashboard')" class="w-full bg-surface border border-divider text-text-primary font-bold py-3.5 rounded-xl hover:bg-divider/50 active:scale-95 transition-transform" data-key="backHome">
                         Back to Home
                     </button>
                 </div>
@@ -668,27 +670,27 @@
                     <div class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
                         <div class="flex items-center gap-3">
                             <i class="fas fa-user-circle text-text-secondary w-5"></i>
-                            <span class="text-text-primary text-sm font-medium">Personal Details</span>
+                            <span class="text-text-primary text-sm font-medium" data-key="personalDetails">Personal Details</span>
                         </div>
                         <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
                     </div>
                     <div class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
                         <div class="flex items-center gap-3">
                             <i class="fas fa-bell text-text-secondary w-5"></i>
-                            <span class="text-text-primary text-sm font-medium">Notifications</span>
+                            <span class="text-text-primary text-sm font-medium" data-key="notifications">Notifications</span>
                         </div>
                         <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
                     </div>
                     <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
                         <div class="flex items-center gap-3">
                             <i class="fas fa-shield-alt text-text-secondary w-5"></i>
-                            <span class="text-text-primary text-sm font-medium">Privacy & Security</span>
+                            <span class="text-text-primary text-sm font-medium" data-key="privacy">Privacy & Security</span>
                         </div>
                         <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
                     </div>
                 </div>
 
-                <button class="w-full mt-6 py-3 rounded-xl border border-rose/30 text-rose text-sm font-bold bg-rose/5 hover:bg-rose/10 transition-colors hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                <button class="w-full mt-6 py-3 rounded-xl border border-rose/30 text-rose text-sm font-bold bg-rose/5 hover:bg-rose/10 transition-colors hover:scale-[1.02] active:scale-[0.98] transition-transform" data-key="logOut">
                     Log Out
                 </button>
             </div>
@@ -736,7 +738,8 @@
         let currentQuizScore = 0; // New: Track correct answers per session
         
         // New: Temporary state for match/order questions
-        let selectedMatchLeft = null;
+        let selectedMatchLeft = null; // Stores index
+        let selectedMatchRight = null; // Stores index
         let orderedItems = [];
 
         // Mock Chapters Data
@@ -816,7 +819,26 @@
                 navLibrary: "Library",
                 inputPlaceholder: "Ask about Physics, Math...",
                 libraryTitle: "Custom Library",
-                librarySubtitle: "Upload books to create your own quizzes."
+                librarySubtitle: "Upload books to create your own quizzes.",
+                // Missing Keys Added
+                score: "Score",
+                xpEarned: "XP Earned",
+                quizComp: "Quiz Completed!",
+                quizCompSub: "Great job! You've mastered some new concepts.",
+                startNew: "Start New Quiz",
+                backHome: "Back to Home",
+                designing: "Designing Quiz...",
+                aiPrep: "AI is preparing your materials...",
+                micTap: "Tap mic to speak...",
+                voiceCheck: "Check Voice Answer",
+                personalDetails: "Personal Details",
+                notifications: "Notifications",
+                privacy: "Privacy & Security",
+                logOut: "Log Out",
+                bookProcessed: "Book processed! AI has generated quiz materials.",
+                connError: "Connection error. Please try again.",
+                listening: "Listening...",
+                checkMatches: "Check Matches"
             },
             bn: {
                 appName: "কৌশলে",
@@ -856,9 +878,33 @@
                 navLibrary: "লাইব্রেরি",
                 inputPlaceholder: "পদার্থবিজ্ঞান বা গণিত নিয়ে প্রশ্ন করুন...",
                 libraryTitle: "কাস্টম লাইব্রেরি",
-                librarySubtitle: "কুইজ তৈরি করতে বই আপলোড করুন।"
+                librarySubtitle: "কুইজ তৈরি করতে বই আপলোড করুন।",
+                // Missing Keys Added
+                score: "স্কোর",
+                xpEarned: "অর্জিত XP",
+                quizComp: "কুইজ সম্পন্ন!",
+                quizCompSub: "দারুণ কাজ! তুমি নতুন কিছু ধারণা আয়ত্ত করেছ।",
+                startNew: "নতুন কুইজ শুরু করুন",
+                backHome: "হোমে ফিরে যান",
+                designing: "কুইজ তৈরি হচ্ছে...",
+                aiPrep: "এআই তোমার জন্য প্রশ্ন তৈরি করছে...",
+                micTap: "কথা বলতে মাইকে চাপ দিন...",
+                voiceCheck: "ভয়েস উত্তর যাচাই করুন",
+                personalDetails: "ব্যক্তিগত তথ্য",
+                notifications: "নোটিফিকেশন",
+                privacy: "গোপনীয়তা এবং সুরক্ষা",
+                logOut: "লগ আউট",
+                bookProcessed: "বই প্রসেস করা হয়েছে! কুইজ তৈরি।",
+                connError: "সংযোগ সমস্যা। আবার চেষ্টা করুন।",
+                listening: "শুনছি...",
+                checkMatches: "মিল যাচাই করুন"
             }
         };
+
+        // Helper to translate dynamic strings
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
 
         // --- THEME LOGIC ---
         function toggleTheme() {
@@ -989,7 +1035,7 @@
                 setTimeout(() => {
                     libraryBooks[0].status = "Ready";
                     renderLibrary();
-                    alert("Book processed! AI has generated quiz materials.");
+                    alert(t("bookProcessed"));
                 }, 2500);
             }
         });
@@ -1262,21 +1308,22 @@
                     </div>
                 `;
             }
-            // --- MATCH RENDER ---
+            // --- MATCH RENDER (Improved Column Selection) ---
             else if (q.type === 'match') {
                 selectedMatchLeft = null;
+                selectedMatchRight = null;
                 const lefts = Object.keys(q.pairs);
                 const rights = Object.values(q.pairs).sort(() => Math.random() - 0.5); // Shuffle right
                 
-                let leftHtml = lefts.map(l => `<button onclick="selectMatch('${l}', 'left', this)" class="match-item w-full p-3 bg-surface border border-divider rounded-lg text-sm font-bold mb-2 hover:border-sky text-left">${l}</button>`).join('');
-                let rightHtml = rights.map(r => `<button onclick="selectMatch('${r}', 'right', this)" class="match-item w-full p-3 bg-surface border border-divider rounded-lg text-sm font-bold mb-2 hover:border-sky text-right">${r}</button>`).join('');
+                let leftHtml = lefts.map((l, idx) => `<button id="left-${idx}" onclick="selectMatch('left', ${idx})" class="match-item w-full p-3 bg-surface border border-divider rounded-lg text-sm font-bold mb-2 hover:border-sky text-left transition-all">${l}</button>`).join('');
+                let rightHtml = rights.map((r, idx) => `<button id="right-${idx}" onclick="selectMatch('right', ${idx})" class="match-item w-full p-3 bg-surface border border-divider rounded-lg text-sm font-bold mb-2 hover:border-sky text-right transition-all">${r}</button>`).join('');
 
                 container.innerHTML = `
                     <div class="grid grid-cols-2 gap-4">
-                        <div>${leftHtml}</div>
-                        <div>${rightHtml}</div>
+                        <div id="col-left">${leftHtml}</div>
+                        <div id="col-right">${rightHtml}</div>
                     </div>
-                    <button onclick="checkAnswer('match')" class="w-full mt-2 bg-amber/10 border border-amber text-amber font-bold py-3 rounded-xl hover:bg-amber hover:text-black transition-colors">Check Matches</button>
+                    <button onclick="checkAnswer('match')" class="w-full mt-2 bg-amber/10 border border-amber text-amber font-bold py-3 rounded-xl hover:bg-amber hover:text-black transition-colors">${t('checkMatches')}</button>
                 `;
             }
             // --- ORDER RENDER ---
@@ -1304,9 +1351,9 @@
                         <button id="quiz-mic-btn" onclick="toggleVoiceRecording('quiz-answer-display')" class="w-16 h-16 rounded-full bg-surface border-2 border-divider flex items-center justify-center text-text-secondary hover:text-amber hover:border-amber transition-all shadow-lg hover:scale-110">
                             <i class="fas fa-microphone text-2xl"></i>
                         </button>
-                        <p id="quiz-answer-display" class="text-text-primary text-lg font-medium min-h-[1.5em] italic">Tap mic to speak...</p>
+                        <p id="quiz-answer-display" class="text-text-primary text-lg font-medium min-h-[1.5em] italic" data-key="micTap">${t('micTap')}</p>
                         <button onclick="checkAnswer('text')" class="w-full bg-amber/10 border border-amber text-amber font-bold py-3 rounded-xl hover:bg-amber hover:text-black transition-colors">
-                            Check Voice Answer
+                            ${t('voiceCheck')}
                         </button>
                     </div>
                 `;
@@ -1315,11 +1362,29 @@
         }
 
         // --- MATCH & ORDER HELPERS ---
-        function selectMatch(val, side, btn) {
-            // Simple visual selection logic for demo
-            document.querySelectorAll(`.match-item`).forEach(b => b.classList.remove('match-selected'));
-            btn.classList.add('match-selected');
-            // Real logic would handle pairing validation here
+        function selectMatch(column, idx) {
+            // Logic: You can select one from left, one from right. 
+            // Selecting another in same column deselects the previous one.
+            
+            if (column === 'left') {
+                selectedMatchLeft = idx;
+                // Remove selection from all left items
+                const leftItems = document.getElementById('col-left').children;
+                for (let i = 0; i < leftItems.length; i++) {
+                    leftItems[i].classList.remove('match-selected');
+                }
+                // Add to clicked
+                document.getElementById(`left-${idx}`).classList.add('match-selected');
+            } else {
+                selectedMatchRight = idx;
+                // Remove selection from all right items
+                const rightItems = document.getElementById('col-right').children;
+                for (let i = 0; i < rightItems.length; i++) {
+                    rightItems[i].classList.remove('match-selected');
+                }
+                // Add to clicked
+                document.getElementById(`right-${idx}`).classList.add('match-selected');
+            }
         }
 
         function addToOrder(item) {
@@ -1349,13 +1414,23 @@
                     options[q.correctIndex].classList.add('bg-emerald/10', 'border-emerald', 'text-emerald');
                 }
 
-            } else if (type === 'match' || type === 'order') {
+            } else if (type === 'match') {
+                // For demo, check if user has selected one from each side
+                // In a real app, you would validate the specific pair.
+                // Here we just check if selection exists.
+                if (selectedMatchLeft !== null && selectedMatchRight !== null) {
+                    isCorrect = true;
+                    // Visualize connection success
+                    document.getElementById(`left-${selectedMatchLeft}`).classList.add('match-correct', 'bg-emerald/10', 'border-emerald', 'text-emerald');
+                    document.getElementById(`right-${selectedMatchRight}`).classList.add('match-correct', 'bg-emerald/10', 'border-emerald', 'text-emerald');
+                }
+            } else if (type === 'order') {
                 // Mock success for these types for demo smoothness
                 isCorrect = true; 
             } else {
                 // Text / Voice Logic
                 let userAns = document.getElementById('quiz-answer-display') ? document.getElementById('quiz-answer-display').innerText.toLowerCase() : "";
-                if(userAns === "tap mic to speak...") userAns = "";
+                if(userAns === "tap mic to speak..." || userAns === "কথা বলতে মাইকে চাপ দিন...") userAns = "";
                 // Simple check
                 if (userAns.length > 2) isCorrect = true; 
             }
@@ -1422,7 +1497,7 @@
                 recognition.started = true;
                 if(btn) btn.classList.add('recording-pulse');
                 const target = document.getElementById(targetId);
-                if(target && target.tagName === 'P') target.innerText = "Listening...";
+                if(target && target.tagName === 'P') target.innerText = t("listening");
             };
             recognition.onresult = (event) => {
                 const text = event.results[0][0].transcript;
@@ -1502,7 +1577,7 @@
 
             } catch (error) {
                 document.getElementById(typingId).remove();
-                appendAIMessage("Connection error. Please try again.");
+                appendAIMessage(t("connError"));
                 console.error(error);
             }
         }
