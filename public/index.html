@@ -123,13 +123,14 @@
 
         /* Animations */
         @keyframes pulse-ring {
-            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(248, 113, 113, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); }
         }
         .recording-pulse {
             animation: pulse-ring 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
             color: #F87171 !important;
+            border-color: #F87171 !important;
         }
 
         /* Markdown Styles for AI Chat */
@@ -149,6 +150,11 @@
             border-color: #10B981 !important;
             opacity: 0.5;
             pointer-events: none;
+        }
+        .match-wrong {
+            background-color: rgba(244, 63, 94, 0.15) !important;
+            border-color: #F43F5E !important;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         /* PROFESSIONAL SIDE-FLIP BOOK LOADER */
@@ -1415,14 +1421,25 @@
                 }
 
             } else if (type === 'match') {
-                // For demo, check if user has selected one from each side
-                // In a real app, you would validate the specific pair.
-                // Here we just check if selection exists.
+                // STRICT VALIDATION
                 if (selectedMatchLeft !== null && selectedMatchRight !== null) {
-                    isCorrect = true;
-                    // Visualize connection success
-                    document.getElementById(`left-${selectedMatchLeft}`).classList.add('match-correct', 'bg-emerald/10', 'border-emerald', 'text-emerald');
-                    document.getElementById(`right-${selectedMatchRight}`).classList.add('match-correct', 'bg-emerald/10', 'border-emerald', 'text-emerald');
+                    const leftText = document.getElementById(`left-${selectedMatchLeft}`).innerText;
+                    const rightText = document.getElementById(`right-${selectedMatchRight}`).innerText;
+                    
+                    if (q.pairs[leftText] === rightText) {
+                        isCorrect = true;
+                        // Visualize connection success
+                        document.getElementById(`left-${selectedMatchLeft}`).classList.add('match-correct', 'bg-emerald/10', 'border-emerald', 'text-emerald');
+                        document.getElementById(`right-${selectedMatchRight}`).classList.add('match-correct', 'bg-emerald/10', 'border-emerald', 'text-emerald');
+                    } else {
+                        // Visualize failure
+                        document.getElementById(`left-${selectedMatchLeft}`).classList.add('match-wrong');
+                        document.getElementById(`right-${selectedMatchRight}`).classList.add('match-wrong');
+                        setTimeout(() => {
+                             document.getElementById(`left-${selectedMatchLeft}`).classList.remove('match-wrong');
+                             document.getElementById(`right-${selectedMatchRight}`).classList.remove('match-wrong');
+                        }, 500);
+                    }
                 }
             } else if (type === 'order') {
                 // Mock success for these types for demo smoothness
@@ -1445,11 +1462,14 @@
                 }
                 setTimeout(() => document.getElementById('feedback-area').classList.remove('hidden'), 500);
             } else {
-                if (q.topic && !userMemory.weaknesses.includes(q.topic)) {
-                    userMemory.weaknesses.push(q.topic);
-                    saveMemory();
+                // Only show feedback area if it's NOT a partial match attempt that failed
+                if (type !== 'match') {
+                    if (q.topic && !userMemory.weaknesses.includes(q.topic)) {
+                        userMemory.weaknesses.push(q.topic);
+                        saveMemory();
+                    }
+                    document.getElementById('feedback-area').classList.remove('hidden');
                 }
-                document.getElementById('feedback-area').classList.remove('hidden');
                 navigator.vibrate?.(200);
             }
         }
@@ -1484,7 +1504,15 @@
                 alert("Voice not supported in this browser. Try Chrome/Edge.");
                 return;
             }
-            const btn = document.querySelector(`button[onclick*="${targetId}"]`);
+            
+            // IMPROVED BUTTON SELECTOR
+            let btn;
+            if (targetId === 'chat-input') {
+                btn = document.getElementById('mic-btn');
+            } else {
+                btn = document.querySelector(`button[onclick*="${targetId}"]`);
+            }
+
             if (recognition && recognition.started) {
                 recognition.stop();
                 return;
