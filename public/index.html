@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>কৌশলে - Koushole | পড়া হবে কৌশলে</title>
+    
+    <script>
+      window.va = window.va || function () { (window.va.q = window.va.q || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Galada&family=Noto+Sans+Bengali:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* CSS Variables for Dynamic Theming */
+        :root {
+            /* Light Mode Colors */
+            --bg-main: #FFFDF9;        
+            --bg-surface: #F9F7F2;     
+            --text-main: #1A1A1A;      
+            --text-sub: #6B7280;       
+            --border-div: #E5E7EB;     
+            --nav-glass: rgba(249, 247, 242, 0.85);
+        }
+
+        .dark {
+            /* Midnight Amber Dark Mode Colors */
+            --bg-main: #000000;        
+            --bg-surface: #121212;     
+            --text-main: #E5E7EB;      
+            --text-sub: #9CA3AF;       
+            --border-div: #262626;     
+            --nav-glass: rgba(18, 18, 18, 0.85);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease, font-family 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar hiding */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Typography */
+        body.lang-en .title-font { font-family: 'Caveat', cursive; }
+        body.lang-en .body-font { font-family: 'Open Sans', sans-serif; }
+        
+        body.lang-bn .title-font { 
+            font-family: 'Galada', cursive; 
+            line-height: 1.5; 
+            font-weight: 400 !important; 
+        }
+        body.lang-bn .body-font { font-family: 'Noto Sans Bengali', sans-serif; }
+
+        /* Google Sans Style Override for Questions */
+        .question-font {
+            font-family: 'Google Sans', 'Product Sans', 'Open Sans', 'Noto Sans Bengali', sans-serif;
+        }
+
+        /* Navigation */
+        .glass-nav {
+            background: var(--nav-glass);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-div);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .nav-item {
+            color: var(--text-sub);
+            transition: all 0.3s ease;
+        }
+        .nav-item.active {
+            color: #F59E0B;
+        }
+        .nav-item.active i {
+            filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5));
+        }
+
+        /* Cards & Inputs */
+        .theme-surface {
+            background-color: var(--bg-surface);
+            border-color: var(--border-div);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .theme-text-primary { color: var(--text-main); }
+        .theme-text-secondary { color: var(--text-sub); }
+
+        .logo-filter {
+            transition: filter 0.3s ease;
+        }
+
+        .topic-card {
+            transition: transform 0.2s;
+        }
+        .topic-card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Animations */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        .recording-pulse {
+            animation: pulse-ring 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            color: #F87171 !important;
+        }
+
+        /* Markdown Styles for AI Chat */
+        .prose strong { color: #F59E0B; }
+        .prose ul { list-style-type: disc; padding-left: 1.2em; margin-top: 0.5em; margin-bottom: 0.5em; }
+        .prose p { margin-bottom: 0.5em; }
+
+        /* Draggable / Match Styles */
+        .match-selected {
+            background-color: rgba(245, 158, 11, 0.2) !important;
+            border-color: #F59E0B !important;
+        }
+        .match-correct {
+            background-color: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10B981 !important;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* PROFESSIONAL SIDE-FLIP BOOK LOADER */
+        .quiz-loader-container {
+            position: relative;
+            width: 70px;
+            height: 50px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        .open-book {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #D97706; /* Amber Cover */
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            padding: 4px;
+            /* Slight 3D tilt for better visibility */
+            transform: rotateX(10deg); 
+        }
+        
+        .open-book::before {
+            /* Static Left Page */
+            content: '';
+            flex: 1;
+            background: #FFF;
+            margin-right: 1px;
+            border-radius: 2px 0 0 2px;
+            box-shadow: inset -2px 0 5px rgba(0,0,0,0.05);
+        }
+        
+        .open-book::after {
+            /* Static Right Page */
+            content: '';
+            flex: 1;
+            background: #F9FAFB; /* Slightly greyer to show depth */
+            margin-left: 1px;
+            border-radius: 0 2px 2px 0;
+            box-shadow: inset 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        .book-pages {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            bottom: 4px;
+            width: calc(50% - 4px);
+            z-index: 10;
+            transform-style: preserve-3d;
+        }
+
+        .page-sheet {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FFF;
+            border-radius: 0 2px 2px 0;
+            transform-origin: left center; /* Flip from the spine */
+            animation: flip-side 2s infinite ease-in-out;
+            border: 1px solid #F3F4F6;
+            border-left: 1px solid #E5E7EB;
+        }
+        
+        .page-sheet:nth-child(2) { animation-delay: 0.3s; }
+        .page-sheet:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes flip-side {
+            0% { transform: rotateY(0deg); background-color: #FFF; z-index: 5; }
+            50% { transform: rotateY(-90deg); background-color: #F3F4F6; z-index: 10; }
+            100% { transform: rotateY(-180deg); background-color: #FFF; z-index: 5; }
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: 'var(--bg-main)',        
+                        surface: 'var(--bg-surface)',       
+                        'text-primary': 'var(--text-main)', 
+                        'text-secondary': 'var(--text-sub)', 
+                        divider: 'var(--border-div)',
+                        
+                        // Static Colors (Same in both modes)
+                        amber: {
+                            DEFAULT: '#F59E0B',   
+                            glow: 'rgba(245, 158, 11, 0.4)',
+                            deep: '#D97706',      
+                        },
+                        emerald: '#10B981',        
+                        rose: '#F87171',           
+                        orange: '#FB923C',        
+                        sky: '#38BDF8',            
+                        ghost: '#F9FAFB',          
+                    },
+                    boxShadow: {
+                        'amber-glow': '0 4px 14px 0 rgba(245, 158, 11, 0.3)',
+                    },
+                    animation: {
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'spin-slow': 'spin 3s linear infinite',
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 10px rgba(245, 158, 11, 0.4)' },
+                            '50%': { opacity: .8, boxShadow: '0 0 25px rgba(245, 158, 11, 0.7)' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        },
+                        'wiggle': {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-screen flex flex-col justify-between selection:bg-amber selection:text-black lang-en body-font">
+
+    <input type="file" id="file-upload-input" class="hidden">
+    <input type="file" id="image-upload-input" accept="image/*" class="hidden">
+    <input type="file" id="book-upload-input" accept=".pdf,.epub,.txt" class="hidden">
+
+    <header class="px-3 sm:px-5 py-3 sm:py-4 flex justify-between items-center sticky top-0 z-20 bg-midnight/90 backdrop-blur-md border-b border-divider transition-colors duration-300">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <img id="app-logo" src="Koushole_White.svg" alt="Koushole Logo" class="h-8 object-contain transition-opacity duration-300 hover:rotate-3 transition-transform" onerror="this.style.display='none'; document.getElementById('text-logo').classList.remove('hidden')">
+            <div id="text-logo" class="hidden text-amber text-2xl font-bold"><i class="fas fa-book-open"></i></div>
+            <div class="flex flex-col">
+                <span class="title-font font-bold text-2xl sm:text-3xl tracking-wide text-amber leading-tight" data-key="appName">Koushole</span>
+                <span class="text-[10px] sm:text-xs text-text-secondary font-medium tracking-wider body-font leading-none" data-key="appSubtitle">Study Smarter</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-1 sm:gap-2">
+                <button onclick="setLanguage('en')" class="text-[10px] sm:text-xs font-bold transition-colors text-amber hover:-translate-y-0.5 transition-transform" id="btn-en">EN</button>
+                <div class="h-3 sm:h-4 w-[1px] bg-divider"></div>
+                <button onclick="setLanguage('bn')" class="text-[10px] sm:text-xs font-bold text-text-secondary transition-colors hover:-translate-y-0.5 transition-transform" id="btn-bn">বাংলা</button>
+            </div>
+
+            <button onclick="toggleTheme()" class="group w-8 h-8 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors">
+                <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 group-hover:animate-spin-slow">
+                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
+                </svg>
+                <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 hidden">
+                    <defs>
+                        <mask id="moon-mask">
+                            <rect x="0" y="0" width="24" height="24" fill="white" />
+                            <circle cx="16" cy="10" r="8" fill="black" class="transition-all duration-700 ease-in-out group-hover:translate-x-4 group-hover:-translate-y-4" />
+                        </mask>
+                    </defs>
+                    <circle cx="12" cy="12" r="9" mask="url(#moon-mask)" />
+                </svg>
+            </button>
+
+            <div onclick="toggleStreak()" class="flex items-center gap-1 sm:gap-1.5 bg-surface border border-divider rounded-full px-2 sm:px-3 py-1 cursor-pointer transition-colors hover:border-amber/50 select-none hover:animate-wiggle">
+                <i class="fas fa-fire text-orange animate-pulse text-xs sm:text-sm"></i>
+                <span id="streak-text" class="hidden sm:block text-xs sm:text-sm font-bold text-orange body-font whitespace-nowrap" data-key="streak">12 Days</span>
+            </div>
+            
+            <div onclick="switchTab('profile')" class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber to-amber-deep flex items-center justify-center text-midnight font-bold text-xs cursor-pointer shrink-0 hover:scale-110 active:scale-90 transition-transform shadow-amber-glow">
+                KM
+            </div>
+        </div>
+    </header>
+
+    <main id="app-content" class="flex-1 overflow-y-auto pb-24 relative">
+        
+        <div id="view-dashboard" class="p-5 space-y-8 fade-in">
+            <div>
+                <h1 class="text-3xl font-bold text-text-primary title-font transition-colors" data-key="greeting">Good Evening, Junyed! 🚀</h1>
+                <p class="text-text-secondary text-sm mt-1 body-font transition-colors" data-key="subtitle">Ready to crush Physics today?</p>
+            </div>
+
+            <div class="bg-surface rounded-2xl p-4 border border-divider shadow-lg transition-colors duration-300">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-text-primary font-semibold title-font text-2xl transition-colors" data-key="chartTitle">Learning Velocity</h3>
+                    <span class="text-xs text-amber bg-amber/10 px-2 py-1 rounded body-font" data-key="chartTime">Last 7 Days</span>
+                </div>
+                <div class="h-48 w-full">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-text-secondary uppercase text-xs font-bold tracking-widest body-font transition-colors" data-key="continueLearning">Continue Learning</h2>
+                <div onclick="openQuizConfig(null, 'Physics', 'Motion')" class="topic-card bg-surface rounded-2xl p-5 border border-divider relative overflow-hidden cursor-pointer group transition-colors duration-300 hover:scale-[1.01] transition-transform active:scale-[0.99]">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-amber/20"></div>
+                    
+                    <div class="flex justify-between items-start relative z-10">
+                        <div>
+                            <span class="text-xs font-bold text-sky mb-1 block body-font" data-key="courseChapter">PHYSICS • CHAPTER 2</span>
+                            <h3 class="text-3xl font-bold text-text-primary mb-1 title-font transition-colors" data-key="courseTitle">Motion</h3>
+                            <p class="text-text-secondary text-xs body-font transition-colors" data-key="courseDesc">Newton's Laws of Motion</p>
+                        </div>
+                        <div class="h-10 w-10 rounded-full bg-amber flex items-center justify-center text-black shadow-amber-glow group-hover:scale-110 group-hover:rotate-12 transition-transform">
+                            <i class="fas fa-play ml-1"></i>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="flex justify-between text-xs mb-2 body-font">
+                            <span class="text-text-secondary transition-colors" data-key="progressLabel">Progress</span>
+                            <span class="text-amber font-bold">75%</span>
+                        </div>
+                        <div class="w-full bg-divider rounded-full h-2 transition-colors">
+                            <div class="bg-amber h-2 rounded-full w-3/4 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-rose uppercase text-xs font-bold tracking-widest flex items-center gap-2 body-font">
+                    <i class="fas fa-exclamation-triangle"></i> <span data-key="weakTopicsHeader">Needs Attention</span>
+                </h2>
+                
+                <div class="group bg-surface rounded-xl p-4 border border-divider flex items-center justify-between transition-colors duration-300 hover:border-rose/30">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-surface border border-rose/30 flex items-center justify-center text-rose transition-colors group-hover:bg-rose/10">
+                            <i class="fas fa-flask group-hover:rotate-12 transition-transform"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-text-primary text-xl font-semibold title-font transition-colors" data-key="weakTopic1">Organic Chemistry</h4>
+                            <p class="text-text-secondary text-xs body-font transition-colors" data-key="accuracyLabel1">Accuracy: 42%</p>
+                        </div>
+                    </div>
+                    <button onclick="openQuizConfig(null, 'Chemistry', 'Organic Chemistry')" class="px-4 py-2 rounded-full border border-amber text-amber text-xs font-bold hover:bg-amber hover:text-black transition-colors body-font hover:scale-105 active:scale-95 transition-transform" data-key="retryBtn">
+                        Retry
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-quiz" class="hidden min-h-full flex flex-col p-5 pb-24">
+            
+            <div id="quiz-loading" class="hidden h-full flex flex-col items-center justify-center space-y-6">
+                <div class="quiz-loader-container">
+                    <div class="open-book"></div>
+                    <div class="book-pages">
+                        <div class="page-sheet"></div>
+                        <div class="page-sheet"></div>
+                        <div class="page-sheet"></div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <h3 class="text-xl font-bold text-text-primary animate-pulse">Designing Quiz...</h3>
+                    <p class="text-sm text-text-secondary">AI is preparing your materials...</p>
+                </div>
+            </div>
+
+            <div id="quiz-content" class="hidden flex-1 flex flex-col">
+                <div class="mb-6">
+                    <div class="flex justify-between text-xs text-text-secondary mb-2 uppercase tracking-wider body-font transition-colors">
+                        <span id="quiz-counter">Question 1/5</span>
+                        <span id="streak-badge" class="hidden text-orange animate-pulse" data-key="streakRisk">🔥 Streak at risk!</span>
+                    </div>
+                    <div class="w-full bg-divider rounded-full h-1.5 overflow-hidden transition-colors">
+                        <div id="quiz-progress" class="bg-amber h-full w-[20%] transition-all duration-500 ease-out"></div>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col justify-center gap-6">
+                    <div class="bg-surface border border-divider p-6 rounded-2xl shadow-lg transition-colors duration-300 relative">
+                        <span id="question-type-badge" class="absolute top-4 right-4 text-[10px] bg-divider px-2 py-1 rounded-full text-text-secondary uppercase tracking-widest font-bold">MCQ</span>
+                        
+                        <span id="quiz-topic-display" class="text-sky text-xs font-bold uppercase tracking-wide mb-2 block body-font">Topic</span>
+                        <h2 id="quiz-question-text" class="text-2xl md:text-3xl font-bold text-text-primary leading-relaxed question-font transition-colors">
+                            Loading question...
+                        </h2>
+                        <p id="quiz-hint-text" class="text-text-secondary text-sm mt-4 italic border-l-2 border-divider pl-3 body-font transition-colors hidden">
+                            </p>
+                    </div>
+
+                    <div class="flex flex-col gap-3 body-font w-full" id="input-container">
+                        </div>
+                </div>
+
+                <div id="feedback-area" class="mt-4 hidden animate-fade-in-up pb-4">
+                    <div class="bg-sky/10 border border-sky/30 rounded-xl p-4 flex gap-3">
+                        <i class="fas fa-lightbulb text-sky mt-1"></i>
+                        <div>
+                            <h4 class="text-sky font-bold text-lg title-font" data-key="didYouKnow">Explanation</h4>
+                            <p id="explanation-text" class="text-text-secondary text-xs mt-1 body-font transition-colors">
+                                </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="nextQuestion()" class="w-full bg-amber text-black font-bold py-3.5 rounded-xl shadow-amber-glow active:scale-95 transition-transform body-font hover:scale-105">
+                            <span data-key="nextQBtn">Next Question</span> <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-results" class="hidden h-full flex flex-col items-center justify-center fade-in text-center p-4">
+                <div class="w-24 h-24 rounded-full bg-amber/20 flex items-center justify-center text-amber text-4xl mb-4 shadow-amber-glow animate-float">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-text-primary title-font mb-2">Quiz Completed!</h2>
+                <p class="text-text-secondary text-sm mb-6">Great job! You've mastered some new concepts.</p>
+                
+                <div class="bg-surface border border-divider rounded-xl p-6 w-full max-w-xs mb-8">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center border-r border-divider">
+                            <div class="text-2xl font-bold text-emerald" id="result-score">80%</div>
+                            <div class="text-[10px] uppercase text-text-secondary tracking-widest">Score</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-amber">+50</div>
+                            <div class="text-[10px] uppercase text-text-secondary tracking-widest">XP Earned</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full max-w-xs space-y-3">
+                    <button onclick="openQuizConfig()" class="w-full bg-amber text-black font-bold py-3.5 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fas fa-redo"></i> Start New Quiz
+                    </button>
+                    <button onclick="switchTab('dashboard')" class="w-full bg-surface border border-divider text-text-primary font-bold py-3.5 rounded-xl hover:bg-divider/50 active:scale-95 transition-transform">
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="view-chat" class="hidden h-full flex flex-col relative">
+            <div class="p-4 border-b border-divider bg-surface/50 backdrop-blur sticky top-0 z-10 text-center transition-colors">
+                <p class="text-amber font-bold text-lg title-font" data-key="chatHeader">Koushole AI Tutor</p>
+                <p class="text-text-secondary text-[10px] body-font transition-colors" data-key="chatSub">Powered by Koushole AI</p>
+            </div>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 body-font">
+                <div class="flex gap-3 group">
+                    <div class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs">
+                        <i class="fas fa-robot group-hover:animate-bounce"></i>
+                    </div>
+                    <div class="bg-surface border border-divider text-text-primary p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm leading-relaxed shadow-sm transition-colors prose prose-invert prose-sm">
+                        <span data-key="aiMsg1">Hello Junyed! I noticed you struggled with <strong>Kinetic Energy</strong> in the last quiz. Would you like a quick example?</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="attachment-preview" class="hidden px-5 py-2 flex gap-2 overflow-x-auto">
+                </div>
+
+            <div class="w-full pb-24 sm:pb-6 px-5 pt-2 bg-transparent"> 
+                <div class="bg-surface border border-divider rounded-2xl p-2 flex items-center gap-2 shadow-xl transition-colors relative">
+                    <button onclick="document.getElementById('file-upload-input').click()" class="w-10 h-10 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform shrink-0" title="Attach File">
+                        <i class="fas fa-paperclip hover:rotate-12 transition-transform"></i>
+                    </button>
+                    <button onclick="document.getElementById('image-upload-input').click()" class="w-10 h-10 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform shrink-0" title="Upload Image">
+                        <i class="fas fa-image hover:rotate-12 transition-transform"></i>
+                    </button>
+                    
+                    <div class="relative flex-1">
+                        <input type="text" id="chat-input" placeholder="Ask about Physics, Math..." 
+                            class="w-full bg-midnight border border-divider rounded-full py-3 pl-5 pr-12 text-text-primary focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-all placeholder:text-text-secondary/50 body-font">
+                        
+                        <button id="mic-btn" onclick="toggleVoiceRecording('chat-input')" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform">
+                            <i class="fas fa-microphone hover:rotate-12 transition-transform"></i>
+                        </button>
+                    </div>
+
+                    <button onclick="sendMessage()" class="group h-10 w-10 bg-amber rounded-full flex items-center justify-center text-black hover:bg-amber-deep transition-colors shadow-lg hover:-translate-y-1 hover:translate-x-1 transition-transform shrink-0">
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-library" class="hidden h-full flex flex-col p-5 fade-in overflow-y-auto pb-24">
+            <div class="mb-6">
+                 <h1 class="text-3xl font-bold text-text-primary title-font transition-colors" data-key="libraryTitle">Custom Library</h1>
+                 <p class="text-text-secondary text-sm mt-1 body-font transition-colors" data-key="librarySubtitle">Upload books to create your own quizzes.</p>
+            </div>
+    
+            <div onclick="document.getElementById('book-upload-input').click()" class="border-2 border-dashed border-divider rounded-2xl p-8 flex flex-col items-center justify-center mb-8 hover:border-amber transition-colors cursor-pointer group bg-surface/50">
+                <div class="w-16 h-16 rounded-full bg-amber/10 flex items-center justify-center text-amber text-2xl mb-3 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <p class="text-text-primary font-bold text-sm">Tap to Upload Book</p>
+                <p class="text-text-secondary text-xs mt-1">PDF, EPUB (Max 50MB)</p>
+            </div>
+    
+            <h3 class="text-text-secondary uppercase text-xs font-bold tracking-widest mb-4">Your Books</h3>
+            <div class="space-y-3" id="library-list">
+                </div>
+        </div>
+
+        <div id="quiz-setup-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-5 fade-in">
+            <div class="bg-surface border border-divider rounded-2xl w-full max-w-sm p-6 relative shadow-2xl">
+                <button onclick="closeQuizConfig()" class="absolute top-4 right-4 text-text-secondary hover:text-amber transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-amber/10 text-amber flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-sliders-h text-xl"></i>
+                    </div>
+                    <h3 class="text-text-primary font-bold text-xl title-font">Configure Quiz</h3>
+                    <p class="text-text-secondary text-xs mt-1" id="modal-book-title">Custom Setup</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block">Subject / Source</label>
+                        <select id="config-subject" onchange="updateChapters()" class="w-full bg-midnight border border-divider rounded-lg p-3 text-text-primary text-sm focus:border-amber outline-none mb-2">
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="General Knowledge">General Knowledge</option>
+                        </select>
+                    </div>
+
+                    <div id="topic-container">
+                        <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block">Available Chapters</label>
+                        <select id="config-topic" class="w-full bg-midnight border border-divider rounded-lg p-3 text-text-primary text-sm focus:border-amber outline-none">
+                            </select>
+                    </div>
+                </div>
+
+                <button onclick="startCustomQuiz()" class="w-full mt-6 bg-amber text-black font-bold py-3 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                    Start Quiz <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-profile" class="hidden h-full flex flex-col p-5 overflow-y-auto fade-in pb-24">
+            <div class="flex flex-col items-center mb-8">
+                <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-amber to-amber-deep flex items-center justify-center text-midnight font-bold text-3xl mb-4 shadow-amber-glow relative animate-float">
+                    KM
+                    <div class="absolute bottom-0 right-0 w-8 h-8 bg-surface border-4 border-midnight rounded-full flex items-center justify-center group hover:rotate-90 transition-transform duration-500 cursor-pointer">
+                        <i class="fas fa-camera text-xs text-text-secondary"></i>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold text-text-primary title-font">Kawser Mahamud Junyed</h2>
+                <p class="text-text-secondary text-sm body-font">Class 10 • Science Group</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 mb-8">
+                <div class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
+                    <p class="text-amber font-bold text-xl title-font" id="xp-display">1,250</p>
+                    <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1">Total XP</p>
+                </div>
+                <div class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
+                    <p class="text-emerald font-bold text-xl title-font">85%</p>
+                    <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1">Accuracy</p>
+                </div>
+                <div class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
+                    <p class="text-orange font-bold text-xl title-font">12</p>
+                    <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1">Day Streak</p>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-text-primary font-bold title-font text-lg mb-3">Focus Areas</h3>
+                <div id="weakness-cloud" class="flex flex-wrap gap-2">
+                    <span class="text-xs text-text-secondary italic">No weaknesses detected yet. Keep learning!</span>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-text-primary font-bold title-font text-lg">Achievements</h3>
+                    <span class="text-amber text-xs font-bold cursor-pointer hover:underline">View All</span>
+                </div>
+                <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                    <div class="group flex flex-col items-center min-w-[80px] hover:scale-110 transition-transform duration-200">
+                        <div class="w-16 h-16 rounded-full bg-amber/20 flex items-center justify-center text-amber text-2xl mb-2 border border-amber/50">
+                            <i class="fas fa-bolt group-hover:animate-pulse"></i>
+                        </div>
+                        <span class="text-[10px] text-text-primary font-medium text-center">Fast Learner</span>
+                    </div>
+                    <div class="group flex flex-col items-center min-w-[80px] hover:scale-110 transition-transform duration-200">
+                        <div class="w-16 h-16 rounded-full bg-sky/20 flex items-center justify-center text-sky text-2xl mb-2 border border-sky/50">
+                            <i class="fas fa-brain group-hover:animate-float"></i>
+                        </div>
+                        <span class="text-[10px] text-text-primary font-medium text-center">Quiz Master</span>
+                    </div>
+                    <div class="flex flex-col items-center min-w-[80px] opacity-70">
+                        <div class="w-16 h-16 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary text-2xl mb-2 grayscale opacity-50">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <span class="text-[10px] text-text-secondary font-medium text-center">Locked</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h3 class="text-text-secondary uppercase text-xs font-bold tracking-widest mb-2 pl-1">Account</h3>
+                
+                <div class="bg-surface border border-divider rounded-xl overflow-hidden transition-colors">
+                    <div class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-user-circle text-text-secondary w-5"></i>
+                            <span class="text-text-primary text-sm font-medium">Personal Details</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
+                    </div>
+                    <div class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-bell text-text-secondary w-5"></i>
+                            <span class="text-text-primary text-sm font-medium">Notifications</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
+                    </div>
+                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-shield-alt text-text-secondary w-5"></i>
+                            <span class="text-text-primary text-sm font-medium">Privacy & Security</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
+                    </div>
+                </div>
+
+                <button class="w-full mt-6 py-3 rounded-xl border border-rose/30 text-rose text-sm font-bold bg-rose/5 hover:bg-rose/10 transition-colors hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                    Log Out
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <nav class="glass-nav fixed bottom-0 w-full z-30 pb-safe">
+        <div class="flex justify-around items-center h-16 max-w-md mx-auto body-font">
+            <button onclick="switchTab('dashboard')" class="nav-item active flex flex-col items-center justify-center w-full h-full gap-1 active:scale-90 transition-transform duration-200" id="nav-dashboard">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-[10px] font-medium" data-key="navHome">Home</span>
+            </button>
+            
+            <button onclick="switchTab('quiz')" class="nav-item flex flex-col items-center justify-center w-full h-full gap-1 active:scale-90 transition-transform duration-200" id="nav-quiz">
+                <i class="fas fa-gamepad text-lg"></i>
+                <span class="text-[10px] font-medium" data-key="navQuiz">Quiz</span>
+            </button>
+            
+            <button onclick="switchTab('library')" class="nav-item flex flex-col items-center justify-center w-full h-full gap-1 active:scale-90 transition-transform duration-200" id="nav-library">
+                <i class="fas fa-book text-lg"></i>
+                <span class="text-[10px] font-medium" data-key="navLibrary">Library</span>
+            </button>
+
+            <button onclick="switchTab('chat')" class="nav-item flex flex-col items-center justify-center w-full h-full gap-1 active:scale-90 transition-transform duration-200" id="nav-chat">
+                <i class="fas fa-comment-dots text-lg"></i>
+                <span class="text-[10px] font-medium" data-key="navChat">AI Chat</span>
+            </button>
+            
+            <button onclick="switchTab('profile')" class="nav-item flex flex-col items-center justify-center w-full h-full gap-1 active:scale-90 transition-transform duration-200" id="nav-profile">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-[10px] font-medium" data-key="navProfile">Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // --- GLOBAL VARIABLES & STATE ---
+        let currentLang = 'en';
+        let currentQuizQuestions = [];
+        let currentQuestionIndex = 0;
+        let selectedDifficulty = 'Medium';
+        let currentQuizContext = 'General'; // 'General' or 'Book'
+        let currentBookName = '';
+        let currentQuizScore = 0; // New: Track correct answers per session
+        
+        // New: Temporary state for match/order questions
+        let selectedMatchLeft = null;
+        let orderedItems = [];
+
+        // Mock Chapters Data
+        const subjectChapters = {
+            "Physics": ["Motion", "Force", "Work, Power & Energy", "State of Matter", "Heat & Temperature", "Waves", "Sound", "Light"],
+            "Chemistry": ["Concepts of Mole", "Chemical Reactions", "Structure of Atom", "Periodic Table", "Chemical Bonds"],
+            "Biology": ["Life Processes", "Bioenergetics", "Coordination", "Reproduction"],
+            "Mathematics": ["Real Numbers", "Sets and Functions", "Algebraic Expressions", "Exponents and Logarithms", "Trigonometry"],
+            "English": ["Tense", "Sentences", "Prepositions", "Right form of verbs", "Voice Change"],
+            "General Knowledge": ["Bangladesh Affairs", "International Affairs", "Sports", "Technology"]
+        };
+
+        // User Memory System (Persisted in LocalStorage)
+        const userMemory = JSON.parse(localStorage.getItem('koushole_memory')) || {
+            xp: 1250,
+            weaknesses: [], 
+            history: []
+        };
+
+        function saveMemory() {
+            localStorage.setItem('koushole_memory', JSON.stringify(userMemory));
+            updateProfileUI();
+        }
+
+        function updateProfileUI() {
+            // Update XP
+            document.getElementById('xp-display').innerText = userMemory.xp.toLocaleString();
+            
+            // Update Weakness Cloud
+            const container = document.getElementById('weakness-cloud');
+            if (userMemory.weaknesses.length === 0) {
+                container.innerHTML = '<span class="text-xs text-text-secondary italic">No weaknesses detected yet. Keep learning!</span>';
+            } else {
+                container.innerHTML = userMemory.weaknesses.map(w => 
+                    `<span class="px-2 py-1 rounded-full bg-rose/10 text-rose text-xs border border-rose/30">${w}</span>`
+                ).join('');
+            }
+        }
+
+        // --- TRANSLATION DATA ---
+        const translations = {
+            en: {
+                appName: "Koushole",
+                appSubtitle: "Study Smarter",
+                streak: "12 Days",
+                greeting: "Good Evening, Junyed! 🚀",
+                subtitle: "Ready to crush Physics today?",
+                chartTitle: "Learning Velocity",
+                chartTime: "Last 7 Days",
+                continueLearning: "Continue Learning",
+                courseChapter: "PHYSICS • CHAPTER 2",
+                courseTitle: "Motion",
+                courseDesc: "Newton's Laws of Motion",
+                progressLabel: "Progress",
+                weakTopicsHeader: "Needs Attention",
+                weakTopic1: "Organic Chemistry",
+                accuracyLabel1: "Accuracy: 42%",
+                retryBtn: "Retry",
+                weakTopic2: "Trigonometry",
+                accuracyLabel2: "Accuracy: 55%",
+                practiceBtn: "Practice",
+                questionCount: "Question 3/10",
+                streakRisk: "🔥 Streak at risk!",
+                quizTopic: "Physics • Velocity",
+                quizQuestion: "If a car accelerates from rest at 5 m/s² for 10 seconds, what is its final velocity?",
+                quizHint: "(Recall: v = u + at)",
+                didYouKnow: "Explanation",
+                feedbackText: "Acceleration is the rate of change of velocity. Since initial velocity (u) is 0, v = 0 + (5 × 10).",
+                nextQBtn: "Next Question",
+                chatHeader: "Koushole AI Tutor",
+                chatSub: "Powered by Koushole AI",
+                aiMsg1: "Hello Junyed! I'm your AI Tutor. I can see you need some help with <strong>Kinetic Energy</strong>. Want to practice?",
+                navHome: "Home",
+                navQuiz: "Quiz",
+                navChat: "AI Chat",
+                navProfile: "Profile",
+                navLibrary: "Library",
+                inputPlaceholder: "Ask about Physics, Math...",
+                libraryTitle: "Custom Library",
+                librarySubtitle: "Upload books to create your own quizzes."
+            },
+            bn: {
+                appName: "কৌশলে",
+                appSubtitle: "পড়া হবে কৌশলে",
+                streak: "১২ দিন",
+                greeting: "শুভ সন্ধ্যা, জুনায়েদ! 🚀",
+                subtitle: "আজকে পদার্থবিজ্ঞান আয়ত্ত করতে প্রস্তুত?",
+                chartTitle: "শেখার গতি",
+                chartTime: "গত ৭ দিন",
+                continueLearning: "পড়া চালিয়ে যান",
+                courseChapter: "পদার্থবিজ্ঞান • অধ্যায় ২",
+                courseTitle: "গতি",
+                courseDesc: "নিউটনের গতিসূত্র",
+                progressLabel: "অগ্রগতি",
+                weakTopicsHeader: "মনোযোগ প্রয়োজন",
+                weakTopic1: "জৈব রসায়ন",
+                accuracyLabel1: "নির্ভুলতা: ৪২%",
+                retryBtn: "আবার চেষ্টা করুন",
+                weakTopic2: "ত্রিকোণমিতি",
+                accuracyLabel2: "নির্ভুলতা: ৫৫%",
+                practiceBtn: "অনুশীলন",
+                questionCount: "প্রশ্ন ৩/১০",
+                streakRisk: "🔥 স্ট্রিক ঝুঁকিতে আছে!",
+                quizTopic: "পদার্থবিজ্ঞান • বেগ",
+                quizQuestion: "যদি একটি গাড়ি স্থির অবস্থান থেকে ৫ মি/সে² ত্বরণে ১০ সেকেন্ড চলে, তবে তার শেষ বেগ কত?",
+                quizHint: "(সূত্র: v = u + at)",
+                didYouKnow: "ব্যাখ্যা",
+                feedbackText: "ত্বরণ হলো বেগের পরিবর্তনের হার। যেহেতু আদি বেগ (u) ০, তাই v = ০ + (৫ × ১০)।",
+                nextQBtn: "পরবর্তী প্রশ্ন",
+                chatHeader: "কৌশলে এআই টিউটর",
+                chatSub: "Koushole AI দ্বারা চালিত",
+                aiMsg1: "হ্যালো জুনায়েদ! আমি লক্ষ্য করেছি তুমি <strong>গতিশক্তি (Kinetic Energy)</strong> নিয়ে সমস্যায় আছো। অনুশীলন করতে চাও?",
+                navHome: "হোম",
+                navQuiz: "কুইজ",
+                navChat: "চ্যাট",
+                navProfile: "প্রোফাইল",
+                navLibrary: "লাইব্রেরি",
+                inputPlaceholder: "পদার্থবিজ্ঞান বা গণিত নিয়ে প্রশ্ন করুন...",
+                libraryTitle: "কাস্টম লাইব্রেরি",
+                librarySubtitle: "কুইজ তৈরি করতে বই আপলোড করুন।"
+            }
+        };
+
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const logo = document.getElementById('app-logo');
+            const sunIcon = document.getElementById('theme-icon-sun');
+            const moonIcon = document.getElementById('theme-icon-moon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                logo.src = 'Koushole_Black.svg';
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                html.classList.add('dark');
+                logo.src = 'Koushole_White.svg';
+                moonIcon.classList.add('hidden');
+                sunIcon.classList.remove('hidden');
+            }
+        }
+
+        function toggleStreak() {
+            const streakText = document.getElementById('streak-text');
+            streakText.classList.toggle('hidden');
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const body = document.body;
+            
+            if (lang === 'en') {
+                body.classList.remove('lang-bn');
+                body.classList.add('lang-en');
+                document.getElementById('btn-en').classList.add('text-amber');
+                document.getElementById('btn-en').classList.remove('text-text-secondary');
+                document.getElementById('btn-bn').classList.remove('text-amber');
+                document.getElementById('btn-bn').classList.add('text-text-secondary');
+            } else {
+                body.classList.remove('lang-en');
+                body.classList.add('lang-bn');
+                document.getElementById('btn-bn').classList.add('text-amber');
+                document.getElementById('btn-bn').classList.remove('text-text-secondary');
+                document.getElementById('btn-en').classList.remove('text-amber');
+                document.getElementById('btn-en').classList.add('text-text-secondary');
+            }
+
+            const elements = document.querySelectorAll('[data-key]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (translations[lang][key]) {
+                    if(el.innerHTML.includes('<') && key.startsWith('aiMsg')) {
+                        el.innerHTML = translations[lang][key];
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
+                }
+            });
+            document.getElementById('chat-input').placeholder = translations[lang].inputPlaceholder;
+        }
+
+        // --- VIEW NAVIGATION ---
+        function switchTab(viewName) {
+            // Special handling for Quiz Tab: Show Config if no quiz running
+            if (viewName === 'quiz') {
+                const quizContent = document.getElementById('quiz-content');
+                const quizResults = document.getElementById('quiz-results');
+                // Check if hidden or empty and NO results showing
+                if ((quizContent.classList.contains('hidden') || quizContent.innerHTML.trim() === '') && quizResults.classList.contains('hidden')) {
+                    openQuizConfig();
+                    return; 
+                }
+            }
+
+            ['dashboard', 'quiz', 'chat', 'profile', 'library'].forEach(v => {
+                document.getElementById('view-' + v).classList.add('hidden');
+                document.getElementById('nav-' + v).classList.remove('active', 'text-amber');
+            });
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+            document.getElementById('nav-' + viewName).classList.add('active', 'text-amber');
+        }
+
+        // --- LIBRARY & UPLOAD LOGIC ---
+        const libraryBooks = [
+            { name: "Higher Math_Ch3.pdf", date: "Added 2 days ago", status: "Processing...", color: "rose" },
+            { name: "Physics_Optics.pdf", date: "Added 5 days ago", status: "Ready", color: "sky" }
+        ];
+
+        function renderLibrary() {
+            const list = document.getElementById('library-list');
+            list.innerHTML = '';
+            libraryBooks.forEach((book, index) => {
+                const isReady = book.status === "Ready";
+                const statusColor = isReady ? "text-emerald" : "text-amber";
+                const icon = book.color === "rose" ? "fa-file-pdf" : "fa-file-alt";
+                
+                list.innerHTML += `
+                <div class="bg-surface border border-divider rounded-xl p-4 flex items-center justify-between group hover:border-amber/50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-${book.color}/10 text-${book.color} flex items-center justify-center">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-text-primary font-bold text-sm">${book.name}</h4>
+                            <p class="text-text-secondary text-[10px] flex items-center gap-2">
+                                <span>${book.date}</span>
+                                <span class="${statusColor} font-bold">• ${book.status}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <button class="w-8 h-8 rounded-full ${isReady ? 'bg-amber text-black hover:scale-110 cursor-pointer shadow-amber-glow' : 'bg-divider text-text-secondary cursor-not-allowed'} flex items-center justify-center transition-transform" 
+                        onclick="${isReady ? `openQuizConfig('${book.name}')` : ''}">
+                        <i class="fas fa-play text-xs"></i>
+                    </button>
+                </div>`;
+            });
+        }
+
+        document.getElementById('book-upload-input').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                libraryBooks.unshift({
+                    name: file.name,
+                    date: "Just now",
+                    status: "Processing...",
+                    color: "emerald"
+                });
+                renderLibrary();
+                setTimeout(() => {
+                    libraryBooks[0].status = "Ready";
+                    renderLibrary();
+                    alert("Book processed! AI has generated quiz materials.");
+                }, 2500);
+            }
+        });
+
+        // --- QUIZ GENERATION & LOGIC ---
+        
+        function updateChapters() {
+            const subject = document.getElementById('config-subject').value;
+            const topicSelect = document.getElementById('config-topic');
+            topicSelect.innerHTML = '';
+            
+            if (subjectChapters[subject]) {
+                subjectChapters[subject].forEach(chapter => {
+                    topicSelect.innerHTML += `<option value="${chapter}">${chapter}</option>`;
+                });
+            } else {
+                topicSelect.innerHTML = `<option value="General">General Review</option>`;
+            }
+        }
+
+        function openQuizConfig(bookName = null, presetSubject = null, presetTopic = null) {
+            currentQuizContext = bookName ? 'Book' : 'General';
+            currentBookName = bookName || '';
+
+            const modalTitle = document.getElementById('modal-book-title');
+            const subjectSelect = document.getElementById('config-subject');
+            const topicSelect = document.getElementById('config-topic');
+
+            if (bookName) {
+                modalTitle.innerText = `Source: ${bookName}`;
+                // Lock subject to Book
+                subjectSelect.innerHTML = `<option value="Book">${bookName}</option>`;
+                subjectSelect.disabled = true;
+                topicSelect.innerHTML = `<option value="All Chapters">All Chapters</option>`;
+            } else {
+                modalTitle.innerText = "Custom Quiz Setup";
+                // Restore generic subjects
+                subjectSelect.innerHTML = `
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="Biology">Biology</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="English">English</option>
+                    <option value="General Knowledge">General Knowledge</option>
+                `;
+                subjectSelect.disabled = false;
+                
+                // Set default chapters
+                updateChapters();
+                
+                if (presetSubject) {
+                    subjectSelect.value = presetSubject;
+                    updateChapters(); // Update chapters based on preset subject
+                }
+                if (presetTopic) topicSelect.value = presetTopic;
+            }
+
+            document.getElementById('quiz-setup-modal').classList.remove('hidden');
+        }
+
+        function closeQuizConfig() {
+            document.getElementById('quiz-setup-modal').classList.add('hidden');
+        }
+
+        async function startCustomQuiz() {
+            closeQuizConfig();
+            
+            ['dashboard', 'quiz', 'chat', 'profile', 'library'].forEach(v => {
+                document.getElementById('view-' + v).classList.add('hidden');
+                document.getElementById('nav-' + v).classList.remove('active', 'text-amber');
+            });
+            document.getElementById('view-quiz').classList.remove('hidden');
+            document.getElementById('nav-quiz').classList.add('active', 'text-amber');
+            
+            // Ensure Result view is hidden and Loading is shown
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-content').classList.add('hidden');
+            document.getElementById('quiz-loading').classList.remove('hidden');
+
+            const subject = document.getElementById('config-subject').value;
+            const topic = document.getElementById('config-topic').value || "General";
+            
+            // Bilingual Prompt Construction
+            const langInstruction = currentLang === 'bn' 
+                ? "Output questions entirely in Bangla language, BUT use English digits (0-9) for all numbers. Do not use Bangla numerals." 
+                : "Output in English.";
+
+            let promptContext = "";
+            if (currentQuizContext === 'Book') {
+                promptContext = `Generate 5 quiz questions based on book "${currentBookName}". Focus on "${topic}".`;
+            } else {
+                promptContext = `Generate 5 quiz questions for Subject: ${subject}, Topic: "${topic}".`;
+            }
+
+            if (userMemory.weaknesses.length > 0) {
+                promptContext += ` Student weaknesses: ${userMemory.weaknesses.join(', ')}. Include 1 question targeting these.`;
+            }
+
+            promptContext += ` Difficulty: ${selectedDifficulty}. ${langInstruction}
+            Mix these types: 
+            1. Multiple Choice (mcq)
+            2. Fill in the Gap (fill_gap) - provide 4 options including the answer.
+            3. Matching Pairs (match) - provide 2 or 3 pairs.
+            4. Order/Sentence Building (order) - provide a sentence or formula split into shuffled parts.
+            5. Voice Answer (voice)
+            
+            Return ONLY a valid JSON array. Structure:
+            {
+              "type": "mcq" | "fill_gap" | "match" | "order" | "voice",
+              "question": "string",
+              "topic": "string concept",
+              "options": ["opt1", "opt2", "opt3", "opt4"], // For mcq AND fill_gap
+              "correctIndex": 0, // For mcq (0-3) AND fill_gap (0-3)
+              "pairs": {"left1":"right1", "left2":"right2"}, // For match only
+              "items": ["part1", "part2", "part3"], // For order only (shuffled)
+              "answer": "correct string", // For voice/text
+              "hint": "string",
+              "explanation": "string"
+            }`;
+
+            // --- CHANGED: Use Local API Route ---
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptContext }] }] })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                let text = data.candidates[0].content.parts[0].text;
+                
+                // Robust JSON Parsing
+                const jsonMatch = text.match(/\[\s*\{.*\}\s*\]/s);
+                if (jsonMatch) {
+                    currentQuizQuestions = JSON.parse(jsonMatch[0]);
+                } else {
+                    // Fallback: try removing markdown code blocks
+                    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+                    if (text.startsWith('[')) {
+                            currentQuizQuestions = JSON.parse(text);
+                    } else {
+                            throw new Error("Invalid JSON format");
+                    }
+                }
+                
+                currentQuestionIndex = 0;
+                currentQuizScore = 0; // Reset session score
+                document.getElementById('quiz-loading').classList.add('hidden');
+                document.getElementById('quiz-content').classList.remove('hidden');
+                document.getElementById('quiz-topic-display').innerText = currentQuizContext === 'Book' ? currentBookName : `${subject} • ${topic}`;
+                renderQuestion();
+
+            } catch (error) {
+                console.error("API Error:", error);
+                alert("AI generation failed or key missing. Loading offline backup.");
+                loadMockQuestions();
+                
+                currentQuestionIndex = 0;
+                currentQuizScore = 0;
+                document.getElementById('quiz-loading').classList.add('hidden');
+                document.getElementById('quiz-content').classList.remove('hidden');
+                document.getElementById('quiz-topic-display').innerText = `${subject} • ${topic}`;
+                renderQuestion();
+            }
+        }
+
+        function loadMockQuestions() {
+            currentQuizQuestions = [
+                {
+                    type: "mcq",
+                    question: "If a car accelerates from rest at 5 m/s² for 10 seconds, what is its final velocity?",
+                    topic: "Kinematics",
+                    options: ["25 m/s", "50 m/s", "100 m/s", "15 m/s"],
+                    correctIndex: 1,
+                    hint: "Recall: v = u + at",
+                    explanation: "Initial velocity (u)=0, a=5, t=10. v = 0 + 5*10 = 50 m/s."
+                },
+                {
+                    type: "fill_gap",
+                    question: "Newton's ___ law states that every action has an equal and opposite reaction.",
+                    topic: "Newton's Laws",
+                    options: ["First", "Second", "Third", "Fourth"],
+                    correctIndex: 2,
+                    hint: "Action-Reaction pair",
+                    explanation: "Newton's Third Law describes action-reaction pairs."
+                },
+                {
+                    type: "order",
+                    question: "Arrange the formula for Force:",
+                    topic: "Dynamics",
+                    items: ["m", "F", "=", "a"], // Shuffled
+                    answer: "F = m a",
+                    hint: "Force equals mass times acceleration",
+                    explanation: "F = ma is the mathematical representation of Newton's 2nd Law."
+                },
+                {
+                    type: "match",
+                    question: "Match the unit to the quantity:",
+                    topic: "Units",
+                    pairs: {"Force": "Newton", "Energy": "Joule"},
+                    hint: "N is for Force",
+                    explanation: "Force is measured in Newtons, Energy in Joules."
+                }
+            ];
+        }
+
+        function renderQuestion() {
+            // CHECK FOR QUIZ COMPLETION
+            if(currentQuestionIndex >= currentQuizQuestions.length) {
+                // Hide Quiz Content
+                document.getElementById('quiz-content').classList.add('hidden');
+                
+                // Show Results View
+                const resultView = document.getElementById('quiz-results');
+                resultView.classList.remove('hidden');
+                
+                // Calculate Stats
+                const percentage = Math.round((currentQuizScore / currentQuizQuestions.length) * 100);
+                document.getElementById('result-score').innerText = `${percentage}%`;
+                
+                // Update Global XP
+                userMemory.xp += 50; 
+                saveMemory();
+                
+                // Celebration
+                confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
+                return;
+            }
+
+            const q = currentQuizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-question-text').innerText = q.question;
+            document.getElementById('quiz-hint-text').innerText = q.hint;
+            document.getElementById('explanation-text').innerText = q.explanation;
+            document.getElementById('quiz-counter').innerText = `Question ${currentQuestionIndex + 1}/${currentQuizQuestions.length}`;
+            
+            const badges = { mcq: "MCQ", fill_gap: "Fill Gap", match: "Matching", order: "Ordering", voice: "Speaking" };
+            document.getElementById('question-type-badge').innerText = badges[q.type] || "Quiz";
+
+            document.getElementById('feedback-area').classList.add('hidden');
+            const container = document.getElementById('input-container');
+            container.innerHTML = '';
+            
+            // --- MCQ RENDER ---
+            if (q.type === 'mcq') {
+                q.options.forEach((opt, idx) => {
+                    container.innerHTML += `
+                        <button onclick="checkAnswer('mcq', ${idx})" 
+                        class="quiz-option w-full text-left p-4 rounded-xl bg-surface border border-divider text-text-primary font-medium hover:border-amber transition-all active:scale-[0.98] hover:scale-[1.01] transition-transform">
+                            ${String.fromCharCode(65+idx)}. ${opt}
+                        </button>
+                    `;
+                });
+            } 
+            // --- FILL GAP RENDER ---
+            else if (q.type === 'fill_gap') {
+                // Show options as chips
+                const optionsHtml = q.options.map((opt, idx) => 
+                    `<button onclick="checkAnswer('fill_gap', ${idx})" class="quiz-option px-4 py-2 bg-surface border border-divider rounded-full text-sm font-bold hover:border-amber transition-colors">${opt}</button>`
+                ).join(' ');
+                
+                container.innerHTML = `
+                    <div class="p-4 bg-midnight rounded-xl border border-divider text-lg font-medium text-center mb-4">
+                        ${q.question.replace('___', '<span class="text-amber border-b-2 border-amber px-2">?</span>')}
+                    </div>
+                    <div class="flex flex-wrap gap-2 justify-center">
+                        ${optionsHtml}
+                    </div>
+                `;
+            }
+            // --- MATCH RENDER ---
+            else if (q.type === 'match') {
+                selectedMatchLeft = null;
+                const lefts = Object.keys(q.pairs);
+                const rights = Object.values(q.pairs).sort(() => Math.random() - 0.5); // Shuffle right
+                
+                let leftHtml = lefts.map(l => `<button onclick="selectMatch('${l}', 'left', this)" class="match-item w-full p-3 bg-surface border border-divider rounded-lg text-sm font-bold mb-2 hover:border-sky text-left">${l}</button>`).join('');
+                let rightHtml = rights.map(r => `<button onclick="selectMatch('${r}', 'right', this)" class="match-item w-full p-3 bg-surface border border-divider rounded-lg text-sm font-bold mb-2 hover:border-sky text-right">${r}</button>`).join('');
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>${leftHtml}</div>
+                        <div>${rightHtml}</div>
+                    </div>
+                    <button onclick="checkAnswer('match')" class="w-full mt-2 bg-amber/10 border border-amber text-amber font-bold py-3 rounded-xl hover:bg-amber hover:text-black transition-colors">Check Matches</button>
+                `;
+            }
+            // --- ORDER RENDER ---
+            else if (q.type === 'order') {
+                orderedItems = [];
+                const itemsHtml = q.items.map(item => 
+                    `<button onclick="addToOrder('${item}')" class="px-3 py-2 bg-surface border border-divider rounded-lg font-bold hover:border-amber">${item}</button>`
+                ).join(' ');
+
+                container.innerHTML = `
+                    <div id="order-drop-zone" class="w-full min-h-[60px] bg-midnight border-2 border-dashed border-divider rounded-xl flex flex-wrap items-center gap-2 p-3 mb-4 text-text-primary font-bold text-lg"></div>
+                    <div class="flex flex-wrap gap-2 justify-center">
+                        ${itemsHtml}
+                    </div>
+                    <div class="flex justify-between w-full mt-2">
+                        <button onclick="resetOrder()" class="text-xs text-rose uppercase font-bold tracking-widest">Reset</button>
+                        <button onclick="checkAnswer('order')" class="bg-amber text-black text-xs font-bold px-4 py-2 rounded-full">Submit</button>
+                    </div>
+                `;
+            }
+            // --- VOICE/TEXT RENDER ---
+            else if (q.type === 'voice' || q.type === 'text') {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center gap-4 py-4">
+                        <button id="quiz-mic-btn" onclick="toggleVoiceRecording('quiz-answer-display')" class="w-16 h-16 rounded-full bg-surface border-2 border-divider flex items-center justify-center text-text-secondary hover:text-amber hover:border-amber transition-all shadow-lg hover:scale-110">
+                            <i class="fas fa-microphone text-2xl"></i>
+                        </button>
+                        <p id="quiz-answer-display" class="text-text-primary text-lg font-medium min-h-[1.5em] italic">Tap mic to speak...</p>
+                        <button onclick="checkAnswer('text')" class="w-full bg-amber/10 border border-amber text-amber font-bold py-3 rounded-xl hover:bg-amber hover:text-black transition-colors">
+                            Check Voice Answer
+                        </button>
+                    </div>
+                `;
+            }
+            document.getElementById('quiz-progress').style.width = `${((currentQuestionIndex)/currentQuizQuestions.length)*100}%`;
+        }
+
+        // --- MATCH & ORDER HELPERS ---
+        function selectMatch(val, side, btn) {
+            // Simple visual selection logic for demo
+            document.querySelectorAll(`.match-item`).forEach(b => b.classList.remove('match-selected'));
+            btn.classList.add('match-selected');
+            // Real logic would handle pairing validation here
+        }
+
+        function addToOrder(item) {
+            orderedItems.push(item);
+            document.getElementById('order-drop-zone').innerHTML = orderedItems.map(i => `<span class="bg-amber/20 px-2 rounded">${i}</span>`).join(' ');
+        }
+        
+        function resetOrder() {
+            orderedItems = [];
+            document.getElementById('order-drop-zone').innerHTML = '';
+        }
+
+        function checkAnswer(type, selectedIdx = null) {
+            const q = currentQuizQuestions[currentQuestionIndex];
+            let isCorrect = false;
+
+            if (type === 'mcq' || type === 'fill_gap') {
+                const options = document.querySelectorAll('.quiz-option');
+                options.forEach(opt => opt.disabled = true);
+                if (selectedIdx === q.correctIndex) isCorrect = true;
+                
+                if(isCorrect) {
+                    options[selectedIdx].classList.add('bg-emerald/10', 'border-emerald', 'text-emerald');
+                    if(type==='mcq') options[selectedIdx].innerHTML += ` <i class="fas fa-check-circle float-right mt-1"></i>`;
+                } else {
+                    options[selectedIdx].classList.add('bg-rose/10', 'border-rose', 'text-rose', 'animate-shake');
+                    options[q.correctIndex].classList.add('bg-emerald/10', 'border-emerald', 'text-emerald');
+                }
+
+            } else if (type === 'match' || type === 'order') {
+                // Mock success for these types for demo smoothness
+                isCorrect = true; 
+            } else {
+                // Text / Voice Logic
+                let userAns = document.getElementById('quiz-answer-display') ? document.getElementById('quiz-answer-display').innerText.toLowerCase() : "";
+                if(userAns === "tap mic to speak...") userAns = "";
+                // Simple check
+                if (userAns.length > 2) isCorrect = true; 
+            }
+
+            if (isCorrect) {
+                currentQuizScore++; // Increment score
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 }, colors: ['#10B981'] });
+                document.getElementById('quiz-progress').style.width = `${((currentQuestionIndex+1)/currentQuizQuestions.length)*100}%`;
+                if (userMemory.weaknesses.includes(q.topic)) {
+                    userMemory.weaknesses = userMemory.weaknesses.filter(w => w !== q.topic);
+                    saveMemory();
+                }
+                setTimeout(() => document.getElementById('feedback-area').classList.remove('hidden'), 500);
+            } else {
+                if (q.topic && !userMemory.weaknesses.includes(q.topic)) {
+                    userMemory.weaknesses.push(q.topic);
+                    saveMemory();
+                }
+                document.getElementById('feedback-area').classList.remove('hidden');
+                navigator.vibrate?.(200);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            renderQuestion();
+        }
+
+        // --- CHAT LOGIC WITH MEMORY ---
+        document.getElementById('file-upload-input').addEventListener('change', handleAttachment);
+        document.getElementById('image-upload-input').addEventListener('change', handleAttachment);
+
+        function handleAttachment(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const preview = document.getElementById('attachment-preview');
+            preview.classList.remove('hidden');
+            preview.innerHTML += `
+                <div class="flex items-center gap-2 bg-surface border border-divider rounded-full px-3 py-1 text-xs text-text-primary shrink-0 animate-fade-in-up">
+                    <i class="fas ${file.type.startsWith('image/') ? 'fa-image text-sky' : 'fa-file text-amber'}"></i>
+                    ${file.name}
+                    <i class="fas fa-times cursor-pointer hover:text-rose" onclick="this.parentElement.remove()"></i>
+                </div>
+            `;
+            e.target.value = '';
+        }
+
+        let recognition;
+        function toggleVoiceRecording(targetId) {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Voice not supported in this browser. Try Chrome/Edge.");
+                return;
+            }
+            const btn = document.querySelector(`button[onclick*="${targetId}"]`);
+            if (recognition && recognition.started) {
+                recognition.stop();
+                return;
+            }
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = currentLang === 'en' ? 'en-US' : 'bn-BD';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.onstart = () => {
+                recognition.started = true;
+                if(btn) btn.classList.add('recording-pulse');
+                const target = document.getElementById(targetId);
+                if(target && target.tagName === 'P') target.innerText = "Listening...";
+            };
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                const target = document.getElementById(targetId);
+                if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+                    target.value += (target.value ? ' ' : '') + text;
+                } else {
+                    target.innerText = text;
+                }
+            };
+            recognition.onend = () => {
+                recognition.started = false;
+                if(btn) btn.classList.remove('recording-pulse');
+            };
+            recognition.start();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            const preview = document.getElementById('attachment-preview');
+            const hasAttachments = preview.children.length > 0;
+            if(!text && !hasAttachments) return;
+
+            const chatContainer = document.getElementById('chat-messages');
+            let attachmentHTML = '';
+            if (hasAttachments) {
+                attachmentHTML = `<div class="mt-2 text-[10px] text-text-secondary italic"><i class="fas fa-paperclip"></i> ${preview.children.length} attachment(s) sent</div>`;
+            }
+
+            chatContainer.innerHTML += `
+                <div class="flex gap-3 flex-row-reverse animate-fade-in-up">
+                    <div class="w-8 h-8 rounded-full bg-divider flex items-center justify-center text-text-secondary text-xs">KM</div>
+                    <div class="bg-amber text-black font-medium p-3 rounded-2xl rounded-tr-none max-w-[85%] text-sm shadow-amber-glow body-font">
+                        ${text || "Sent attachments"}
+                        ${attachmentHTML}
+                    </div>
+                </div>`;
+            
+            input.value = '';
+            preview.innerHTML = '';
+            preview.classList.add('hidden');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            const typingId = 'typing-' + Date.now();
+            chatContainer.innerHTML += `
+                <div id="${typingId}" class="flex gap-3 animate-fade-in-up">
+                    <div class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs"><i class="fas fa-robot"></i></div>
+                    <div class="bg-surface border border-divider p-3 rounded-2xl rounded-tl-none text-text-secondary text-xs italic">
+                        Thinking...
+                    </div>
+                </div>`;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                // Construct Prompt with Memory
+                let memoryContext = "";
+                if (userMemory.weaknesses.length > 0) {
+                    memoryContext = `\n[System Note: This student has struggled with the following topics in quizzes: ${userMemory.weaknesses.join(', ')}. If relevant to their question, explain these concepts simply and offer examples to help them improve.]`;
+                }
+
+                // --- CHANGED: Use Local API Route ---
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `You are Koushole, a friendly AI tutor. Reply in ${currentLang === 'bn' ? 'Bangla' : 'English'}.${memoryContext}\nStudent said: ${text}` }] }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                const aiText = data.candidates[0].content.parts[0].text;
+                document.getElementById(typingId).remove();
+                appendAIMessage(aiText);
+
+            } catch (error) {
+                document.getElementById(typingId).remove();
+                appendAIMessage("Connection error. Please try again.");
+                console.error(error);
+            }
+        }
+
+        function appendAIMessage(markdownText) {
+            const chatContainer = document.getElementById('chat-messages');
+            const htmlContent = marked.parse(markdownText);
+            chatContainer.innerHTML += `
+                <div class="flex gap-3 animate-fade-in-up">
+                    <div class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs"><i class="fas fa-robot"></i></div>
+                    <div class="bg-surface border border-divider text-text-primary p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm leading-relaxed shadow-sm transition-colors prose prose-invert prose-sm">
+                        ${htmlContent}
+                    </div>
+                </div>`;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // --- INIT ---
+        document.getElementById('app-logo').src = 'Koushole_White.svg';
+        renderLibrary();
+        updateProfileUI(); // Load memory
+        updateChapters(); // Init chapter list
+
+        // Initialize Chart
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(245, 158, 11, 0.5)'); 
+        gradient.addColorStop(1, 'rgba(245, 158, 11, 0.0)'); 
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Focus Score',
+                    data: [45, 59, 80, 81, 56, 95, 100],
+                    borderColor: '#F59E0B',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#F59E0B',
+                    pointBorderColor: '#FFF',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(156, 163, 175, 0.2)' }, ticks: { color: '#9CA3AF' } },
+                    x: { grid: { display: false }, ticks: { color: '#9CA3AF' } }
+                }
+            }
+        });
+
+        document.getElementById('chat-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+    </script>
+
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate3d(0, 20px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</body>
+</html>
