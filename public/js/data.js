@@ -114,7 +114,11 @@ const translations = {
         class12: "Class 12",
         science: "Science",
         humanities: "Humanities",
-        businessStudies: "Business Studies"
+        businessStudies: "Business Studies",
+        // New User Welcome
+        welcomeTitle: "Start Your Journey!",
+        welcomeDesc: "Take your first quiz to begin tracking your progress.",
+        startFirstQuiz: "Start First Quiz"
     },
     bn: {
         appName: "কৌশলে",
@@ -230,7 +234,11 @@ const translations = {
         class12: "১২শ শ্রেণী",
         science: "বিজ্ঞান",
         humanities: "মানবিক",
-        businessStudies: "ব্যবসায় শিক্ষা"
+        businessStudies: "ব্যবসায় শিক্ষা",
+        // New User Welcome
+        welcomeTitle: "তোমার যাত্রা শুরু করো!",
+        welcomeDesc: "তোমার অগ্রগতি ট্র্যাক করতে প্রথম কুইজ দাও।",
+        startFirstQuiz: "প্রথম কুইজ শুরু করুন"
     }
 };
 

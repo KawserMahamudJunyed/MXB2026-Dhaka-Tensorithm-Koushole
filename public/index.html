@@ -408,411 +408,431 @@
                 <div class="h-48 w-full">
                     <canvas id="growthChart"></canvas>
                 </div>
-            </div>
 
-            <div class="space-y-3">
-                <h2 class="text-text-secondary uppercase text-xs font-bold tracking-widest body-font transition-colors"
-                    data-key="continueLearning">Continue Learning</h2>
-                <div onclick="openQuizConfig(null, 'Physics', 'Motion')"
-                    class="topic-card bg-surface rounded-2xl p-5 border border-divider relative overflow-hidden cursor-pointer group transition-colors duration-300 hover:scale-[1.01] transition-transform active:scale-[0.99]">
-                    <div
-                        class="absolute top-0 right-0 w-24 h-24 bg-amber/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-amber/20">
-                    </div>
-
-                    <div class="flex justify-between items-start relative z-10">
-                        <div>
-                            <span class="text-xs font-bold text-sky mb-1 block body-font"
-                                data-key="courseChapter">PHYSICS • CHAPTER 2</span>
-                            <h3 class="text-3xl font-bold text-text-primary mb-1 title-font transition-colors"
-                                data-key="courseTitle">Motion</h3>
-                            <p class="text-text-secondary text-xs body-font transition-colors" data-key="courseDesc">
-                                Newton's Laws of Motion</p>
-                        </div>
-                        <div
-                            class="h-10 w-10 rounded-full bg-amber flex items-center justify-center text-black shadow-amber-glow group-hover:scale-110 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-play ml-1"></i>
-                        </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <div class="flex justify-between text-xs mb-2 body-font">
-                            <span class="text-text-secondary transition-colors" data-key="progressLabel">Progress</span>
-                            <span class="text-amber font-bold">75%</span>
-                        </div>
-                        <div class="w-full bg-divider rounded-full h-2 transition-colors">
-                            <div class="bg-amber h-2 rounded-full w-3/4 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                        </div>
+                <!-- Continue Learning Section - Dynamic -->
+                <div id="continue-learning-section" class="space-y-3 hidden">
+                    <h2 class="text-text-secondary uppercase text-xs font-bold tracking-widest body-font transition-colors"
+                        data-key="continueLearning">Continue Learning</h2>
+                    <div id="continue-learning-container">
+                        <!-- Dynamic content loaded by JS -->
                     </div>
                 </div>
-            </div>
 
-            <div class="space-y-3">
-                <h2 class="text-rose uppercase text-xs font-bold tracking-widest flex items-center gap-2 body-font">
-                    <i class="fas fa-exclamation-triangle"></i> <span data-key="weakTopicsHeader">Needs Attention</span>
-                </h2>
-
-                <div
-                    class="group bg-surface rounded-xl p-4 border border-divider flex items-center justify-between transition-colors duration-300 hover:border-rose/30">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-lg bg-surface border border-rose/30 flex items-center justify-center text-rose transition-colors group-hover:bg-rose/10">
-                            <i class="fas fa-flask group-hover:rotate-12 transition-transform"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-text-primary text-xl font-semibold title-font transition-colors"
-                                data-key="weakTopic1">Organic Chemistry</h4>
-                            <p class="text-text-secondary text-xs body-font transition-colors"
-                                data-key="accuracyLabel1">Accuracy: 42%</p>
-                        </div>
+                <!-- Needs Attention Section - Dynamic -->
+                <div id="needs-attention-section" class="space-y-3 hidden">
+                    <h2 class="text-rose uppercase text-xs font-bold tracking-widest flex items-center gap-2 body-font">
+                        <i class="fas fa-exclamation-triangle"></i> <span data-key="weakTopicsHeader">Needs
+                            Attention</span>
+                    </h2>
+                    <div id="needs-attention-container">
+                        <!-- Dynamic weaknesses loaded by JS -->
                     </div>
-                    <button onclick="openQuizConfig(null, 'Chemistry', 'Organic Chemistry')"
-                        class="px-4 py-2 rounded-full border border-amber text-amber text-xs font-bold hover:bg-amber hover:text-black transition-colors body-font hover:scale-105 active:scale-95 transition-transform"
-                        data-key="retryBtn">
-                        Retry
+                </div>
+
+                <!-- Empty State for New Users -->
+                <div id="new-user-welcome" class="text-center py-8">
+                    <div class="w-20 h-20 bg-amber/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-rocket text-amber text-3xl"></i>
+                    </div>
+                    <h3 class="text-text-primary font-bold text-lg title-font mb-2" data-key="welcomeTitle">Start Your
+                        Journey!</h3>
+                    <p class="text-text-secondary text-sm mb-4 body-font" data-key="welcomeDesc">Take your first quiz to
+                        begin tracking your progress.</p>
+                    <button onclick="openQuizConfig()"
+                        class="px-6 py-3 bg-amber text-black font-bold rounded-xl shadow-amber-glow hover:scale-105 active:scale-95 transition-transform">
+                        <i class="fas fa-play mr-2"></i> <span data-key="startFirstQuiz">Start First Quiz</span>
                     </button>
                 </div>
             </div>
-        </div>
 
-        <div id="view-quiz" class="hidden min-h-full flex flex-col p-5 pb-24">
+            <div id="view-quiz" class="hidden min-h-full flex flex-col p-5 pb-24">
 
-            <div id="quiz-loading" class="hidden h-full flex flex-col items-center justify-center space-y-6">
-                <div class="quiz-loader-container">
-                    <div class="open-book"></div>
-                    <div class="book-pages">
-                        <div class="page-sheet"></div>
-                        <div class="page-sheet"></div>
-                        <div class="page-sheet"></div>
-                    </div>
-                </div>
-                <div class="text-center mt-4">
-                    <h3 class="text-xl font-bold text-text-primary animate-pulse" data-key="designing">Designing Quiz...
-                    </h3>
-                    <p class="text-sm text-text-secondary" data-key="aiPrep">AI is preparing your materials...</p>
-                </div>
-            </div>
-
-            <div id="quiz-content" class="hidden flex-1 flex flex-col">
-                <div class="mb-6">
-                    <div
-                        class="flex justify-between text-xs text-text-secondary mb-2 uppercase tracking-wider body-font transition-colors">
-                        <span id="quiz-counter">Question 1/5</span>
-                        <span id="streak-badge" class="hidden text-orange animate-pulse" data-key="streakRisk">🔥 Streak
-                            at risk!</span>
-                    </div>
-                    <div class="w-full bg-divider rounded-full h-1.5 overflow-hidden transition-colors">
-                        <div id="quiz-progress" class="bg-amber h-full w-[20%] transition-all duration-500 ease-out">
+                <div id="quiz-loading" class="hidden h-full flex flex-col items-center justify-center space-y-6">
+                    <div class="quiz-loader-container">
+                        <div class="open-book"></div>
+                        <div class="book-pages">
+                            <div class="page-sheet"></div>
+                            <div class="page-sheet"></div>
+                            <div class="page-sheet"></div>
                         </div>
                     </div>
-                </div>
-
-                <div class="flex-1 flex flex-col justify-center gap-6">
-                    <div
-                        class="bg-surface border border-divider p-6 rounded-2xl shadow-lg transition-colors duration-300 relative">
-                        <span id="question-type-badge"
-                            class="absolute top-4 right-4 text-[10px] bg-divider px-2 py-1 rounded-full text-text-secondary uppercase tracking-widest font-bold">MCQ</span>
-
-                        <span id="quiz-topic-display"
-                            class="text-sky text-xs font-bold uppercase tracking-wide mb-2 block body-font">Topic</span>
-                        <h2 id="quiz-question-text"
-                            class="text-2xl md:text-3xl font-bold text-text-primary leading-relaxed question-font transition-colors">
-                            Loading question...
-                        </h2>
-                        <p id="quiz-hint-text"
-                            class="text-text-secondary text-sm mt-4 italic border-l-2 border-divider pl-3 body-font transition-colors hidden">
-                        </p>
-                    </div>
-
-                    <div class="flex flex-col gap-3 body-font w-full" id="input-container">
+                    <div class="text-center mt-4">
+                        <h3 class="text-xl font-bold text-text-primary animate-pulse" data-key="designing">Designing
+                            Quiz...
+                        </h3>
+                        <p class="text-sm text-text-secondary" data-key="aiPrep">AI is preparing your materials...</p>
                     </div>
                 </div>
 
-                <div id="feedback-area" class="mt-4 hidden animate-fade-in-up pb-4">
-                    <div class="bg-sky/10 border border-sky/30 rounded-xl p-4 flex gap-3">
-                        <i class="fas fa-lightbulb text-sky mt-1"></i>
-                        <div>
-                            <h4 class="text-sky font-bold text-lg title-font" data-key="didYouKnow">Explanation</h4>
-                            <p id="explanation-text"
-                                class="text-text-secondary text-xs mt-1 body-font transition-colors">
+                <div id="quiz-content" class="hidden flex-1 flex flex-col">
+                    <div class="mb-6">
+                        <div
+                            class="flex justify-between text-xs text-text-secondary mb-2 uppercase tracking-wider body-font transition-colors">
+                            <span id="quiz-counter">Question 1/5</span>
+                            <span id="streak-badge" class="hidden text-orange animate-pulse" data-key="streakRisk">🔥
+                                Streak
+                                at risk!</span>
+                        </div>
+                        <div class="w-full bg-divider rounded-full h-1.5 overflow-hidden transition-colors">
+                            <div id="quiz-progress"
+                                class="bg-amber h-full w-[20%] transition-all duration-500 ease-out">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-center gap-6">
+                        <div
+                            class="bg-surface border border-divider p-6 rounded-2xl shadow-lg transition-colors duration-300 relative">
+                            <span id="question-type-badge"
+                                class="absolute top-4 right-4 text-[10px] bg-divider px-2 py-1 rounded-full text-text-secondary uppercase tracking-widest font-bold">MCQ</span>
+
+                            <span id="quiz-topic-display"
+                                class="text-sky text-xs font-bold uppercase tracking-wide mb-2 block body-font">Topic</span>
+                            <h2 id="quiz-question-text"
+                                class="text-2xl md:text-3xl font-bold text-text-primary leading-relaxed question-font transition-colors">
+                                Loading question...
+                            </h2>
+                            <p id="quiz-hint-text"
+                                class="text-text-secondary text-sm mt-4 italic border-l-2 border-divider pl-3 body-font transition-colors hidden">
                             </p>
                         </div>
+
+                        <div class="flex flex-col gap-3 body-font w-full" id="input-container">
+                        </div>
                     </div>
-                    <div class="flex gap-2 mt-4">
-                        <button onclick="nextQuestion()"
-                            class="w-full bg-amber text-black font-bold py-3.5 rounded-xl shadow-amber-glow active:scale-95 transition-transform body-font hover:scale-105">
-                            <span data-key="nextQBtn">Next Question</span> <i class="fas fa-arrow-right ml-2"></i>
+
+                    <div id="feedback-area" class="mt-4 hidden animate-fade-in-up pb-4">
+                        <div class="bg-sky/10 border border-sky/30 rounded-xl p-4 flex gap-3">
+                            <i class="fas fa-lightbulb text-sky mt-1"></i>
+                            <div>
+                                <h4 class="text-sky font-bold text-lg title-font" data-key="didYouKnow">Explanation</h4>
+                                <p id="explanation-text"
+                                    class="text-text-secondary text-xs mt-1 body-font transition-colors">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="nextQuestion()"
+                                class="w-full bg-amber text-black font-bold py-3.5 rounded-xl shadow-amber-glow active:scale-95 transition-transform body-font hover:scale-105">
+                                <span data-key="nextQBtn">Next Question</span> <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quiz-results"
+                    class="hidden h-full flex flex-col items-center justify-center fade-in text-center p-4">
+                    <div
+                        class="w-24 h-24 rounded-full bg-amber/20 flex items-center justify-center text-amber text-4xl mb-4 shadow-amber-glow animate-float">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-text-primary title-font mb-2" data-key="quizComp">Quiz Completed!
+                    </h2>
+                    <p class="text-text-secondary text-sm mb-6" data-key="quizCompSub">Great job! You've mastered some
+                        new
+                        concepts.</p>
+
+                    <div class="bg-surface border border-divider rounded-xl p-6 w-full max-w-xs mb-8">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center border-r border-divider">
+                                <div class="text-2xl font-bold text-emerald" id="result-score">80%</div>
+                                <div class="text-[10px] uppercase text-text-secondary tracking-widest" data-key="score">
+                                    Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-amber">+50</div>
+                                <div class="text-[10px] uppercase text-text-secondary tracking-widest"
+                                    data-key="xpEarned">
+                                    XP Earned</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full max-w-xs space-y-3">
+                        <button onclick="openQuizConfig()"
+                            class="w-full bg-amber text-black font-bold py-3.5 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fas fa-redo"></i> <span data-key="startNew">Start New Quiz</span>
+                        </button>
+                        <button onclick="switchTab('dashboard')"
+                            class="w-full bg-surface border border-divider text-text-primary font-bold py-3.5 rounded-xl hover:bg-divider/50 active:scale-95 transition-transform"
+                            data-key="backHome">
+                            Back to Home
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="view-chat" class="hidden h-full flex flex-col relative">
+                <div
+                    class="p-4 border-b border-divider bg-surface/50 backdrop-blur sticky top-0 z-10 text-center transition-colors">
+                    <p class="text-amber font-bold text-lg title-font" data-key="chatHeader">Koushole AI Tutor</p>
+                    <p class="text-text-secondary text-[10px] body-font transition-colors" data-key="chatSub">Powered by
+                        Koushole AI</p>
+                </div>
+
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 body-font">
+                    <div class="flex gap-3 group">
+                        <div
+                            class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs">
+                            <i class="fas fa-robot group-hover:animate-bounce"></i>
+                        </div>
+                        <div
+                            class="bg-surface border border-divider text-text-primary p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm leading-relaxed shadow-sm transition-colors prose prose-invert prose-sm">
+                            <span data-key="aiMsg1">Hello! I'm your AI Tutor. How can I help you learn today?</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="attachment-preview" class="hidden px-5 py-2 flex gap-2 overflow-x-auto">
+                </div>
+
+                <div class="w-full pb-24 sm:pb-6 px-5 pt-2 bg-transparent">
+                    <div
+                        class="bg-surface border border-divider rounded-2xl p-2 flex items-center gap-2 shadow-xl transition-colors relative">
+                        <button onclick="document.getElementById('file-upload-input').click()"
+                            class="w-10 h-10 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform shrink-0"
+                            title="Attach File">
+                            <i class="fas fa-paperclip hover:rotate-12 transition-transform"></i>
+                        </button>
+                        <button onclick="document.getElementById('image-upload-input').click()"
+                            class="w-10 h-10 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform shrink-0"
+                            title="Upload Image">
+                            <i class="fas fa-image hover:rotate-12 transition-transform"></i>
+                        </button>
+
+                        <div class="relative flex-1">
+                            <input type="text" id="chat-input" placeholder="Ask about Physics, Math..."
+                                class="w-full bg-midnight border border-divider rounded-full py-3 pl-5 pr-12 text-text-primary focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-all placeholder:text-text-secondary/50 body-font">
+
+                            <button id="mic-btn" onclick="toggleVoiceRecording('chat-input')"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform rounded-full">
+                                <i class="fas fa-microphone hover:rotate-12 transition-transform"></i>
+                            </button>
+                        </div>
+
+                        <button onclick="sendMessage()"
+                            class="group h-10 w-10 bg-amber rounded-full flex items-center justify-center text-black hover:bg-amber-deep transition-colors shadow-lg hover:-translate-y-1 hover:translate-x-1 transition-transform shrink-0">
+                            <i class="fas fa-paper-plane text-xs"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div id="quiz-results"
-                class="hidden h-full flex flex-col items-center justify-center fade-in text-center p-4">
-                <div
-                    class="w-24 h-24 rounded-full bg-amber/20 flex items-center justify-center text-amber text-4xl mb-4 shadow-amber-glow animate-float">
-                    <i class="fas fa-trophy"></i>
+            <div id="view-library" class="hidden h-full flex flex-col p-5 fade-in overflow-y-auto pb-24">
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold text-text-primary title-font transition-colors"
+                        data-key="libraryTitle">
+                        Custom Library</h1>
+                    <p class="text-text-secondary text-sm mt-1 body-font transition-colors" data-key="librarySubtitle">
+                        Upload books to create your own quizzes.</p>
                 </div>
-                <h2 class="text-3xl font-bold text-text-primary title-font mb-2" data-key="quizComp">Quiz Completed!
-                </h2>
-                <p class="text-text-secondary text-sm mb-6" data-key="quizCompSub">Great job! You've mastered some new
-                    concepts.</p>
 
-                <div class="bg-surface border border-divider rounded-xl p-6 w-full max-w-xs mb-8">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="text-center border-r border-divider">
-                            <div class="text-2xl font-bold text-emerald" id="result-score">80%</div>
-                            <div class="text-[10px] uppercase text-text-secondary tracking-widest" data-key="score">
-                                Score</div>
+                <div onclick="document.getElementById('book-upload-input').click()"
+                    class="border-2 border-dashed border-divider rounded-2xl p-8 flex flex-col items-center justify-center mb-8 hover:border-amber transition-colors cursor-pointer group bg-surface/50">
+                    <div
+                        class="w-16 h-16 rounded-full bg-amber/10 flex items-center justify-center text-amber text-2xl mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="text-text-primary font-bold text-sm" data-key="tapUpload">Tap to Upload Book</p>
+                    <p class="text-text-secondary text-xs mt-1" data-key="fileTypes">PDF, EPUB (Max 50MB)</p>
+                </div>
+
+                <h3 class="text-text-secondary uppercase text-xs font-bold tracking-widest mb-4" data-key="yourBooks">
+                    Your
+                    Books</h3>
+                <div class="space-y-3" id="library-list">
+                </div>
+            </div>
+
+            <div id="quiz-setup-modal"
+                class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-5 fade-in">
+                <div class="bg-surface border border-divider rounded-2xl w-full max-w-sm p-6 relative shadow-2xl">
+                    <button onclick="closeQuizConfig()"
+                        class="absolute top-4 right-4 text-text-secondary hover:text-amber transition-colors">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+
+                    <div class="text-center mb-6">
+                        <div
+                            class="w-12 h-12 rounded-full bg-amber/10 text-amber flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-sliders-h text-xl"></i>
                         </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-amber">+50</div>
-                            <div class="text-[10px] uppercase text-text-secondary tracking-widest" data-key="xpEarned">
-                                XP Earned</div>
+                        <h3 class="text-text-primary font-bold text-xl title-font" data-key="configQuizTitle">Configure
+                            Quiz
+                        </h3>
+                        <p class="text-text-secondary text-xs mt-1" id="modal-book-title">Custom Setup</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block"
+                                data-key="configSubject">Subject / Source</label>
+                            <select id="config-subject" onchange="updateChapters()"
+                                class="w-full bg-midnight border border-divider rounded-lg p-3 text-text-primary text-sm focus:border-amber outline-none mb-2">
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="English">English</option>
+                                <option value="General Knowledge">General Knowledge</option>
+                            </select>
+                        </div>
+
+                        <div id="topic-container">
+                            <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block"
+                                data-key="configChapters">Available Chapters</label>
+                            <select id="config-topic"
+                                class="w-full bg-midnight border border-divider rounded-lg p-3 text-text-primary text-sm focus:border-amber outline-none">
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                <div class="w-full max-w-xs space-y-3">
-                    <button onclick="openQuizConfig()"
-                        class="w-full bg-amber text-black font-bold py-3.5 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <i class="fas fa-redo"></i> <span data-key="startNew">Start New Quiz</span>
-                    </button>
-                    <button onclick="switchTab('dashboard')"
-                        class="w-full bg-surface border border-divider text-text-primary font-bold py-3.5 rounded-xl hover:bg-divider/50 active:scale-95 transition-transform"
-                        data-key="backHome">
-                        Back to Home
+                    <button onclick="startCustomQuiz()"
+                        class="w-full mt-6 bg-amber text-black font-bold py-3 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                        <span data-key="startQuizBtn">Start Quiz</span> <i class="fas fa-arrow-right ml-1"></i>
                     </button>
                 </div>
             </div>
 
-        </div>
-
-        <div id="view-chat" class="hidden h-full flex flex-col relative">
-            <div
-                class="p-4 border-b border-divider bg-surface/50 backdrop-blur sticky top-0 z-10 text-center transition-colors">
-                <p class="text-amber font-bold text-lg title-font" data-key="chatHeader">Koushole AI Tutor</p>
-                <p class="text-text-secondary text-[10px] body-font transition-colors" data-key="chatSub">Powered by
-                    Koushole AI</p>
-            </div>
-
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 body-font">
-                <div class="flex gap-3 group">
+            <div id="view-profile" class="hidden h-full flex flex-col p-5 overflow-y-auto fade-in pb-24">
+                <div class="flex flex-col items-center mb-8">
                     <div
-                        class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs">
-                        <i class="fas fa-robot group-hover:animate-bounce"></i>
+                        class="w-24 h-24 rounded-full bg-gradient-to-tr from-amber to-amber-deep flex items-center justify-center text-midnight font-bold text-3xl mb-4 shadow-amber-glow relative animate-float">
+                        <span id="profile-initials">S</span>
+                        <div
+                            class="absolute bottom-0 right-0 w-8 h-8 bg-surface border-4 border-midnight rounded-full flex items-center justify-center group hover:rotate-90 transition-transform duration-500 cursor-pointer">
+                            <i class="fas fa-camera text-xs text-text-secondary"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-text-primary title-font" data-key="studentPlaceholder">Student
+                    </h2>
+                    <p class="text-text-secondary text-sm body-font" data-key="classGroupPlaceholder">Class 10 • Science
+                        Group</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 mb-8">
+                    <div
+                        class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
+                        <p class="text-amber font-bold text-xl title-font" id="xp-display">0</p>
+                        <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1" data-key="totalXP">
+                            Total
+                            XP</p>
                     </div>
                     <div
-                        class="bg-surface border border-divider text-text-primary p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm leading-relaxed shadow-sm transition-colors prose prose-invert prose-sm">
-                        <span data-key="aiMsg1">Hello! I'm your AI Tutor. How can I help you learn today?</span>
+                        class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
+                        <p class="text-emerald font-bold text-xl title-font" id="accuracy-display">0%</p>
+                        <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1" data-key="accuracy">
+                            Accuracy</p>
                     </div>
-                </div>
-            </div>
-
-            <div id="attachment-preview" class="hidden px-5 py-2 flex gap-2 overflow-x-auto">
-            </div>
-
-            <div class="w-full pb-24 sm:pb-6 px-5 pt-2 bg-transparent">
-                <div
-                    class="bg-surface border border-divider rounded-2xl p-2 flex items-center gap-2 shadow-xl transition-colors relative">
-                    <button onclick="document.getElementById('file-upload-input').click()"
-                        class="w-10 h-10 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform shrink-0"
-                        title="Attach File">
-                        <i class="fas fa-paperclip hover:rotate-12 transition-transform"></i>
-                    </button>
-                    <button onclick="document.getElementById('image-upload-input').click()"
-                        class="w-10 h-10 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform shrink-0"
-                        title="Upload Image">
-                        <i class="fas fa-image hover:rotate-12 transition-transform"></i>
-                    </button>
-
-                    <div class="relative flex-1">
-                        <input type="text" id="chat-input" placeholder="Ask about Physics, Math..."
-                            class="w-full bg-midnight border border-divider rounded-full py-3 pl-5 pr-12 text-text-primary focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-all placeholder:text-text-secondary/50 body-font">
-
-                        <button id="mic-btn" onclick="toggleVoiceRecording('chat-input')"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-amber transition-colors hover:scale-110 active:scale-90 transition-transform rounded-full">
-                            <i class="fas fa-microphone hover:rotate-12 transition-transform"></i>
-                        </button>
-                    </div>
-
-                    <button onclick="sendMessage()"
-                        class="group h-10 w-10 bg-amber rounded-full flex items-center justify-center text-black hover:bg-amber-deep transition-colors shadow-lg hover:-translate-y-1 hover:translate-x-1 transition-transform shrink-0">
-                        <i class="fas fa-paper-plane text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-library" class="hidden h-full flex flex-col p-5 fade-in overflow-y-auto pb-24">
-            <div class="mb-6">
-                <h1 class="text-3xl font-bold text-text-primary title-font transition-colors" data-key="libraryTitle">
-                    Custom Library</h1>
-                <p class="text-text-secondary text-sm mt-1 body-font transition-colors" data-key="librarySubtitle">
-                    Upload books to create your own quizzes.</p>
-            </div>
-
-            <div onclick="document.getElementById('book-upload-input').click()"
-                class="border-2 border-dashed border-divider rounded-2xl p-8 flex flex-col items-center justify-center mb-8 hover:border-amber transition-colors cursor-pointer group bg-surface/50">
-                <div
-                    class="w-16 h-16 rounded-full bg-amber/10 flex items-center justify-center text-amber text-2xl mb-3 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                </div>
-                <p class="text-text-primary font-bold text-sm" data-key="tapUpload">Tap to Upload Book</p>
-                <p class="text-text-secondary text-xs mt-1" data-key="fileTypes">PDF, EPUB (Max 50MB)</p>
-            </div>
-
-            <h3 class="text-text-secondary uppercase text-xs font-bold tracking-widest mb-4" data-key="yourBooks">Your
-                Books</h3>
-            <div class="space-y-3" id="library-list">
-            </div>
-        </div>
-
-        <div id="quiz-setup-modal"
-            class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-5 fade-in">
-            <div class="bg-surface border border-divider rounded-2xl w-full max-w-sm p-6 relative shadow-2xl">
-                <button onclick="closeQuizConfig()"
-                    class="absolute top-4 right-4 text-text-secondary hover:text-amber transition-colors">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
-
-                <div class="text-center mb-6">
                     <div
-                        class="w-12 h-12 rounded-full bg-amber/10 text-amber flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-sliders-h text-xl"></i>
+                        class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
+                        <p class="text-orange font-bold text-xl title-font" id="streak-profile-display">0</p>
+                        <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1" data-key="dayStreak">
+                            Day
+                            Streak</p>
                     </div>
-                    <h3 class="text-text-primary font-bold text-xl title-font" data-key="configQuizTitle">Configure Quiz
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-text-primary font-bold title-font text-lg mb-3" data-key="focusAreas">Focus Areas
                     </h3>
-                    <p class="text-text-secondary text-xs mt-1" id="modal-book-title">Custom Setup</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block"
-                            data-key="configSubject">Subject / Source</label>
-                        <select id="config-subject" onchange="updateChapters()"
-                            class="w-full bg-midnight border border-divider rounded-lg p-3 text-text-primary text-sm focus:border-amber outline-none mb-2">
-                            <option value="Physics">Physics</option>
-                            <option value="Chemistry">Chemistry</option>
-                            <option value="Biology">Biology</option>
-                            <option value="Mathematics">Mathematics</option>
-                            <option value="English">English</option>
-                            <option value="General Knowledge">General Knowledge</option>
-                        </select>
-                    </div>
-
-                    <div id="topic-container">
-                        <label class="text-text-secondary text-[10px] uppercase font-bold tracking-wider mb-1 block"
-                            data-key="configChapters">Available Chapters</label>
-                        <select id="config-topic"
-                            class="w-full bg-midnight border border-divider rounded-lg p-3 text-text-primary text-sm focus:border-amber outline-none">
-                        </select>
+                    <div id="weakness-cloud" class="flex flex-wrap gap-2">
+                        <span class="text-xs text-text-secondary italic" data-key="noWeaknesses">No weaknesses detected
+                            yet.
+                            Keep learning!</span>
                     </div>
                 </div>
 
-                <button onclick="startCustomQuiz()"
-                    class="w-full mt-6 bg-amber text-black font-bold py-3 rounded-xl shadow-amber-glow hover:scale-[1.02] active:scale-[0.98] transition-transform">
-                    <span data-key="startQuizBtn">Start Quiz</span> <i class="fas fa-arrow-right ml-1"></i>
-                </button>
-            </div>
-        </div>
-
-        <div id="view-profile" class="hidden h-full flex flex-col p-5 overflow-y-auto fade-in pb-24">
-            <div class="flex flex-col items-center mb-8">
-                <div
-                    class="w-24 h-24 rounded-full bg-gradient-to-tr from-amber to-amber-deep flex items-center justify-center text-midnight font-bold text-3xl mb-4 shadow-amber-glow relative animate-float">
-                    <span id="profile-initials">S</span>
-                    <div
-                        class="absolute bottom-0 right-0 w-8 h-8 bg-surface border-4 border-midnight rounded-full flex items-center justify-center group hover:rotate-90 transition-transform duration-500 cursor-pointer">
-                        <i class="fas fa-camera text-xs text-text-secondary"></i>
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-text-primary font-bold title-font text-lg" data-key="achievements">Achievements
+                        </h3>
+                        <span class="text-amber text-xs font-bold cursor-pointer hover:underline"
+                            data-key="viewAll">View
+                            All</span>
+                    </div>
+                    <div id="badges-container" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                        <span class="text-xs text-text-secondary italic" data-key="earnBadges">Complete quizzes to earn
+                            badges!</span>
                     </div>
                 </div>
-                <h2 class="text-2xl font-bold text-text-primary title-font" data-key="studentPlaceholder">Student</h2>
-                <p class="text-text-secondary text-sm body-font" data-key="classGroupPlaceholder">Class 10 • Science
-                    Group</p>
-            </div>
 
-            <div class="grid grid-cols-3 gap-3 mb-8">
-                <div
-                    class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
-                    <p class="text-amber font-bold text-xl title-font" id="xp-display">0</p>
-                    <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1" data-key="totalXP">Total
-                        XP</p>
-                </div>
-                <div
-                    class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
-                    <p class="text-emerald font-bold text-xl title-font" id="accuracy-display">0%</p>
-                    <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1" data-key="accuracy">
-                        Accuracy</p>
-                </div>
-                <div
-                    class="bg-surface border border-divider rounded-xl p-3 text-center transition-colors hover:scale-105 transition-transform duration-200">
-                    <p class="text-orange font-bold text-xl title-font" id="streak-profile-display">0</p>
-                    <p class="text-[10px] text-text-secondary uppercase tracking-widest mt-1" data-key="dayStreak">Day
-                        Streak</p>
-                </div>
-            </div>
+                <div class="space-y-2">
+                    <h3 class="text-text-secondary uppercase text-xs font-bold tracking-widest mb-2 pl-1"
+                        data-key="account">Account</h3>
 
-            <div class="mb-8">
-                <h3 class="text-text-primary font-bold title-font text-lg mb-3" data-key="focusAreas">Focus Areas</h3>
-                <div id="weakness-cloud" class="flex flex-wrap gap-2">
-                    <span class="text-xs text-text-secondary italic" data-key="noWeaknesses">No weaknesses detected yet.
-                        Keep learning!</span>
-                </div>
-            </div>
-
-            <div class="mb-8">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-text-primary font-bold title-font text-lg" data-key="achievements">Achievements</h3>
-                    <span class="text-amber text-xs font-bold cursor-pointer hover:underline" data-key="viewAll">View
-                        All</span>
-                </div>
-                <div id="badges-container" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-                    <span class="text-xs text-text-secondary italic" data-key="earnBadges">Complete quizzes to earn
-                        badges!</span>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <h3 class="text-text-secondary uppercase text-xs font-bold tracking-widest mb-2 pl-1"
-                    data-key="account">Account</h3>
-
-                <div class="bg-surface border border-divider rounded-xl overflow-hidden transition-colors">
-                    <div
-                        class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-user-circle text-text-secondary w-5"></i>
-                            <span class="text-text-primary text-sm font-medium" data-key="personalDetails">Personal
-                                Details</span>
+                    <div class="bg-surface border border-divider rounded-xl overflow-hidden transition-colors">
+                        <!-- Personal Details - Expandable -->
+                        <div id="personal-details-header" onclick="togglePersonalDetails()"
+                            class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-user-circle text-text-secondary w-5"></i>
+                                <span class="text-text-primary text-sm font-medium" data-key="personalDetails">Personal
+                                    Details</span>
+                            </div>
+                            <i id="personal-details-arrow"
+                                class="fas fa-chevron-down text-text-secondary text-xs transition-transform"></i>
                         </div>
-                        <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
-                    </div>
-                    <div
-                        class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-bell text-text-secondary w-5"></i>
-                            <span class="text-text-primary text-sm font-medium"
-                                data-key="notifications">Notifications</span>
+                        <!-- Personal Details Content -->
+                        <div id="personal-details-content"
+                            class="hidden bg-midnight/50 p-4 space-y-3 border-b border-divider">
+                            <div class="flex justify-between items-center">
+                                <span class="text-text-secondary text-xs" data-key="nameLabel">Full Name (EN)</span>
+                                <span class="text-text-primary text-sm font-medium" id="profile-fullname-en">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-text-secondary text-xs" data-key="nameBnLabel">Full Name (BN)</span>
+                                <span class="text-text-primary text-sm font-medium" id="profile-fullname-bn">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-text-secondary text-xs" data-key="nickLabel">Nickname (EN)</span>
+                                <span class="text-text-primary text-sm font-medium" id="profile-nickname-en">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-text-secondary text-xs" data-key="nickBnLabel">Nickname (BN)</span>
+                                <span class="text-text-primary text-sm font-medium" id="profile-nickname-bn">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-text-secondary text-xs" data-key="emailLabel">Email</span>
+                                <span class="text-text-primary text-sm font-medium" id="profile-email">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-text-secondary text-xs" data-key="classLabel">Class</span>
+                                <span class="text-text-primary text-sm font-medium" id="profile-class">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-text-secondary text-xs" data-key="groupLabel">Group</span>
+                                <span class="text-text-primary text-sm font-medium" id="profile-group">-</span>
+                            </div>
                         </div>
-                        <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
-                    </div>
-                    <div
-                        class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-shield-alt text-text-secondary w-5"></i>
-                            <span class="text-text-primary text-sm font-medium" data-key="privacy">Privacy &
-                                Security</span>
+                        <div
+                            class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-bell text-text-secondary w-5"></i>
+                                <span class="text-text-primary text-sm font-medium"
+                                    data-key="notifications">Notifications</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
                         </div>
-                        <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
+                        <div
+                            class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-shield-alt text-text-secondary w-5"></i>
+                                <span class="text-text-primary text-sm font-medium" data-key="privacy">Privacy &
+                                    Security</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
+                        </div>
                     </div>
-                </div>
 
-                <button onclick="logout()"
-                    class="w-full mt-6 py-3 rounded-xl border border-rose/30 text-rose text-sm font-bold bg-rose/5 hover:bg-rose/10 transition-colors hover:scale-[1.02] active:scale-[0.98] transition-transform"
-                    data-key="logOut">
-                    Log Out
-                </button>
+                    <button onclick="logout()"
+                        class="w-full mt-6 py-3 rounded-xl border border-rose/30 text-rose text-sm font-bold bg-rose/5 hover:bg-rose/10 transition-colors hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        data-key="logOut">
+                        Log Out
+                    </button>
+                </div>
             </div>
-        </div>
 
     </main>
 

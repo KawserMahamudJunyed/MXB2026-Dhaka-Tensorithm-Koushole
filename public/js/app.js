@@ -403,6 +403,38 @@ async function logout() {
     window.location.reload();
 }
 
+// Toggle Personal Details section
+function togglePersonalDetails() {
+    const content = document.getElementById('personal-details-content');
+    const arrow = document.getElementById('personal-details-arrow');
+
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+        // Populate with user data
+        populatePersonalDetails();
+    } else {
+        content.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+    }
+}
+
+// Populate Personal Details fields
+function populatePersonalDetails() {
+    const setField = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value || '-';
+    };
+
+    setField('profile-fullname-en', userProfile.name);
+    setField('profile-fullname-bn', userProfile.nameBn);
+    setField('profile-nickname-en', userProfile.nickname);
+    setField('profile-nickname-bn', userProfile.nicknameBn);
+    setField('profile-email', userProfile.email);
+    setField('profile-class', userProfile.class);
+    setField('profile-group', userProfile.group);
+}
+
 function updateGreeting() {
     // Custom greeting using nickname
     const greetingEl = document.querySelector('[data-key="greeting"]');
@@ -764,6 +796,50 @@ function updateUI() {
         badgesContainer.innerHTML = userMemory.badges.map(b =>
             `<span class="px-3 py-1 rounded-full bg-amber/10 text-amber text-xs border border-amber/30">${b}</span>`
         ).join('') || '<span class="text-xs text-text-secondary italic">Earn badges by completing quizzes!</span>';
+    }
+
+    // 9. Dashboard Dynamic Sections (show only if user has data)
+    const welcomeSection = document.getElementById('new-user-welcome');
+    const continueSection = document.getElementById('continue-learning-section');
+    const attentionSection = document.getElementById('needs-attention-section');
+
+    const hasQuizHistory = userMemory.total_quizzes_completed > 0 || userMemory.total_xp > 0;
+    const hasWeaknesses = userMemory.weaknesses && userMemory.weaknesses.length > 0;
+
+    if (hasQuizHistory) {
+        // User has quiz history - hide welcome, show sections
+        if (welcomeSection) welcomeSection.classList.add('hidden');
+        if (continueSection) continueSection.classList.remove('hidden');
+
+        if (hasWeaknesses && attentionSection) {
+            attentionSection.classList.remove('hidden');
+            // Populate weaknesses
+            const container = document.getElementById('needs-attention-container');
+            if (container) {
+                container.innerHTML = userMemory.weaknesses.map(w => `
+                    <div class="group bg-surface rounded-xl p-4 border border-divider flex items-center justify-between transition-colors duration-300 hover:border-rose/30">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-surface border border-rose/30 flex items-center justify-center text-rose transition-colors group-hover:bg-rose/10">
+                                <i class="fas fa-exclamation group-hover:rotate-12 transition-transform"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-text-primary text-lg font-semibold title-font transition-colors">${w}</h4>
+                                <p class="text-text-secondary text-xs body-font">Needs practice</p>
+                            </div>
+                        </div>
+                        <button onclick="openQuizConfig(null, null, '${w}')"
+                            class="px-4 py-2 rounded-full border border-amber text-amber text-xs font-bold hover:bg-amber hover:text-black transition-colors body-font">
+                            Retry
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+    } else {
+        // New user - show welcome, hide other sections
+        if (welcomeSection) welcomeSection.classList.remove('hidden');
+        if (continueSection) continueSection.classList.add('hidden');
+        if (attentionSection) attentionSection.classList.add('hidden');
     }
 }
 
