@@ -107,6 +107,9 @@ function setLanguage(lang) {
         }
     });
     document.getElementById('chat-input').placeholder = translations[lang].inputPlaceholder;
+
+    // Refresh dynamic user data with new language
+    if (typeof updateUI === 'function') updateUI();
 }
 
 // --- VIEW NAVIGATION ---

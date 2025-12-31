@@ -130,6 +130,34 @@ async function saveMemory() {
         console.error("saveMemory error:", err);
     }
 }
+// Time-based greeting with user nickname
+function updateGreeting() {
+    const hour = new Date().getHours();
+    let timeGreeting;
+
+    if (currentLang === 'bn') {
+        if (hour < 12) timeGreeting = 'শুভ সকাল';
+        else if (hour < 17) timeGreeting = 'শুভ দুপুর';
+        else if (hour < 20) timeGreeting = 'শুভ সন্ধ্যা';
+        else timeGreeting = 'শুভ রাত্রি';
+    } else {
+        if (hour < 12) timeGreeting = 'Good Morning';
+        else if (hour < 17) timeGreeting = 'Good Afternoon';
+        else if (hour < 20) timeGreeting = 'Good Evening';
+        else timeGreeting = 'Good Night';
+    }
+
+    // Get nickname based on language
+    const nick = currentLang === 'bn'
+        ? (userProfile.nicknameBn || userProfile.nickname || '')
+        : (userProfile.nickname || userProfile.name || '');
+
+    const fullGreeting = nick ? `${timeGreeting}, ${nick}! 🚀` : `${timeGreeting}! 🚀`;
+
+    // Update greeting element
+    const greetingEl = document.querySelector('[data-key="greeting"]');
+    if (greetingEl) greetingEl.innerText = fullGreeting;
+}
 
 // Init
 function checkAuth() {
@@ -289,6 +317,47 @@ async function handleAuth(e) {
             }
 
             console.log("Signup Successful. User:", user);
+
+            // Create profile row in profiles table
+            if (user) {
+                const { error: profileError } = await window.supabaseClient
+                    .from('profiles')
+                    .insert({
+                        user_id: user.id,
+                        email: email,
+                        full_name: data.name,
+                        full_name_bn: data.nameBn,
+                        nickname: data.nickname,
+                        nickname_bn: data.nicknameBn,
+                        class: data.classLevel,
+                        group_name: data.group
+                    });
+
+                if (profileError) {
+                    console.error("Profile insert error:", profileError);
+                } else {
+                    console.log("✅ Profile created in database");
+                }
+
+                // Create initial learning_stats row
+                const { error: statsError } = await window.supabaseClient
+                    .from('learning_stats')
+                    .insert({
+                        user_id: user.id,
+                        total_xp: 0,
+                        day_streak: 0,
+                        accuracy_percentage: 0,
+                        weaknesses: [],
+                        badges: []
+                    });
+
+                if (statsError) {
+                    console.error("Stats insert error:", statsError);
+                } else {
+                    console.log("✅ Learning stats initialized in database");
+                }
+            }
+
             alert("Signup successful! Please Log In.");
 
             // UX: Switch to Login mode automatically so they can sign in
