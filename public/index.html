@@ -27,7 +27,7 @@
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <!-- Supabase loaded via ES Module in supabase-config.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <!-- Custom CSS -->
@@ -855,6 +855,7 @@
     </nav>
 
     <!-- App Logic & Data -->
+    <script type="module" src="js/supabase-config.js"></script>
     <script src="js/data.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/quiz.js"></script>
