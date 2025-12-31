@@ -780,37 +780,61 @@ function renderBadge(badgeId) {
         name: badgeId,
         nameBn: badgeId,
         gradient: 'from-gray-500 to-slate-600',
-        bgColor: 'bg-surface',
-        borderColor: 'border-divider',
-        textColor: 'text-text-primary'
+        borderColor: 'border-slate-500',
+        textColor: 'text-slate-200'
     };
 
     const displayName = currentLang === 'bn' ? style.nameBn : style.name;
 
     return `
         <div class="flex-shrink-0 group cursor-pointer badge-float">
-            <div class="relative w-24 h-32 shine-card rounded-2xl bg-surface border border-divider shadow-lg flex flex-col items-center justify-center gap-3 p-2 transition-colors duration-300 hover:border-amber/50">
+            <!-- Glass Card Container -->
+            <div class="relative w-28 h-36 rounded-2xl bg-[#1A1A1A] border border-white/10 p-3 flex flex-col items-center justify-between shadow-xl overflow-hidden group-hover:shadow-[0_0_30px_-5px_var(--glow-color)] transition-all duration-500"
+                 style="--glow-color: ${getColorFromGradient(style.gradient)}">
                 
-                <!-- Glow Background -->
-                <div class="absolute inset-0 bg-gradient-to-br ${style.gradient} opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                <!-- Shining Beam Effect -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 
-                <!-- Icon Circle -->
-                <div class="w-14 h-14 rounded-full bg-gradient-to-br ${style.gradient} flex items-center justify-center text-2xl shadow-inner relative z-10 group-hover:scale-110 transition-transform duration-300">
-                    <span class="drop-shadow-md filter">${style.icon}</span>
+                <!-- Background Glow -->
+                <div class="absolute top-[-20%] left-[-20%] w-[140%] h-[140%] bg-gradient-to-br ${style.gradient} opacity-20 blur-2xl rounded-full group-hover:opacity-30 transition-opacity"></div>
+                
+                <!-- Badge Icon Container -->
+                <div class="relative z-10 mt-2">
+                    <!-- Rotating Ring -->
+                    <div class="absolute inset-[-4px] rounded-full border border-dashed border-white/30 animate-spin-slow opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                    <!-- Icon Circle -->
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-[#333] to-[#111] border border-white/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
+                        <span class="text-3xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] select-none">${style.icon}</span>
+                    </div>
+                    
+                    <!-- Verified Check -->
+                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_2px_5px_rgba(0,0,0,0.3)] border-2 border-[#1A1A1A]">
+                        <i class="fas fa-check text-white text-[10px]"></i>
+                    </div>
                 </div>
 
-                <!-- Text -->
-                <div class="flex flex-col items-center gap-1 z-10 w-full">
-                    <span class="text-[10px] font-bold text-center leading-tight line-clamp-2 ${style.textColor} uppercase tracking-wide">${displayName}</span>
-                </div>
-
-                <!-- Checkmark Badge -->
-                <div class="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-md border-2 border-surface z-20">
-                    <i class="fas fa-check text-white text-[9px]"></i>
+                <!-- Text Content -->
+                <div class="z-10 text-center w-full mb-1">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-0.5 group-hover:to-white transition-colors">
+                        ${displayName}
+                    </h4>
+                    <div class="h-0.5 w-8 mx-auto bg-gradient-to-r ${style.gradient} rounded-full opacity-50 group-hover:w-16 group-hover:opacity-100 transition-all duration-300"></div>
                 </div>
             </div>
         </div>
     `;
+}
+
+// Helper to extract a color for shadow from the gradient string (approximation)
+function getColorFromGradient(gradientClass) {
+    if (gradientClass.includes('emerald')) return '#10B981';
+    if (gradientClass.includes('orange')) return '#F97316';
+    if (gradientClass.includes('purple')) return '#8B5CF6';
+    if (gradientClass.includes('amber')) return '#F59E0B';
+    if (gradientClass.includes('pink')) return '#EC4899';
+    if (gradientClass.includes('cyan')) return '#06B6D4';
+    return '#64748B';
 }
 
 
