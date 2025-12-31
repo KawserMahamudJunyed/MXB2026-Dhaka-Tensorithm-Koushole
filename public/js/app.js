@@ -771,9 +771,9 @@ function updateUI() {
     if (pName) pName.innerText = displayName;
     if (pDetails) pDetails.innerText = `Class ${userProfile.class || '10'} • ${userProfile.group || 'Science'} Group`;
 
-    // 6. Update Initials (based on FULL NAME, not nickname)
-    const fullName = userProfile.name || userProfile.nickname || "S";
-    const initials = fullName.charAt(0).toUpperCase();
+    // 6. Update Initials (based on NICKNAME, fallback to name)
+    const nickForInitials = userProfile.nickname || userProfile.name || "S";
+    const initials = nickForInitials.charAt(0).toUpperCase();
     document.querySelectorAll('#profile-initials').forEach(el => el.innerText = initials);
     const headerInitials = document.getElementById('header-profile-initials');
     if (headerInitials) headerInitials.innerText = initials;
