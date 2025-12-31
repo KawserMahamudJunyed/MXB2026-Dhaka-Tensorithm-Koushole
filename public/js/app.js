@@ -656,14 +656,21 @@ function updateUI() {
     const accEl = document.getElementById('accuracy-display');
     if (accEl) accEl.innerText = `${userMemory.accuracy_percentage || 0}%`;
 
-    // 5. Update Profile Info
+    // 5. Update Profile Info (with Bangla support)
     const pName = document.querySelector('#view-profile h2');
     const pDetails = document.querySelector('#view-profile p.body-font');
-    if (pName) pName.innerText = userProfile.nickname || userProfile.name || "Student";
+
+    // Use Bangla nickname if in Bangla mode, otherwise English
+    const displayNickname = currentLang === 'bn'
+        ? (userProfile.nicknameBn || userProfile.nickname || 'শিক্ষার্থী')
+        : (userProfile.nickname || userProfile.name || 'Student');
+
+    if (pName) pName.innerText = displayNickname;
     if (pDetails) pDetails.innerText = `Class ${userProfile.class || '10'} • ${userProfile.group || 'Science'} Group`;
 
-    // 6. Update Initials (Profile + Header)
-    const initials = (userProfile.nickname || "S").charAt(0).toUpperCase();
+    // 6. Update Initials (based on FULL NAME, not nickname)
+    const fullName = userProfile.name || userProfile.nickname || "S";
+    const initials = fullName.charAt(0).toUpperCase();
     document.querySelectorAll('#profile-initials').forEach(el => el.innerText = initials);
     const headerInitials = document.getElementById('header-profile-initials');
     if (headerInitials) headerInitials.innerText = initials;
