@@ -70,6 +70,9 @@ async function loadUserData(userId) {
             console.error("Profile fetch error:", profileError);
         }
 
+        // Always fetch auth user to get email
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+
         if (profile) {
             userProfile = {
                 name: profile.full_name,
@@ -77,13 +80,14 @@ async function loadUserData(userId) {
                 nickname: profile.nickname,
                 nicknameBn: profile.nickname_bn,
                 class: profile.class,
-                group: profile.group_name
+                group: profile.group_name || profile.group, // Attempt fallback if column name differs
+                email: user?.email // Add email from Auth
             };
             console.log("Loaded Profile:", userProfile);
         } else {
             // Use auth metadata as fallback
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
             userProfile = user?.user_metadata || {};
+            userProfile.email = user?.email;
         }
 
         // 2. Fetch Learning Stats
@@ -1199,7 +1203,7 @@ function updateUI() {
     setTxt('profile-fullname-bn', userProfile.nameBn);
     setTxt('profile-nickname-en', userProfile.nickname);
     setTxt('profile-nickname-bn', userProfile.nicknameBn);
-    setTxt('profile-email', userProfile.email || window.supabaseClient.auth.user()?.email || '-');
+    setTxt('profile-email', userProfile.email || '-');
     setTxt('profile-class', userProfile.class);
     setTxt('profile-group', userProfile.group);
 
