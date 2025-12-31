@@ -122,6 +122,10 @@ async function loadUserData(userId) {
             initLearningChart();
         }
 
+        // Initialize Notifications
+        await checkDailyReminder();
+        fetchNotifications();
+
     } catch (err) {
         console.error("loadUserData error:", err);
     }
@@ -1309,3 +1313,165 @@ function updateChapters() {
     subjectSelect.dispatchEvent(new Event('change'));
 }
 
+
+// --- NOTIFICATION SYSTEM ---
+
+async function fetchNotifications() {
+    if (!currentUserId) return;
+
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('notifications')
+            .select('*')
+            .eq('user_id', currentUserId)
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+        if (error) throw error;
+
+        const unreadCount = data.filter(n => !n.is_read).length;
+        renderNotifications(data, unreadCount);
+
+    } catch (err) {
+        console.error("Error fetching notifications:", err);
+    }
+}
+
+function renderNotifications(notifications, unreadCount) {
+    const listEl = document.getElementById('notification-list');
+    const dotEl = document.getElementById('notification-dot');
+
+    // Update red dot
+    if (unreadCount > 0) {
+        dotEl.classList.remove('hidden');
+    } else {
+        dotEl.classList.add('hidden');
+    }
+
+    if (!notifications || notifications.length === 0) {
+        listEl.innerHTML = `
+            <div class="flex flex-col items-center justify-center p-8 text-gray-500 gap-2">
+                <i class="far fa-bell-slash text-2xl opacity-50"></i>
+                <span class="text-xs italic">No new notifications</span>
+            </div>`;
+        return;
+    }
+
+    listEl.innerHTML = notifications.map(n => {
+        let icon = 'fas fa-info-circle';
+        let colorClass = 'text-blue-400';
+        let bgClass = 'bg-blue-400/10';
+
+        if (n.type === 'badge') {
+            icon = 'fas fa-medal';
+            colorClass = 'text-amber';
+            bgClass = 'bg-amber/10';
+        } else if (n.type === 'reminder') {
+            icon = 'fas fa-clock';
+            colorClass = 'text-purple-400';
+            bgClass = 'bg-purple-400/10';
+        }
+
+        const exactTime = new Date(n.created_at).toLocaleString();
+        const unreadStyle = !n.is_read ? 'bg-white/5 border-l-2 border-amber' : '';
+
+        return `
+            <div class="p-3 border-b border-white/5 hover:bg-white/5 transition-colors flex gap-3 ${unreadStyle}">
+                <div class="w-8 h-8 rounded-full ${bgClass} ${colorClass} flex items-center justify-center shrink-0">
+                    <i class="${icon} text-xs"></i>
+                </div>
+                <div>
+                    <h5 class="text-xs font-bold text-gray-200 mb-0.5">${n.title}</h5>
+                    <p class="text-[10px] text-gray-400 leading-relaxed">${n.message}</p>
+                    <span class="text-[9px] text-gray-600 block mt-1">${exactTime}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function createNotification(type, title, message) {
+    if (!currentUserId) return;
+    try {
+        await window.supabaseClient.from('notifications').insert({
+            user_id: currentUserId,
+            type,
+            title,
+            message
+        });
+        // Refresh list silently
+        fetchNotifications();
+    } catch (err) {
+        console.error("Failed to create notification:", err);
+    }
+}
+
+async function markAllNotificationsRead() {
+    if (!currentUserId) return;
+    try {
+        await window.supabaseClient
+            .from('notifications')
+            .update({ is_read: true })
+            .eq('user_id', currentUserId)
+            .eq('is_read', false); // Only update unread ones
+
+        // Refresh
+        fetchNotifications();
+    } catch (err) {
+        console.error("Failed to mark read:", err);
+    }
+}
+
+function toggleNotifications() {
+    const dropdown = document.getElementById('notification-dropdown');
+
+    if (dropdown.style.display === 'none') {
+        // Show
+        dropdown.style.display = 'block';
+        // Small delay to allow transition
+        setTimeout(() => {
+            dropdown.classList.remove('opacity-0', 'scale-95');
+        }, 10);
+
+        // Refresh data when opening
+        fetchNotifications();
+    } else {
+        // Hide
+        dropdown.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            dropdown.style.display = 'none';
+        }, 200);
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    const container = document.getElementById('notification-container');
+    const dropdown = document.getElementById('notification-dropdown');
+    if (container && !container.contains(e.target) && dropdown.style.display === 'block') {
+        toggleNotifications();
+    }
+});
+
+async function checkDailyReminder() {
+    // Check if we already reminded today using localStorage to avoid duplicate checks per session
+    const today = new Date().toDateString();
+    const lastCheck = localStorage.getItem('last_reminder_check');
+
+    if (lastCheck === today) return; // Already checked today
+
+    // Logic: If user hasn't studied today (quiz count same as yesterday? hard to track without history)
+    // Simpler: Just random encouragement if it's their first login of the day
+
+    const messages = [
+        "Time to keep your streak alive! 🔥",
+        "Ready to learn something new today? 🚀",
+        "A quiz a day keeps the bad grades away! 📚",
+        "Your future self will thank you for studying today! ✨"
+    ];
+    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+    await createNotification('reminder', 'Daily Study Reminder', randomMsg);
+
+    localStorage.setItem('last_reminder_check', today);
+}

@@ -147,24 +147,28 @@ async function checkAndAwardBadges(userId, quizCount, streak, lastScore) {
             newBadges.push('first_quiz');
             badgeAwarded = true;
             showBadgeNotification('🎯', 'First Step!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: First Step!', 'Congratulations! You completed your first quiz.');
         }
 
         if (streak >= 3 && !currentBadges.includes('streak_3')) {
             newBadges.push('streak_3');
             badgeAwarded = true;
             showBadgeNotification('🔥', '3 Day Streak!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: 3 Day Streak', 'You are on fire! 3 days in a row.');
         }
 
         if (streak >= 7 && !currentBadges.includes('streak_7')) {
             newBadges.push('streak_7');
             badgeAwarded = true;
             showBadgeNotification('⚔️', 'Week Warrior!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: Week Warrior', 'One whole week of consistency!');
         }
 
         if (lastScore === 100 && !currentBadges.includes('perfect_quiz')) {
             newBadges.push('perfect_quiz');
             badgeAwarded = true;
             showBadgeNotification('💯', 'Perfect Score!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: Perfect Score', 'You got 100% on a quiz! Amazing!');
         }
 
         // Save new badges

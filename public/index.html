@@ -153,6 +153,37 @@
                     data-key="streak">0 Days</span>
             </div>
 
+            <!-- Notification Bell -->
+            <div class="relative" id="notification-container">
+                <button id="notification-btn" onclick="toggleNotifications()"
+                    class="relative p-2 text-text-secondary hover:text-amber transition-colors rounded-full hover:bg-surface/50">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="notification-dot"
+                        class="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full border border-midnight hidden animate-pulse"></span>
+                </button>
+
+                <!-- Dropdown -->
+                <div id="notification-dropdown"
+                    class="absolute right-0 top-12 w-80 bg-[#1A1A1A] border border-white/10 rounded-xl shadow-2xl z-50 hidden backdrop-blur-xl transform origin-top-right transition-all duration-200 opacity-0 scale-95"
+                    style="display: none;"> <!-- Explicitly using style display none for JS toggling -->
+
+                    <div class="p-3 border-b border-white/10 flex justify-between items-center bg-white/5">
+                        <h4 class="text-sm font-bold text-gray-200">Notifications</h4>
+                        <button onclick="markAllNotificationsRead()"
+                            class="text-[10px] uppercase tracking-wider font-bold text-amber hover:text-amber-light transition-colors">Mark
+                            Read</button>
+                    </div>
+
+                    <div id="notification-list" class="max-h-80 overflow-y-auto no-scrollbar scroll-smooth">
+                        <!-- Items injected here -->
+                        <div class="flex flex-col items-center justify-center p-8 text-gray-500 gap-2">
+                            <i class="far fa-bell-slash text-2xl opacity-50"></i>
+                            <span class="text-xs italic">No new notifications</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div onclick="switchTab('profile')"
                 class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber to-amber-deep flex items-center justify-center text-midnight font-bold text-xs cursor-pointer shrink-0 hover:scale-110 active:scale-90 transition-transform shadow-amber-glow"
                 id="header-profile-initials">
