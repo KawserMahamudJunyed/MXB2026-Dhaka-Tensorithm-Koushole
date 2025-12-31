@@ -1538,7 +1538,12 @@ async function checkDailyReminder() {
     const now = Date.now();
     const minInterval = 6 * 60 * 60 * 1000; // 6 hours
 
-    if (lastCheck && (now - parseInt(lastCheck) < minInterval)) {
+    if (!lastCheck) {
+        localStorage.setItem('last_reminder_timestamp', now.toString());
+        return;
+    }
+
+    if (now - parseInt(lastCheck) < minInterval) {
         return;
     }
 
@@ -1553,4 +1558,42 @@ async function checkDailyReminder() {
     await createNotification('reminder', 'Study Reminder', randomMsg);
 
     localStorage.setItem('last_reminder_timestamp', now.toString());
+}
+
+function updateGreeting() {
+    const hours = new Date().getHours();
+    const greetingEl = document.getElementById('dashboard-greeting');
+    if (!greetingEl) return;
+
+    let greeting = 'Good Evening';
+    let icon = '🌙';
+
+    if (hours >= 5 && hours < 12) {
+        greeting = 'Good Morning';
+        icon = '☀️';
+    } else if (hours >= 12 && hours < 18) { // Changed from 17 to 18 for better afternoon coverage
+        greeting = 'Good Afternoon';
+        icon = '🌤️';
+    }
+
+    // Name (fallback to "Student" handled in HTML or updateUI usually)
+    // We only update the greeting text part while preserving the structure if possible.
+    // The HTML is: Good Evening, Name! 🚀
+    // We need to preserve the name if it's dynamic. 
+    // Actually updateUI calls updateGreeting FIRST, then updateUI might not update the name in the header?
+    // Wait, updateUI doesn't seem to update #dashboard-greeting text for NAME?
+    // Line 424: <h1 id="dashboard-greeting" ...>Good Evening! 🚀</h1>
+    // The name isn't there in the HTML ID. 
+    // Ah, the user screenshot shows "Good Evening, Junyed! 🚀".
+    // So something IS updating it.
+    // Logic: `greetingEl.innerText = \`${greeting}, ${userProfile.name || 'Friend'}! ${icon}\`;`
+
+    // I will implementation safe update:
+    const name = userProfile.name || userProfile.nickname || 'Student';
+    // Check language? HTML has data-key="greeting".
+    // If I overwrite innerText, translation system might conflict?
+    // But this is dynamic.
+
+    // Simple override:
+    greetingEl.innerText = `${greeting}, ${name}! ${icon}`;
 }
