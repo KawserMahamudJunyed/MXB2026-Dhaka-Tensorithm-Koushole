@@ -463,9 +463,112 @@ function updateGreeting() {
 
 
 // --- LIBRARY & UPLOAD LOGIC ---
-const libraryBooks = [
-    { name: "Physics_Optics.pdf", date: "Added 5 days ago", status: "Ready", color: "sky" }
-];
+// --- LIBRARY & UPLOAD LOGIC ---
+let libraryBooks = [];
+
+async function fetchLibraryBooks() {
+    if (!window.supabaseClient) return;
+
+    try {
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await window.supabaseClient
+            .from('library_books')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+            libraryBooks = data.map(book => ({
+                name: book.title,
+                date: new Date(book.created_at).toLocaleDateString(),
+                status: book.index_status === 'done' ? 'Ready' : 'Processing',
+                color: book.index_status === 'done' ? 'sky' : 'amber',
+                file_type: book.file_type || 'pdf'
+            }));
+            renderLibrary();
+        } else {
+            // Show empty state
+            const list = document.getElementById('library-list');
+            if (list) {
+                list.innerHTML = `
+                <div class="text-center text-text-secondary text-sm py-8">
+                    <i class="fas fa-book-open text-4xl mb-4 opacity-50"></i>
+                    <p data-key="noBooksYet">No books uploaded yet. Upload a book above to get started!</p>
+                </div>`;
+            }
+        }
+    } catch (err) {
+        console.error("Error fetching library:", err);
+    }
+}
+
+async function fetchChatHistory() {
+    if (!window.supabaseClient) return;
+
+    try {
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await window.supabaseClient
+            .from('chat_history')
+            .select('*')
+            .order('created_at', { ascending: true })
+            .limit(50);
+
+        if (error) throw error;
+
+        const chatContainer = document.getElementById('chat-messages');
+        if (data && data.length > 0 && chatContainer) {
+            // Clear default message if history exists, OR append? 
+            // Better to keep default if empty.
+            chatContainer.innerHTML = '';
+
+            // Add default welcome message first
+            chatContainer.innerHTML = `
+                <div class="flex gap-3 group">
+                    <div class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs">
+                        <i class="fas fa-robot group-hover:animate-bounce"></i>
+                    </div>
+                    <div class="bg-surface border border-divider text-text-primary p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm leading-relaxed shadow-sm transition-colors prose prose-invert prose-sm">
+                        <span data-key="aiMsg1">Hello! I'm your AI Tutor. How can I help you learn today?</span>
+                    </div>
+                </div>
+            `;
+
+            data.forEach(msg => {
+                const isUser = msg.role === 'user';
+                const div = document.createElement('div');
+                div.className = isUser ? "flex gap-3 flex-row-reverse group" : "flex gap-3 group";
+
+                div.innerHTML = isUser ? `
+                    <div class="w-8 h-8 rounded-full bg-midnight border border-divider flex items-center justify-center text-text-secondary text-xs">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="bg-amber text-black p-3 rounded-2xl rounded-tr-none max-w-[85%] text-sm leading-relaxed shadow-md transition-transform hover:scale-[1.01]">
+                        ${marked.parse(msg.content)}
+                    </div>
+                ` : `
+                    <div class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs">
+                        <i class="fas fa-robot group-hover:animate-bounce"></i>
+                    </div>
+                    <div class="bg-surface border border-divider text-text-primary p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm leading-relaxed shadow-sm transition-colors prose prose-invert prose-sm">
+                        ${marked.parse(msg.content)}
+                    </div>
+                `;
+                chatContainer.appendChild(div);
+            });
+
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    } catch (err) {
+        console.error("Error fetching chat history:", err);
+    }
+}
+
 
 function renderLibrary() {
     const list = document.getElementById('library-list');
@@ -497,21 +600,71 @@ function renderLibrary() {
     });
 }
 
-document.getElementById('book-upload-input').addEventListener('change', function (e) {
+document.getElementById('book-upload-input').addEventListener('change', async function (e) {
     if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
-        libraryBooks.unshift({
-            name: file.name,
-            date: "Just now",
-            status: "Processing...",
-            color: "emerald"
-        });
-        renderLibrary();
-        setTimeout(() => {
-            libraryBooks[0].status = "Ready";
-            renderLibrary();
+
+        // Show immediate optimistic UI or loading state
+        const list = document.getElementById('library-list');
+        // If empty state exists, remove it
+        if (list.querySelector('.text-center')) list.innerHTML = '';
+
+        const tempId = 'temp-' + Date.now();
+        list.insertAdjacentHTML('afterbegin', `
+            <div id="${tempId}" class="bg-surface border border-divider rounded-xl p-4 flex items-center justify-between opacity-50">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin text-amber"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-text-primary font-bold text-sm">Uploading ${file.name}...</h4>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        try {
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            if (!user) throw new Error("User not logged in");
+
+            // 1. Upload file to Storage (optional/try-catch)
+            let fileUrl = null;
+            try {
+                const filePath = `${user.id}/${Date.now()}_${file.name}`;
+                const { data: uploadData, error: uploadError } = await window.supabaseClient.storage
+                    .from('books')
+                    .upload(filePath, file);
+
+                if (!uploadError && uploadData) {
+                    fileUrl = uploadData.path; // Or public URL
+                }
+            } catch (storageErr) {
+                console.warn("Storage upload failed (bucket might be missing), skipping file upload:", storageErr);
+            }
+
+            // 2. Insert into DB
+            const { error: insertError } = await window.supabaseClient
+                .from('library_books')
+                .insert({
+                    user_id: user.id,
+                    title: file.name,
+                    file_type: file.type.includes('pdf') ? 'pdf' : 'epub',
+                    file_size_bytes: file.size,
+                    file_url: fileUrl,
+                    index_status: 'done' // Auto-complete for now since no backend processor
+                });
+
+            if (insertError) throw insertError;
+
+            // 3. Refresh List
+            await fetchLibraryBooks();
             alert(t("bookProcessed"));
-        }, 2500);
+
+        } catch (err) {
+            console.error("Upload failed:", err);
+            document.getElementById(tempId)?.remove();
+            alert("Upload failed: " + err.message);
+        }
     }
 });
 
@@ -680,7 +833,11 @@ function appendAIMessage(markdownText) {
 function init() {
     document.getElementById('app-logo').src = 'Koushole_White.svg';
     checkAuth(); // Check auth state on load
-    renderLibrary();
+
+    // Load Real Data
+    fetchLibraryBooks();
+    fetchChatHistory();
+
     updateProfileUI(); // Load memory
     updateChapters(); // Init chapter list
 

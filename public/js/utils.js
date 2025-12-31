@@ -173,7 +173,7 @@ function switchTab(viewName) {
                     } else {
                         console.error("openQuizConfig function not found!");
                     }
-                    return;
+                    // Continue to show the view!
                 }
             }
         }
