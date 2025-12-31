@@ -19,9 +19,25 @@ const DEFAULT_STATS = {
 // Global Memory Objects
 let userMemory = JSON.parse(JSON.stringify(DEFAULT_STATS));
 
-// Init Auth Listener
-if (window.supabaseClient) {
+// Wait for Supabase client to be ready then set up auth listener
+function waitForSupabase(callback, maxWait = 5000) {
+    const startTime = Date.now();
+    const checkInterval = setInterval(() => {
+        if (window.supabaseClient) {
+            clearInterval(checkInterval);
+            console.log("✅ Supabase client ready, setting up auth listener");
+            callback();
+        } else if (Date.now() - startTime > maxWait) {
+            clearInterval(checkInterval);
+            console.error("❌ Supabase client not available after waiting");
+        }
+    }, 100);
+}
+
+// Init Auth Listener (with wait)
+waitForSupabase(() => {
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         if (session) {
             isAuthenticated = true;
             currentUserId = session.user.id;
@@ -36,9 +52,7 @@ if (window.supabaseClient) {
         checkAuth();
         updateUI();
     });
-} else {
-    console.warn("Supabase client not ready. Auth listener disabled.");
-}
+});
 
 // Fetch user data from Supabase tables
 async function loadUserData(userId) {
