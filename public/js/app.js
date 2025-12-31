@@ -1316,6 +1316,8 @@ function updateChapters() {
 
 // --- NOTIFICATION SYSTEM ---
 
+let cachedNotifications = [];
+
 async function fetchNotifications() {
     if (!currentUserId) return;
 
@@ -1329,8 +1331,16 @@ async function fetchNotifications() {
 
         if (error) throw error;
 
+        cachedNotifications = data;
+
         const unreadCount = data.filter(n => !n.is_read).length;
         renderNotifications(data, unreadCount);
+
+        // Also update profile view if open
+        const profileContent = document.getElementById('profile-notifications-content');
+        if (profileContent && !profileContent.classList.contains('hidden')) {
+            renderProfileNotifications();
+        }
 
     } catch (err) {
         console.error("Error fetching notifications:", err);
@@ -1357,37 +1367,62 @@ function renderNotifications(notifications, unreadCount) {
         return;
     }
 
-    listEl.innerHTML = notifications.map(n => {
-        let icon = 'fas fa-info-circle';
-        let colorClass = 'text-blue-400';
-        let bgClass = 'bg-blue-400/10';
+    listEl.innerHTML = notifications.map(n => getNotificationHTML(n)).join('');
+}
 
-        if (n.type === 'badge') {
-            icon = 'fas fa-medal';
-            colorClass = 'text-amber';
-            bgClass = 'bg-amber/10';
-        } else if (n.type === 'reminder') {
-            icon = 'fas fa-clock';
-            colorClass = 'text-purple-400';
-            bgClass = 'bg-purple-400/10';
-        }
+function getNotificationHTML(n) {
+    let icon = 'fas fa-info-circle';
+    let colorClass = 'text-blue-400';
+    let bgClass = 'bg-blue-400/10';
 
-        const exactTime = new Date(n.created_at).toLocaleString();
-        const unreadStyle = !n.is_read ? 'bg-white/5 border-l-2 border-amber' : '';
+    if (n.type === 'badge') {
+        icon = 'fas fa-medal';
+        colorClass = 'text-amber';
+        bgClass = 'bg-amber/10';
+    } else if (n.type === 'reminder') {
+        icon = 'fas fa-clock';
+        colorClass = 'text-purple-400';
+        bgClass = 'bg-purple-400/10';
+    }
 
-        return `
-            <div class="p-3 border-b border-white/5 hover:bg-white/5 transition-colors flex gap-3 ${unreadStyle}">
-                <div class="w-8 h-8 rounded-full ${bgClass} ${colorClass} flex items-center justify-center shrink-0">
-                    <i class="${icon} text-xs"></i>
-                </div>
-                <div>
-                    <h5 class="text-xs font-bold text-gray-200 mb-0.5">${n.title}</h5>
-                    <p class="text-[10px] text-gray-400 leading-relaxed">${n.message}</p>
-                    <span class="text-[9px] text-gray-600 block mt-1">${exactTime}</span>
-                </div>
+    const exactTime = new Date(n.created_at).toLocaleString();
+    const unreadStyle = !n.is_read ? 'bg-white/5 border-l-2 border-amber' : '';
+
+    return `
+        <div class="p-3 border-b border-white/5 hover:bg-white/5 transition-colors flex gap-3 ${unreadStyle}">
+            <div class="w-8 h-8 rounded-full ${bgClass} ${colorClass} flex items-center justify-center shrink-0">
+                <i class="${icon} text-xs"></i>
             </div>
-        `;
-    }).join('');
+            <div>
+                <h5 class="text-xs font-bold text-gray-200 mb-0.5">${n.title}</h5>
+                <p class="text-[10px] text-gray-400 leading-relaxed">${n.message}</p>
+                <span class="text-[9px] text-gray-600 block mt-1">${exactTime}</span>
+            </div>
+        </div>
+    `;
+}
+
+function toggleProfileNotifications() {
+    const content = document.getElementById('profile-notifications-content');
+    const arrow = document.getElementById('profile-notifications-arrow');
+
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        arrow.style.transform = 'rotate(90deg)';
+        renderProfileNotifications();
+    } else {
+        content.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+function renderProfileNotifications() {
+    const listEl = document.getElementById('profile-notifications-content');
+    if (!cachedNotifications || cachedNotifications.length === 0) {
+        listEl.innerHTML = '<div class="p-4 text-center text-text-secondary text-xs italic">No notifications</div>';
+        return;
+    }
+    listEl.innerHTML = cachedNotifications.map(n => getNotificationHTML(n)).join('');
 }
 
 async function createNotification(type, title, message) {

@@ -114,7 +114,7 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-1 sm:gap-4">
             <div class="flex items-center gap-1 sm:gap-2">
                 <button onclick="setLanguage('en')"
                     class="text-[10px] sm:text-xs font-bold transition-colors text-amber hover:-translate-y-0.5 transition-transform"
@@ -890,14 +890,19 @@
                             <span class="text-text-primary text-sm font-medium" id="profile-group">-</span>
                         </div>
                     </div>
-                    <div
+                    <div id="profile-notifications-header" onclick="toggleProfileNotifications()"
                         class="p-4 flex items-center justify-between border-b border-divider cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
                         <div class="flex items-center gap-3">
                             <i class="fas fa-bell text-text-secondary w-5"></i>
                             <span class="text-text-primary text-sm font-medium"
                                 data-key="notifications">Notifications</span>
                         </div>
-                        <i class="fas fa-chevron-right text-text-secondary text-xs"></i>
+                        <i id="profile-notifications-arrow"
+                            class="fas fa-chevron-right text-text-secondary text-xs transition-transform"></i>
+                    </div>
+                    <div id="profile-notifications-content"
+                        class="hidden bg-midnight/50 max-h-60 overflow-y-auto border-b border-divider">
+                        <div class="p-4 text-center text-text-secondary text-xs italic">Loading...</div>
                     </div>
                     <div
                         class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors">
