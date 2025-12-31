@@ -393,6 +393,99 @@ const nctbCurriculum = {
                 { id: 'pleasure', en: "Pleasure and Purpose", bn: "Pleasure and Purpose" }
             ]
         }
+    ],
+    humanities: [
+        {
+            id: 'history',
+            nameEn: "History of Bangladesh & World Civilization",
+            nameBn: "বাংলাদেশ ও বিশ্বসভ্যতার ইতিহাস",
+            chapters: [
+                { id: 'hist_intro', en: "Introduction to History", bn: "ইতিহাস পরিচিতি" },
+                { id: 'ancient_civ', en: "Ancient Civilizations", bn: "প্রাচীন সভ্যতা" },
+                { id: 'bengal_hist', en: "History of Bengal", bn: "বাংলার ইতিহাস" },
+                { id: 'mughal', en: "Mughal Period", bn: "মুঘল আমল" },
+                { id: 'british', en: "British Colonial Period", bn: "ব্রিটিশ ঔপনিবেশিক আমল" },
+                { id: 'liberation', en: "Liberation War of Bangladesh", bn: "বাংলাদেশের মুক্তিযুদ্ধ" },
+                { id: 'world_war', en: "World Wars", bn: "বিশ্বযুদ্ধ" }
+            ]
+        },
+        {
+            id: 'civics',
+            nameEn: "Civics & Citizenship",
+            nameBn: "পৌরনীতি ও নাগরিকতা",
+            chapters: [
+                { id: 'state', en: "State & Government", bn: "রাষ্ট্র ও সরকার" },
+                { id: 'constitution', en: "Constitution of Bangladesh", bn: "বাংলাদেশের সংবিধান" },
+                { id: 'democracy', en: "Democracy", bn: "গণতন্ত্র" },
+                { id: 'rights', en: "Human Rights", bn: "মানবাধিকার" },
+                { id: 'local_gov', en: "Local Government", bn: "স্থানীয় সরকার" },
+                { id: 'law', en: "Law & Justice", bn: "আইন ও বিচার" }
+            ]
+        },
+        {
+            id: 'economics',
+            nameEn: "Economics",
+            nameBn: "অর্থনীতি",
+            chapters: [
+                { id: 'econ_intro', en: "Introduction to Economics", bn: "অর্থনীতি পরিচিতি" },
+                { id: 'demand_supply', en: "Demand & Supply", bn: "চাহিদা ও যোগান" },
+                { id: 'money', en: "Money & Banking", bn: "মুদ্রা ও ব্যাংকিং" },
+                { id: 'bd_economy', en: "Economy of Bangladesh", bn: "বাংলাদেশের অর্থনীতি" },
+                { id: 'trade', en: "International Trade", bn: "আন্তর্জাতিক বাণিজ্য" }
+            ]
+        },
+        {
+            id: 'geography',
+            nameEn: "Geography & Environment",
+            nameBn: "ভূগোল ও পরিবেশ",
+            chapters: [
+                { id: 'geo_intro', en: "Introduction to Geography", bn: "ভূগোল পরিচিতি" },
+                { id: 'bd_geo', en: "Geography of Bangladesh", bn: "বাংলাদেশের ভূগোল" },
+                { id: 'climate', en: "Climate & Weather", bn: "জলবায়ু ও আবহাওয়া" },
+                { id: 'environment', en: "Environment & Pollution", bn: "পরিবেশ ও দূষণ" },
+                { id: 'disaster', en: "Natural Disasters", bn: "প্রাকৃতিক দুর্যোগ" }
+            ]
+        }
+    ],
+    business: [
+        {
+            id: 'accounting',
+            nameEn: "Accounting",
+            nameBn: "হিসাববিজ্ঞান",
+            chapters: [
+                { id: 'acc_intro', en: "Introduction to Accounting", bn: "হিসাববিজ্ঞান পরিচিতি" },
+                { id: 'journal', en: "Journal & Ledger", bn: "জাবেদা ও খতিয়ান" },
+                { id: 'trial', en: "Trial Balance", bn: "রেওয়ামিল" },
+                { id: 'final_acc', en: "Final Accounts", bn: "চূড়ান্ত হিসাব" },
+                { id: 'bank_rec', en: "Bank Reconciliation", bn: "ব্যাংক সমন্বয়" },
+                { id: 'depreciation', en: "Depreciation", bn: "অবচয়" }
+            ]
+        },
+        {
+            id: 'business_intro',
+            nameEn: "Business Introduction",
+            nameBn: "ব্যবসায় পরিচিতি",
+            chapters: [
+                { id: 'bus_concept', en: "Concept of Business", bn: "ব্যবসায়ের ধারণা" },
+                { id: 'ownership', en: "Business Ownership", bn: "ব্যবসায়ের মালিকানা" },
+                { id: 'industry', en: "Industry", bn: "শিল্প" },
+                { id: 'commerce', en: "Commerce & Trade", bn: "বাণিজ্য ও ব্যবসায়" },
+                { id: 'insurance', en: "Insurance", bn: "বীমা" },
+                { id: 'transport', en: "Transport & Communication", bn: "পরিবহন ও যোগাযোগ" }
+            ]
+        },
+        {
+            id: 'finance',
+            nameEn: "Finance & Banking",
+            nameBn: "ফিন্যান্স ও ব্যাংকিং",
+            chapters: [
+                { id: 'fin_intro', en: "Introduction to Finance", bn: "ফিন্যান্স পরিচিতি" },
+                { id: 'banking', en: "Banking System", bn: "ব্যাংকিং ব্যবস্থা" },
+                { id: 'central_bank', en: "Central Bank", bn: "কেন্দ্রীয় ব্যাংক" },
+                { id: 'stock', en: "Stock Market", bn: "শেয়ার বাজার" },
+                { id: 'investment', en: "Investment", bn: "বিনিয়োগ" }
+            ]
+        }
     ]
 };
 

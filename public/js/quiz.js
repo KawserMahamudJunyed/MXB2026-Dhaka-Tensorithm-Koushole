@@ -47,10 +47,19 @@ function openQuizConfig(bookName = null, presetSubject = null, presetTopic = nul
         modalTitle.innerText = currentLang === 'bn' ? "কাস্টম সেটআপ" : "Custom Setup";
 
         // Use NCTB Curriculum Data
-        const group = (userProfile.group || 'Science').toLowerCase();
+        // Map user group to curriculum key
+        const groupMapping = {
+            'science': 'science',
+            'humanities': 'humanities',
+            'business studies': 'business',
+            'business': 'business'
+        };
+        const userGroup = (userProfile.group || 'Science').toLowerCase();
+        const curriculumKey = groupMapping[userGroup] || 'science';
+
         let subjects = [];
-        if (typeof nctbCurriculum !== 'undefined' && nctbCurriculum[group]) {
-            subjects = [...nctbCurriculum[group], ...nctbCurriculum.common];
+        if (typeof nctbCurriculum !== 'undefined' && nctbCurriculum[curriculumKey]) {
+            subjects = [...nctbCurriculum[curriculumKey], ...nctbCurriculum.common];
         } else if (typeof nctbCurriculum !== 'undefined') {
             subjects = [...nctbCurriculum.science, ...nctbCurriculum.common];
         } else {
