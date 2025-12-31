@@ -44,22 +44,64 @@ function openQuizConfig(bookName = null, presetSubject = null, presetTopic = nul
         subjectSelect.disabled = true;
         topicSelect.innerHTML = `<option value="All Chapters">All Chapters</option>`;
     } else {
-        modalTitle.innerText = "Custom Setup";
-        subjectSelect.innerHTML = `
-            <option value="Physics">Physics</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Biology">Biology</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="English">English</option>
-            <option value="General Knowledge">General Knowledge</option>
-        `;
+        modalTitle.innerText = currentLang === 'bn' ? "কাস্টম সেটআপ" : "Custom Setup";
+
+        // Use NCTB Curriculum Data
+        const group = (userProfile.group || 'Science').toLowerCase();
+        let subjects = [];
+        if (typeof nctbCurriculum !== 'undefined' && nctbCurriculum[group]) {
+            subjects = [...nctbCurriculum[group], ...nctbCurriculum.common];
+        } else if (typeof nctbCurriculum !== 'undefined') {
+            subjects = [...nctbCurriculum.science, ...nctbCurriculum.common];
+        } else {
+            // Fallback if nctbCurriculum is not defined
+            subjects = [
+                { id: 'physics', nameEn: 'Physics', nameBn: 'পদার্থবিজ্ঞান', chapters: [] },
+                { id: 'chemistry', nameEn: 'Chemistry', nameBn: 'রসায়ন', chapters: [] },
+                { id: 'biology', nameEn: 'Biology', nameBn: 'জীববিজ্ঞান', chapters: [] },
+                { id: 'math', nameEn: 'Mathematics', nameBn: 'গণিত', chapters: [] }
+            ];
+        }
+
+        subjectSelect.innerHTML = '';
+        subjects.forEach(sub => {
+            const opt = document.createElement('option');
+            opt.value = sub.id;
+            opt.innerText = currentLang === 'bn' ? sub.nameBn : sub.nameEn;
+            subjectSelect.appendChild(opt);
+        });
         subjectSelect.disabled = false;
 
-        updateChapters();
+        // Populate chapters for first subject
+        const firstSub = subjects[0];
+        topicSelect.innerHTML = `<option value="all">${currentLang === 'bn' ? 'সব অধ্যায়' : 'All Chapters'}</option>`;
+        if (firstSub && firstSub.chapters) {
+            firstSub.chapters.forEach(chap => {
+                const opt = document.createElement('option');
+                opt.value = chap.id;
+                opt.innerText = currentLang === 'bn' ? chap.bn : chap.en;
+                topicSelect.appendChild(opt);
+            });
+        }
+
+        // Handle subject change for chapters
+        subjectSelect.onchange = () => {
+            const selId = subjectSelect.value;
+            const subData = subjects.find(s => s.id === selId);
+            topicSelect.innerHTML = `<option value="all">${currentLang === 'bn' ? 'সব অধ্যায়' : 'All Chapters'}</option>`;
+            if (subData && subData.chapters) {
+                subData.chapters.forEach(chap => {
+                    const opt = document.createElement('option');
+                    opt.value = chap.id;
+                    opt.innerText = currentLang === 'bn' ? chap.bn : chap.en;
+                    topicSelect.appendChild(opt);
+                });
+            }
+        };
 
         if (presetSubject) {
             subjectSelect.value = presetSubject;
-            updateChapters();
+            subjectSelect.dispatchEvent(new Event('change'));
         }
         if (presetTopic) topicSelect.value = presetTopic;
     }
