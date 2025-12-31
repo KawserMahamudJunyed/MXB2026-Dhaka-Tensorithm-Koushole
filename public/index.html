@@ -430,7 +430,7 @@
 
             <!-- Chart Card (Glassmorphism) -->
             <div
-                class="relative overflow-hidden rounded-2xl p-6 border border-white/10 bg-black/40 backdrop-blur-xl shadow-xl transition-all duration-300 group">
+                class="relative overflow-hidden rounded-2xl p-6 border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/40 backdrop-blur-xl shadow-xl transition-all duration-300 group">
                 <!-- Decorative Glows -->
                 <div
                     class="absolute top-0 right-0 w-64 h-64 bg-amber/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none">
@@ -446,9 +446,10 @@
                                 <i class="fas fa-chart-line"></i>
                             </div>
                             <div>
-                                <h3 class="text-gray-100 font-bold title-font text-xl md:text-2xl"
+                                <h3 class="text-gray-900 dark:text-gray-100 font-bold title-font text-xl md:text-2xl transition-colors"
                                     data-key="chartTitle">Learning Velocity</h3>
-                                <p class="text-gray-400 text-xs body-font">Your activity over time</p>
+                                <p class="text-gray-500 dark:text-gray-400 text-xs body-font transition-colors">Your
+                                    activity over time</p>
                             </div>
                         </div>
                         <span
@@ -463,14 +464,16 @@
 
                 <!-- Empty State for New Users - Overlay -->
                 <div id="new-user-welcome"
-                    class="absolute inset-0 flex flex-col justify-center items-center text-center bg-black/80 backdrop-blur-sm z-20">
+                    class="absolute inset-0 flex flex-col justify-center items-center text-center bg-white/90 dark:bg-black/80 backdrop-blur-sm z-20">
                     <div
                         class="w-16 h-16 bg-gradient-to-tr from-amber to-orange-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-amber/20 animate-float">
                         <i class="fas fa-rocket text-black text-2xl"></i>
                     </div>
-                    <h3 class="text-white font-bold text-2xl title-font mb-2" data-key="welcomeTitle">Start Your
+                    <h3 class="text-gray-900 dark:text-white font-bold text-2xl title-font mb-2 transition-colors"
+                        data-key="welcomeTitle">Start Your
                         Journey!</h3>
-                    <p class="text-gray-400 text-sm mb-6 body-font max-w-xs leading-relaxed" data-key="welcomeDesc">Take
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 body-font max-w-xs leading-relaxed transition-colors"
+                        data-key="welcomeDesc">Take
                         your first quiz to begin tracking your progress.</p>
                     <button onclick="openQuizConfig()"
                         class="px-8 py-3 bg-amber text-black font-bold text-sm rounded-full shadow-amber-glow hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
