@@ -5,6 +5,7 @@
     "start": "serve public"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "serve": "^14.0.0"
   }
 }
