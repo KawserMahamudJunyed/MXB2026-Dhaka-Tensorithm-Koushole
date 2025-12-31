@@ -1402,6 +1402,19 @@ function getNotificationHTML(n) {
     `;
 }
 
+function togglePersonalDetails() {
+    const content = document.getElementById('personal-details-content');
+    const arrow = document.getElementById('personal-details-arrow');
+
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        arrow.style.transform = 'rotate(90deg)';
+    } else {
+        content.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
 function toggleProfileNotifications() {
     const content = document.getElementById('profile-notifications-content');
     const arrow = document.getElementById('profile-notifications-arrow');
