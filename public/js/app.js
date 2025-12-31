@@ -797,11 +797,11 @@ function renderBadge(badgeId) {
     return `
         <div class="flex-shrink-0 group cursor-pointer badge-float">
             <!-- Glass Card Container -->
-            <div class="relative w-28 h-36 rounded-2xl bg-[#1A1A1A] border border-white/10 p-3 flex flex-col items-center justify-between shadow-xl overflow-hidden group-hover:shadow-[0_0_30px_-5px_var(--glow-color)] transition-all duration-500"
+            <div class="relative w-28 h-36 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-white/10 p-3 flex flex-col items-center justify-between shadow-xl overflow-hidden group-hover:shadow-[0_0_30px_-5px_var(--glow-color)] transition-all duration-500"
                  style="--glow-color: ${getColorFromGradient(style.gradient)}">
                 
                 <!-- Shining Beam Effect -->
-                <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <div class="absolute inset-0 bg-gradient-to-tr from-gray-400/0 dark:from-white/0 via-gray-400/5 dark:via-white/5 to-gray-400/0 dark:to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 
                 <!-- Background Glow -->
                 <div class="absolute top-[-20%] left-[-20%] w-[140%] h-[140%] bg-gradient-to-br ${style.gradient} opacity-20 blur-2xl rounded-full group-hover:opacity-30 transition-opacity"></div>
@@ -812,7 +812,7 @@ function renderBadge(badgeId) {
                     <div class="absolute inset-[-4px] rounded-full border border-dashed border-white/30 animate-spin-slow opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     
                     <!-- Icon Circle -->
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-[#333] to-[#111] border border-white/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-gray-100 to-white dark:from-[#333] dark:to-[#111] border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
                         <span class="text-3xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] select-none">${style.icon}</span>
                     </div>
                     
@@ -824,7 +824,7 @@ function renderBadge(badgeId) {
 
                 <!-- Text Content -->
                 <div class="z-10 text-center w-full mb-1">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-0.5 group-hover:to-white transition-colors">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-500 dark:from-white dark:to-gray-400 mb-0.5 group-hover:to-gray-700 dark:group-hover:to-white transition-colors">
                         ${displayName}
                     </h4>
                     <div class="h-0.5 w-8 mx-auto bg-gradient-to-r ${style.gradient} rounded-full opacity-50 group-hover:w-16 group-hover:opacity-100 transition-all duration-300"></div>
