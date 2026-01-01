@@ -229,29 +229,25 @@ function openQuizConfig(bookName = null, presetSubject = null, presetTopic = nul
     } else {
         modalTitle.innerText = currentLang === 'bn' ? "কাস্টম সেটআপ" : "Custom Setup";
 
-        // Use NCTB Curriculum Data
-        // Map user group to curriculum key
-        const groupMapping = {
-            'science': 'science',
-            'humanities': 'humanities',
-            'business studies': 'business',
-            'business': 'business'
-        };
-        const userGroup = (userProfile.group || 'Science').toLowerCase();
-        const curriculumKey = groupMapping[userGroup] || 'science';
+        // Use global subject helper to match Admin Panel
+        const userGroup = (localStorage.getItem('userGroup') || userProfile.group || 'Science');
+        const userClass = (localStorage.getItem('userClass') || userProfile.class || '9');
 
         let subjects = [];
-        if (typeof nctbCurriculum !== 'undefined' && nctbCurriculum[curriculumKey]) {
-            subjects = [...nctbCurriculum[curriculumKey], ...nctbCurriculum.common];
-        } else if (typeof nctbCurriculum !== 'undefined') {
-            subjects = [...nctbCurriculum.science, ...nctbCurriculum.common];
+        if (window.getSubjects) {
+            const subjectNames = window.getSubjects(userGroup, userClass);
+            // Convert strings to objects for compatibility with existing code
+            subjects = subjectNames.map(name => ({
+                id: name, // Use name as ID for simplicity
+                nameEn: name,
+                nameBn: name, // We can add translation map later if needed
+                chapters: [] // Chapters will be fetched dynamically or mocked
+            }));
         } else {
-            // Fallback if nctbCurriculum is not defined
+            // Fallback
             subjects = [
-                { id: 'physics', nameEn: 'Physics', nameBn: 'পদার্থবিজ্ঞান', chapters: [] },
-                { id: 'chemistry', nameEn: 'Chemistry', nameBn: 'রসায়ন', chapters: [] },
-                { id: 'biology', nameEn: 'Biology', nameBn: 'জীববিজ্ঞান', chapters: [] },
-                { id: 'math', nameEn: 'Mathematics', nameBn: 'গণিত', chapters: [] }
+                { id: 'Physics', nameEn: 'Physics', nameBn: 'পদার্থবিজ্ঞান', chapters: [] },
+                { id: 'Chemistry', nameEn: 'Chemistry', nameBn: 'রসায়ন', chapters: [] }
             ];
         }
 
@@ -259,7 +255,7 @@ function openQuizConfig(bookName = null, presetSubject = null, presetTopic = nul
         subjects.forEach(sub => {
             const opt = document.createElement('option');
             opt.value = sub.id;
-            opt.innerText = currentLang === 'bn' ? sub.nameBn : sub.nameEn;
+            opt.innerText = sub.nameEn; // Use English name for now
             subjectSelect.appendChild(opt);
         });
         subjectSelect.disabled = false;
