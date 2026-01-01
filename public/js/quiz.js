@@ -502,6 +502,9 @@ function renderQuestion() {
     if (q.type === 'text') q.type = 'voice';
 
     document.getElementById('feedback-area').classList.add('hidden');
+    const watchBtn = document.getElementById('watch-lesson-btn');
+    if (watchBtn) watchBtn.classList.add('hidden'); // Reset
+
     // Reset question header display (in case previous was fill_gap)
     document.getElementById('quiz-question-text').style.display = '';
     const container = document.getElementById('input-container');
@@ -758,6 +761,15 @@ function checkAnswer(type, selectedIdx = null) {
             userMemory.weaknesses.push(q.topic);
             saveMemory();
         }
+
+        // Show Watch Lesson Button with Khan Academy Search
+        const watchBtn = document.getElementById('watch-lesson-btn');
+        if (watchBtn) {
+            const searchTerm = encodeURIComponent(`${q.topic} ${selectedDifficulty === 'Hard' ? 'advanced' : 'basics'}`);
+            watchBtn.href = `https://www.khanacademy.org/search?q=${searchTerm}`;
+            watchBtn.classList.remove('hidden');
+        }
+
         document.getElementById('feedback-area').classList.remove('hidden');
         if (navigator.vibrate) navigator.vibrate(200);
     }

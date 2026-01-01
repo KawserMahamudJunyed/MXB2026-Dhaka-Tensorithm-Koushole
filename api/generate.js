@@ -41,7 +41,7 @@ export default async function handler(req, res) {
           content: prompt
         }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       temperature: 0.2, // Low temp for strict format
       max_tokens: 4096,
       response_format: { type: 'json_object' }

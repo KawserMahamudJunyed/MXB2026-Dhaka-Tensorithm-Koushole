@@ -199,6 +199,9 @@ function checkAuth() {
     const mainHeader = document.getElementById('main-header') || document.querySelector('header');
     const mainNav = document.getElementById('main-nav') || document.querySelector('nav');
 
+    // Setup Signup Form Logic
+    setupSignupLogic();
+
     if (isAuthenticated) {
         showView('view-dashboard');
         if (mainNav) mainNav.classList.remove('hidden');
@@ -333,6 +336,16 @@ async function handleAuth(e) {
         if (authMode === 'signup') {
             console.log("Attempting Signup for:", email);
 
+            // Determine Group or Department
+            let finalGroup = data.group;
+            if (data.classLevel === 'University') {
+                if (data.department === 'Other') {
+                    finalGroup = data.customDepartment || 'University Student';
+                } else {
+                    finalGroup = data.department;
+                }
+            }
+
             // Supabase Sign Up - Storing metadata is CRITICAL for the nickname requirement
             const { data: { user, session }, error } = await window.supabaseClient.auth.signUp({
                 email,
@@ -344,7 +357,7 @@ async function handleAuth(e) {
                         nickname: data.nickname, // Priority 1: Save this!
                         nicknameBn: data.nicknameBn,
                         class: data.classLevel,
-                        group: data.group
+                        group: finalGroup // Save Department as Group for University students
                     }
                 }
             });
@@ -1733,4 +1746,51 @@ async function checkDailyReminder() {
     await createNotification('reminder', 'Study Reminder', randomMsg);
 
     localStorage.setItem('last_reminder_timestamp', now.toString());
+}
+
+// --- SIGNUP LOGIC ---
+function setupSignupLogic() {
+    const classSelect = document.getElementById('signup-class');
+    const groupContainer = document.getElementById('group-container');
+    const groupSelect = document.getElementById('signup-group');
+    const deptContainer = document.getElementById('dept-container');
+    const deptSelect = document.getElementById('signup-dept');
+    const customDeptContainer = document.getElementById('custom-dept-container');
+    const customDeptInput = document.getElementById('signup-custom-dept');
+
+    if (!classSelect || !groupContainer || !deptContainer) return;
+
+    // Class Change Handler
+    classSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'University') {
+            // Show Department, Hide Group
+            groupContainer.classList.add('hidden');
+            groupSelect.required = false;
+
+            deptContainer.classList.remove('hidden');
+            deptSelect.required = true;
+        } else {
+            // Show Group, Hide Department
+            groupContainer.classList.remove('hidden');
+            groupSelect.required = true;
+
+            deptContainer.classList.add('hidden');
+            deptSelect.required = false;
+
+            // Also hide custom dept
+            customDeptContainer.classList.add('hidden');
+            customDeptInput.required = false;
+        }
+    });
+
+    // Department Change Handler
+    deptSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'Other') {
+            customDeptContainer.classList.remove('hidden');
+            customDeptInput.required = true;
+        } else {
+            customDeptContainer.classList.add('hidden');
+            customDeptInput.required = false;
+        }
+    });
 }

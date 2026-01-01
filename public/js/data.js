@@ -489,15 +489,7 @@ const nctbCurriculum = {
     ]
 };
 
-// Mock Chapters Data
-const subjectChapters = {
-    "Physics": ["Motion", "Force", "Work, Power & Energy", "State of Matter", "Heat & Temperature", "Waves", "Sound", "Light"],
-    "Chemistry": ["Concepts of Mole", "Chemical Reactions", "Structure of Atom", "Periodic Table", "Chemical Bonds"],
-    "Biology": ["Life Processes", "Bioenergetics", "Coordination", "Reproduction"],
-    "Mathematics": ["Real Numbers", "Sets and Functions", "Algebraic Expressions", "Exponents and Logarithms", "Trigonometry"],
-    "English": ["Tense", "Sentences", "Prepositions", "Right form of verbs", "Voice Change"],
-    "General Knowledge": ["Bangladesh Affairs", "International Affairs", "Sports", "Technology"]
-};
+
 
 const matchColors = [
     'border-sky-500 bg-sky-100/10 text-sky',       // Blue

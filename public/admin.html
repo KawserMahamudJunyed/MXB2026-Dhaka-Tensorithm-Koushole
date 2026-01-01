@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koushole Admin - Upload Resources</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        background: '#0a0a0a',
+                        surface: '#121212',
+                        primary: '#FFD700',
+                        secondary: '#FFA500',
+                        text: '#e0e0e0'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-background text-text min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-surface p-8 rounded-2xl border border-white/10 w-full max-w-md shadow-xl">
+        <h1 class="text-2xl font-bold text-primary mb-6 text-center">Upload NCTB Book</h1>
+
+        <form id="upload-form" class="space-y-4">
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Book Title</label>
+                <input type="text" id="title"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors"
+                    placeholder="e.g. Physics Class 9" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Subject</label>
+                    <select id="subject"
+                        class="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors"
+                        required>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Math">Math</option>
+                        <option value="Bangla">Bangla</option>
+                        <option value="English">English</option>
+                        <option value="ICT">ICT</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Class</label>
+                    <select id="class-level"
+                        class="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors"
+                        required>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">HSC 11</option>
+                        <option value="12">HSC 12</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">PDF File</label>
+                <input type="file" id="file" accept="application/pdf"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-black hover:file:bg-secondary cursor-pointer"
+                    required>
+            </div>
+
+            <div id="status-msg" class="text-center text-sm min-h-[20px]"></div>
+
+            <button type="submit" id="submit-btn"
+                class="w-full bg-gradient-to-r from-primary to-secondary text-black font-bold py-3 rounded-xl hover:opacity-90 transition-opacity">
+                Upload Book
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="/" class="text-xs text-gray-500 hover:text-primary transition-colors">← Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Load Config First -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>
