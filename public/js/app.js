@@ -957,12 +957,17 @@ async function sendMessage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                message: `You are Koushole, a friendly AI tutor. Reply in ${currentLang === 'bn' ? 'Bangla' : 'English'}.${memoryContext}\nStudent said: ${text}`
+                message: text,
+                history: { weaknesses: userMemory.weaknesses }
             })
         });
 
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `Server Error ${response.status}`);
+        }
+
         const data = await response.json();
-        if (data.error) throw new Error(data.error);
 
         const aiText = data.reply;
         document.getElementById(typingId).remove();
@@ -970,7 +975,7 @@ async function sendMessage() {
 
     } catch (error) {
         document.getElementById(typingId).remove();
-        appendAIMessage(t("connError"));
+        appendAIMessage(`⚠️ **System Error**: ${error.message}`);
         console.error(error);
     }
 }
