@@ -818,12 +818,13 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
 
         try {
             console.log("Starting upload for:", file.name, "Size:", sizeMB, "MB");
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
-            if (!user) throw new Error("User not logged in");
 
-            const session = await window.supabaseClient.auth.getSession();
-            const accessToken = session.data.session?.access_token;
-            if (!accessToken) throw new Error("No access token");
+            // OPTIMIZED: Single call instead of getUser + getSession
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) throw new Error("User not logged in");
+
+            const user = session.user;
+            const accessToken = session.access_token;
 
             // Build Supabase Storage URL
             const SUPABASE_URL = window.supabaseClient.supabaseUrl || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
@@ -863,15 +864,15 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
             await uploadPromise;
             console.log("Upload successful via XHR");
 
-            // 2. Get Public URL
+            // 2. Get Public URL (local operation, no network)
             const { data: { publicUrl } } = window.supabaseClient.storage
                 .from('books')
                 .getPublicUrl(`${user.id}/${safeName}`);
 
             console.log("Public URL generated:", publicUrl);
 
-            // 3. Insert metadata into DB
-            const { data: insertData, error: insertError } = await window.supabaseClient
+            // 3. Insert metadata into DB (OPTIMIZED: removed .select() to skip return fetch)
+            const { error: insertError } = await window.supabaseClient
                 .from('library_books')
                 .insert({
                     user_id: user.id,
@@ -880,14 +881,13 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
                     file_size_bytes: file.size,
                     file_url: publicUrl,
                     index_status: 'done'
-                })
-                .select(); // Return inserted data to confirm
+                });
 
             if (insertError) {
                 console.error("Database Insert Error:", insertError);
                 throw insertError;
             }
-            console.log("Database Insert Success:", insertData);
+            console.log("Database Insert Success");
 
             // Success UI Update
             const tempEl = document.getElementById(tempId);
@@ -913,8 +913,7 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
                 `;
             }
 
-            // Force refresh library list from DB to be sure
-            await fetchLibraryBooks();
+            // OPTIMIZED: Skip full library refresh - UI already updated above
 
         } catch (err) {
             console.error("Full Upload Process Failed:", err);
