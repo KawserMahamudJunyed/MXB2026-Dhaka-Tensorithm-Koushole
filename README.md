@@ -47,4 +47,4 @@
 
 ---
 
-*Powered by Team Tensorithm* 🎓
+*Powered by Team Tensorithm*
