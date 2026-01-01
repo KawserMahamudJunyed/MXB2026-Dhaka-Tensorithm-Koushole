@@ -1165,9 +1165,9 @@ async function init() {
     await checkAuth(); // Check auth state on load
     updateUI(); // Force immediate UI update after auth check
 
-    // Load Real Data
-    fetchLibraryBooks();
-    fetchChatHistory();
+    // Load Real Data (wait for these to complete)
+    await fetchLibraryBooks();
+    await fetchChatHistory();
 
     updateProfileUI(); // Load memory
     updateChapters(); // Init chapter list
