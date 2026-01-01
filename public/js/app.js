@@ -790,23 +790,28 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
         const timestamp = Date.now();
         const safeName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-        // Show Loading State
+        // Show Loading State with Progress Bar
         const list = document.getElementById('library-list');
         if (list.querySelector('.text-center')) list.innerHTML = '';
 
         const tempId = 'temp-' + timestamp;
+        const progressId = 'progress-' + timestamp;
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
 
         list.insertAdjacentHTML('afterbegin', `
-            <div id="${tempId}" class="bg-surface border border-divider rounded-xl p-4 flex items-center justify-between opacity-75">
-                <div class="flex items-center gap-4">
+            <div id="${tempId}" class="bg-surface border border-divider rounded-xl p-4 opacity-90">
+                <div class="flex items-center gap-4 mb-3">
                     <div class="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center">
-                        <i class="fas fa-spinner fa-spin text-amber"></i>
+                        <i class="fas fa-cloud-upload-alt text-amber animate-pulse"></i>
                     </div>
-                    <div>
-                        <h4 class="text-text-primary font-bold text-sm">Uploading ${file.name}...</h4>
-                        <p class="text-text-secondary text-xs">Size: ${sizeMB} MB. Please wait...</p>
+                    <div class="flex-1">
+                        <h4 class="text-text-primary font-bold text-sm truncate">${file.name}</h4>
+                        <p class="text-text-secondary text-xs">${sizeMB} MB</p>
                     </div>
+                    <span id="${progressId}-text" class="text-amber font-bold text-sm">0%</span>
+                </div>
+                <div class="w-full bg-midnight rounded-full h-2 overflow-hidden">
+                    <div id="${progressId}" class="bg-gradient-to-r from-amber to-yellow-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
             </div>
         `);
@@ -816,19 +821,47 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
             const { data: { user } } = await window.supabaseClient.auth.getUser();
             if (!user) throw new Error("User not logged in");
 
-            // 1. Upload to Supabase Storage ('books' bucket)
-            const { data: uploadData, error: uploadError } = await window.supabaseClient.storage
-                .from('books')
-                .upload(`${user.id}/${safeName}`, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
+            const session = await window.supabaseClient.auth.getSession();
+            const accessToken = session.data.session?.access_token;
+            if (!accessToken) throw new Error("No access token");
 
-            if (uploadError) {
-                console.error("Storage Upload Error:", uploadError);
-                throw uploadError;
-            }
-            console.log("Upload successful:", uploadData);
+            // Build Supabase Storage URL
+            const SUPABASE_URL = window.supabaseClient.supabaseUrl || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
+            const bucketName = 'books';
+            const filePath = `${user.id}/${safeName}`;
+            const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucketName}/${filePath}`;
+
+            // Use XMLHttpRequest for progress tracking
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    const progressBar = document.getElementById(progressId);
+                    const progressText = document.getElementById(progressId + '-text');
+                    if (progressBar) progressBar.style.width = percent + '%';
+                    if (progressText) progressText.innerText = percent + '%';
+                }
+            });
+
+            const uploadPromise = new Promise((resolve, reject) => {
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(JSON.parse(xhr.responseText || '{}'));
+                    } else {
+                        reject(new Error(xhr.responseText || 'Upload failed'));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Network error'));
+            });
+
+            xhr.open('POST', uploadUrl, true);
+            xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+            xhr.setRequestHeader('x-upsert', 'false');
+            xhr.send(file);
+
+            await uploadPromise;
+            console.log("Upload successful via XHR");
 
             // 2. Get Public URL
             const { data: { publicUrl } } = window.supabaseClient.storage
