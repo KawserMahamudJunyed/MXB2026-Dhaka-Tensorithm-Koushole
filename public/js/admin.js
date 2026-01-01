@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // SUBJECT LOADING LOGIC (RUNS IMMEDIATELY)
     // -------------------------------------------------------------------
     function updateSubjects() {
-        // Safe access to values with defaults
         const group = groupSelect ? groupSelect.value : 'Science';
         const className = classSelect ? classSelect.value : '9';
 
@@ -45,11 +44,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let subjects = [];
 
-        // Method 1: Try Global Helper
         if (window.getSubjects) {
             subjects = window.getSubjects(group, className);
         } else {
-            // Method 2: Use Local Fallback
             console.warn("⚠️ window.getSubjects missing, using local fallback");
             subjects = getSubjectsFallback(group, className);
         }
@@ -61,36 +58,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Attach Listeners
     if (groupSelect) groupSelect.addEventListener('change', updateSubjects);
     if (classSelect) classSelect.addEventListener('change', updateSubjects);
 
-    // TRIGGER NOW - DO NOT WAIT FOR AUTH
     updateSubjects();
 
     // -------------------------------------------------------------------
-    // AUTHENTICATION CHECK (ASYNC)
+    // AUTHENTICATION CHECK
     // -------------------------------------------------------------------
-    const session = await window.supabaseClient.auth.getSession();
-    if (!session.data.session) {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (!session) {
         alert("You must be logged in to access this page.");
         window.location.href = '/';
         return;
     }
 
-    const userEmail = session.data.session.user.email;
-    console.log("Logged in as:", userEmail);
+    const userEmail = session.user.email;
+    const accessToken = session.access_token;
+    console.log("✅ Logged in as:", userEmail);
 
     // -------------------------------------------------------------------
-    // UPLOAD LOGIC
+    // UPLOAD LOGIC WITH PROGRESS BAR
     // -------------------------------------------------------------------
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        statusMsg.innerText = 'Uploading...';
-        statusMsg.className = 'text-center text-sm text-yellow-500 animate-pulse';
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.5';
 
         const version = document.getElementById('version').value;
         const group = document.getElementById('group').value;
@@ -99,38 +90,82 @@ document.addEventListener('DOMContentLoaded', async () => {
         const fileInput = document.getElementById('file');
         const file = fileInput.files[0];
 
-        // Construct Title automatically
-        let finalTitle = `${subject} - Class ${classLevel}`;
-        if (group !== 'Common') {
-            finalTitle += ` [${group}]`;
-        }
-        finalTitle += (version === 'English') ? ' (English Version)' : ' (Bangla Medium)';
-
         if (!file) {
-            showStatus('Please select a PDF file.', 'text-red-500');
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
+            showStatus('❌ Please select a PDF file.', 'text-red-500');
             return;
         }
+
+        // Construct Title
+        let finalTitle = `${subject} - Class ${classLevel}`;
+        if (group !== 'Common') finalTitle += ` [${group}]`;
+        finalTitle += (version === 'English') ? ' (English Version)' : ' (Bangla Medium)';
+
+        // Show Progress Bar UI
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        statusMsg.innerHTML = `
+            <div class="space-y-2">
+                <p class="text-yellow-500 animate-pulse">📤 Uploading ${sizeMB} MB...</p>
+                <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                    <div id="admin-progress" class="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p id="admin-progress-text" class="text-xs text-gray-400">0%</p>
+            </div>
+        `;
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
 
         try {
             const fileExt = file.name.split('.').pop();
             const safeSubject = subject.replace(/[^a-zA-Z0-9]/g, '');
             const fileName = `${classLevel}_${safeSubject}_${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`;
 
-            const { data: uploadData, error: uploadError } = await window.supabaseClient
-                .storage
-                .from('official-books')
-                .upload(filePath, file);
+            // Build Upload URL
+            const SUPABASE_URL = window.supabaseClient.supabaseUrl || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
+            const uploadUrl = `${SUPABASE_URL}/storage/v1/object/official-books/${fileName}`;
 
-            if (uploadError) throw uploadError;
+            console.log("📤 Uploading to:", uploadUrl);
 
+            // XHR with Progress
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    const bar = document.getElementById('admin-progress');
+                    const text = document.getElementById('admin-progress-text');
+                    if (bar) bar.style.width = percent + '%';
+                    if (text) text.innerText = percent + '%';
+                }
+            });
+
+            const uploadPromise = new Promise((resolve, reject) => {
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(JSON.parse(xhr.responseText || '{}'));
+                    } else {
+                        reject(new Error(xhr.responseText || 'Upload failed'));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Network error'));
+            });
+
+            xhr.open('POST', uploadUrl, true);
+            xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+            xhr.setRequestHeader('x-upsert', 'false');
+            xhr.send(file);
+
+            await uploadPromise;
+            console.log("✅ Upload successful");
+
+            // Get Public URL
             const { data: { publicUrl } } = window.supabaseClient
                 .storage
                 .from('official-books')
-                .getPublicUrl(filePath);
+                .getPublicUrl(fileName);
 
+            console.log("🔗 Public URL:", publicUrl);
+
+            // Insert to Database
             const { error: dbError } = await window.supabaseClient
                 .from('official_resources')
                 .insert({
@@ -144,13 +179,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (dbError) throw dbError;
 
-            showStatus('✅ Upload Successful!', 'text-green-500 font-bold');
+            showStatus('✅ Upload Successful! Book is now live.', 'text-green-500 font-bold');
             form.reset();
-            // Re-trigger update after reset to restore defaults
             setTimeout(updateSubjects, 100);
 
         } catch (error) {
-            console.error('Upload failed:', error);
+            console.error('❌ Upload failed:', error);
             showStatus(`❌ Error: ${error.message}`, 'text-red-500');
         } finally {
             submitBtn.disabled = false;
@@ -159,7 +193,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     function showStatus(msg, classes) {
-        statusMsg.innerText = msg;
-        statusMsg.className = `text-center text-sm ${classes}`;
+        statusMsg.innerHTML = `<p class="${classes}">${msg}</p>`;
     }
 });
