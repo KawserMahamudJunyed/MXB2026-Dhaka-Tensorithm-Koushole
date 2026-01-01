@@ -1026,6 +1026,7 @@ async function sendMessage() {
         </div>`;
 
     input.value = '';
+    input.style.height = 'auto'; // Reset height
     preview.innerHTML = '';
     preview.classList.add('hidden');
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -1758,4 +1759,23 @@ function setupSignupLogic() {
             customDeptInput.required = false;
         }
     });
+}
+
+// --- CHAT UI LOGIC ---
+function toggleChatTools() {
+    const menu = document.getElementById('chat-tools-menu');
+    const icon = document.getElementById('chat-tools-icon');
+
+    if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        icon.classList.add('rotate-45');
+    } else {
+        menu.classList.add('hidden');
+        icon.classList.remove('rotate-45');
+    }
+}
+
+function autoResizeChatInput(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
 }
