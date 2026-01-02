@@ -96,7 +96,7 @@ Economics - Class 11 [Humanities] (English Version)
 Edit `admin.js` line ~80:
 ```javascript
 const ALLOWED_ADMINS = [
-    'admin@koushole.app',
+    'admin@example.com',
     'your-email@example.com'  // Add here
 ];
 ```
