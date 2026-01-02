@@ -148,6 +148,8 @@ Run these SQL scripts in Supabase SQL Editor:
 3. **Chat History** - `chat_history_schema.sql`
 4. **Storage Buckets** - Create `books` and `official-books` buckets
 
+> ⚠️ **Supabase Free Tier Limitation**: Maximum file upload size is **50 MB**. For larger files, upgrade to a paid plan or compress PDFs before uploading.
+
 ---
 
 ## 🛠️ Tech Stack
