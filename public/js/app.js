@@ -449,7 +449,7 @@ async function handleAuth(e) {
                         nickname: data.nickname,
                         nickname_bn: data.nicknameBn,
                         class: data.classLevel,
-                        group_name: data.group
+                        group_name: finalGroup
                     });
 
                 if (profileError) {
