@@ -421,9 +421,23 @@
                 <div class="space-y-1.5">
                     <label class="text-[11px] uppercase font-bold text-text-secondary tracking-wider pl-1"
                         data-key="passwordLabel">Password</label>
-                    <input type="password" name="password"
-                        class="w-full bg-surface border border-divider rounded-lg px-4 h-12 text-text-primary text-sm focus:border-amber outline-none transition-colors"
-                        placeholder="••••••••" required>
+                    <div class="relative">
+                        <input type="password" name="password" id="auth-password"
+                            class="w-full bg-surface border border-divider rounded-lg px-4 pr-12 h-12 text-text-primary text-sm focus:border-amber outline-none transition-colors"
+                            placeholder="••••••••" required oninput="checkAuthPasswordStrength()">
+                        <button type="button" onclick="toggleAuthPassword()"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-amber transition-colors">
+                            <i id="auth-eye" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <!-- Password strength (visible only in signup mode) -->
+                    <div id="auth-strength-container" class="hidden space-y-1">
+                        <div class="h-1 bg-divider rounded-full overflow-hidden">
+                            <div id="auth-strength-bar" class="h-full w-0 rounded-full transition-all duration-300">
+                            </div>
+                        </div>
+                        <p id="auth-strength-text" class="text-xs text-text-secondary">Min 6 characters</p>
+                    </div>
                 </div>
 
                 <!-- Remember Me & Forgot Password (Login Only) -->

@@ -236,6 +236,10 @@ function toggleAuthMode(mode) {
 
         if (loginExtras) loginExtras.classList.add('hidden');
 
+        // Show password strength indicator for signup
+        const strengthContainer = document.getElementById('auth-strength-container');
+        if (strengthContainer) strengthContainer.classList.remove('hidden');
+
         title.setAttribute('data-key', 'signupTitle');
         title.innerText = t('signupTitle');
         submitBtn.setAttribute('data-key', 'signupBtn');
@@ -263,6 +267,63 @@ function toggleAuthMode(mode) {
 
         switchText.innerHTML = `<span data-key="noAccount">${t('noAccount')}</span> <b class="text-amber cursor-pointer" onclick="toggleAuthMode('signup')" data-key="signupToggle">${t('signupToggle')}</b>`;
     }
+}
+
+// Toggle password visibility in auth form
+function toggleAuthPassword() {
+    const input = document.getElementById('auth-password');
+    const icon = document.getElementById('auth-eye');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Password strength checker for signup
+function checkAuthPasswordStrength() {
+    const container = document.getElementById('auth-strength-container');
+    if (!container || container.classList.contains('hidden')) return;
+
+    const password = document.getElementById('auth-password').value;
+    const strengthBar = document.getElementById('auth-strength-bar');
+    const strengthText = document.getElementById('auth-strength-text');
+
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+    if (password.length === 0) {
+        strengthBar.style.width = '0%';
+        strengthBar.className = 'h-full w-0 rounded-full transition-all duration-300';
+        strengthText.textContent = 'Min 6 characters';
+        strengthText.className = 'text-xs text-text-secondary';
+        return;
+    }
+
+    let color, text;
+    if (strength <= 2) {
+        color = 'bg-red-500';
+        text = 'Weak';
+    } else if (strength <= 3) {
+        color = 'bg-yellow-500';
+        text = 'Moderate';
+    } else {
+        color = 'bg-green-500';
+        text = 'Strong';
+    }
+
+    strengthBar.className = `h-full rounded-full transition-all duration-300 ${color}`;
+    strengthBar.style.width = `${(strength / 5) * 100}%`;
+    strengthText.textContent = text;
+    strengthText.className = `text-xs ${color.replace('bg-', 'text-')}`;
 }
 
 // Password Reset
