@@ -577,7 +577,14 @@ function populatePersonalDetails() {
     setField('profile-nickname-bn', userProfile.nicknameBn);
     setField('profile-email', userProfile.email);
     setField('profile-class', userProfile.class);
-    setField('profile-group', userProfile.group);
+    setField('profile-group', userProfile.group || userProfile.department);
+
+    // For university students, change "Group" label to "Department"
+    const isUniversity = userProfile.class === 'University' || userProfile.class === 'বিশ্ববিদ্যালয়';
+    const groupLabel = document.querySelector('[data-key="groupLabel"]');
+    if (groupLabel && isUniversity) {
+        groupLabel.textContent = currentLang === 'bn' ? 'বিভাগ' : 'Department';
+    }
 }
 
 function updateGreeting() {
