@@ -1641,16 +1641,9 @@ function updateUI() {
     if (accEl) accEl.innerText = `${userMemory.accuracy_percentage || 0}% `;
 
     // 5. Update Profile Info (with Bangla support - FULL NAME)
-    const pName = document.querySelector('#view-profile h2');
-    const pDetails = document.querySelector('#view-profile p.body-font');
+    // 5. Update Profile Info
+    // Logic entirely moved to updateGreeting() to avoid duplication and bugs.
 
-    // Use Bangla full name if in Bangla mode, otherwise English full name
-    const displayName = currentLang === 'bn'
-        ? (userProfile.nameBn || userProfile.name || 'শিক্ষার্থী')
-        : (userProfile.name || 'Student');
-
-    if (pName) pName.innerText = displayName;
-    if (pDetails) pDetails.innerText = `Class ${userProfile.class || '10'} • ${userProfile.group || 'Science'} Group`;
 
     // 6. Update Initials (based on NICKNAME, fallback to name)
     const nickForInitials = userProfile.nickname || userProfile.name || "S";
