@@ -676,9 +676,9 @@ function populatePersonalDetails() {
 
     // For university students, change "Group" label to "Department"
     const isUniversity = userProfile.class === 'University' || userProfile.class === 'বিশ্ববিদ্যালয়';
-    const groupLabel = document.querySelector('[data-key="groupLabel"]');
+    const groupLabel = document.getElementById('profile-group-label');
     if (groupLabel && isUniversity) {
-        groupLabel.textContent = currentLang === 'bn' ? 'বিভাগ' : 'Department';
+        groupLabel.textContent = currentLang === 'bn' ? 'ডিপার্টমেন্ট' : 'Department';
     }
 }
 
@@ -1097,6 +1097,7 @@ function updateProfileUI() {
 
     // Also update greeting/profile text
     updateGreeting();
+    if (typeof updateUniversityUI === 'function') updateUniversityUI();
 }
 
 // Badge definitions with icons and colors
@@ -2065,3 +2066,51 @@ function autoResizeChatInput(el) {
     el.style.height = 'auto';
     el.style.height = (el.scrollHeight) + 'px';
 }
+
+// --- UNIVERSITY STUDENT HANDLING ---
+function updateUniversityUI() {
+    if (!userProfile || !userProfile.class) return;
+
+    // Check against English and Bangla values
+    const isUniversity = userProfile.class === 'University' || userProfile.class === 'বিশ্ববিদ্যালয়';
+    const uniMsg = document.getElementById('university-quiz-message');
+    const quizEmpty = document.getElementById('quiz-empty-state');
+    const quizLoading = document.getElementById('quiz-loading');
+    const quizContent = document.getElementById('quiz-content');
+    const newUserWelcome = document.getElementById('new-user-welcome');
+
+    if (isUniversity) {
+        // Dashboard: Hide "Start First Quiz" overlay
+        if (newUserWelcome) newUserWelcome.classList.add('hidden');
+
+        // Quiz Tab: Show Uni Message, Ensure others hidden
+        if (uniMsg) uniMsg.classList.remove('hidden');
+        if (quizEmpty) quizEmpty.classList.add('hidden');
+        // Force hide active quiz elements too (since Uni shouldn't use default quiz)
+        if (quizLoading) quizLoading.classList.add('hidden');
+        if (quizContent) quizContent.classList.add('hidden');
+    } else {
+        // Restore default state capability
+        if (uniMsg) uniMsg.classList.add('hidden');
+        // We do not auto-show others because their state depends on other logic.
+    }
+}
+
+// Override switchTab to enforce University UI
+// This ensures that even if tabs switch, we re-apply the correct visibility
+const originalSwitchTab = window.switchTab;
+window.switchTab = function (viewName) {
+    // Call original function first (from utils.js)
+    // Note: utils.js defines switchTab globally.
+    if (typeof originalSwitchTab === 'function') {
+        originalSwitchTab(viewName);
+    } else if (typeof switchTab === 'function' && switchTab !== window.switchTab) {
+        // Fallback if originalSwitchTab wasn't captured correctly but exists
+        // (Unlikely if captured at top level)
+    }
+
+    // Apply University constraints
+    if (viewName === 'quiz' || viewName === 'dashboard') {
+        updateUniversityUI();
+    }
+};

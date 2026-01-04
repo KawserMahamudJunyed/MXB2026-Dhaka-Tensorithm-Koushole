@@ -613,6 +613,22 @@
                 </button>
             </div>
 
+            <div id="university-quiz-message"
+                class="hidden flex-1 flex flex-col items-center justify-center text-center py-8">
+                <div class="w-20 h-20 bg-amber/10 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-book-reader text-amber text-3xl"></i>
+                </div>
+                <h3 class="text-text-primary font-bold text-lg title-font mb-2">University Mode</h3>
+                <p class="text-text-secondary text-sm mb-6 body-font max-w-xs mx-auto">
+                    We don't have built-in quizzes for your department. Please upload your books to generate
+                    personalized quizzes.
+                </p>
+                <button onclick="switchTab('library')"
+                    class="px-6 py-3 bg-amber text-black font-bold rounded-xl shadow-amber-glow hover:scale-105 active:scale-95 transition-transform">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i> <span>Upload Book</span>
+                </button>
+            </div>
+
             <div id="quiz-loading" class="hidden h-full flex flex-col items-center justify-center space-y-6">
                 <div class="quiz-loader-container">
                     <div class="open-book"></div>
@@ -1105,7 +1121,8 @@
                             <span class="text-text-primary text-sm font-medium" id="profile-class">-</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-text-secondary text-xs" data-key="groupLabel">Group</span>
+                            <span class="text-text-secondary text-xs" data-key="groupLabel"
+                                id="profile-group-label">Group</span>
                             <span class="text-text-primary text-sm font-medium" id="profile-group">-</span>
                         </div>
                     </div>
