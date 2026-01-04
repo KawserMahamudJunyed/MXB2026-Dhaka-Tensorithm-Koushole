@@ -272,7 +272,7 @@ async function showForgotPassword() {
 
     try {
         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/reset-password'
+            redirectTo: window.location.origin + '/reset-password.html'
         });
 
         if (error) {

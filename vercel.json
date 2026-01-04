@@ -1,5 +1,11 @@
 {
     "version": 2,
+    "routes": [
+        {
+            "src": "/reset-password",
+            "dest": "/public/reset-password.html"
+        }
+    ],
     "rewrites": [
         {
             "source": "/api/(.*)",
