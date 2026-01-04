@@ -7,9 +7,9 @@
 // ==================== SSC (CLASS 9-10) ====================
 
 const SSC_COMMON = {
-    'Bangla': {
-        en: 'Bangla',
-        bn: 'বাংলা',
+    'Bangla 1st Paper': {
+        en: 'Bangla 1st Paper',
+        bn: 'বাংলা ১ম পত্র',
         chapters: [
             // Prose (গদ্য)
             { id: 'shuva', en: 'Shuva', bn: 'শুভা' },
@@ -17,11 +17,13 @@ const SSC_COMMON = {
             { id: 'aam-atir-bhepu', en: 'Aam-Atir Bhepu', bn: 'আম-আঁটির ভেঁপু' },
             { id: 'manush-muhammad', en: 'Manush Muhammad (S.)', bn: 'মানুষ মুহম্মদ (স.)' },
             { id: 'nimgach', en: 'Nimgach', bn: 'নিমগাছ' },
+            { id: 'upekkhito', en: 'Upekkhito Shoktir Udbodhon', bn: 'উপেক্ষিত শক্তির উদ্বোধন' },
             { id: 'shikkha-manushyatta', en: 'Shikkha O Manushyatta', bn: 'শিক্ষা ও মনুষ্যত্ব' },
             { id: 'probash-bondhu', en: 'Probash Bondhu', bn: 'প্রবাস বন্ধু' },
             { id: 'mamatadi', en: 'Mamatadi', bn: 'মমতাদি' },
             { id: 'ekattorer-dinguli', en: 'Ekattorer Dinguli', bn: 'একাত্তরের দিনগুলি' },
             { id: 'sahityer-rup', en: 'Sahityer Rup O Riti', bn: 'সাহিত্যের রূপ ও রীতি' },
+            { id: 'pahela-baishakh', en: 'Pahela Baishakh', bn: 'পয়লা বৈশাখ' },
             // Poetry (কবিতা)
             { id: 'bangabani', en: 'Bangabani', bn: 'বঙ্গবাণী' },
             { id: 'kapotaksha-nad', en: 'Kapotaksha Nad', bn: 'কপোতাক্ষ নদ' },
@@ -36,12 +38,30 @@ const SSC_COMMON = {
             { id: 'runner', en: 'Runner', bn: 'রানার' },
             { id: 'tomake-pawar', en: 'Tomake Pawar Jonno He Swadhinata', bn: 'তোমাকে পাওয়ার জন্য হে স্বাধীনতা' },
             { id: 'amar-porichoy', en: 'Amar Porichoy', bn: 'আমার পরিচয়' },
-            { id: 'swadhinata-shabdo', en: 'Swadhinata Shabdo-ti Kibhabe', bn: 'স্বাধীনতা, এই শব্দটি কীভাবে' }
+            { id: 'swadhinata-shabdo', en: 'Swadhinata Shabdo-ti Kibhabe', bn: 'স্বাধীনতা, এই শব্দটি কীভাবে' },
+            // Co-text (সহপাঠ)
+            { id: 'kaktarua', en: 'Novel: Kak Tarua', bn: 'উপন্যাস: কাকতাড়ুয়া' },
+            { id: 'bohipir', en: 'Drama: Bohipir', bn: 'নাটক: বহিপীর' }
         ]
     },
-    'English': {
-        en: 'English',
-        bn: 'ইংরেজি',
+    'Bangla 2nd Paper': {
+        en: 'Bangla 2nd Paper',
+        bn: 'বাংলা ২য় পত্র',
+        chapters: [
+            { id: 'bhasha', en: 'Language', bn: 'ভাষা' },
+            { id: 'dhwanitattwa', en: 'Phonology', bn: 'ধ্বনিতত্ত্ব' },
+            { id: 'rupatattwa', en: 'Morphology', bn: 'রূপতত্ত্ব' },
+            { id: 'bakyatattwa', en: 'Syntax', bn: 'বাক্যতত্ত্ব' },
+            { id: 'sarmarm', en: 'Essence/Summary', bn: 'সারমর্ম/সারাংশ' },
+            { id: 'bhab-smprasran', en: 'Amplification', bn: 'ভাব-সম্প্রসারণ' },
+            { id: 'potrolikhan', en: 'Letter Writing', bn: 'পত্রলিখন/আবেদনপত্র' },
+            { id: 'protibedon', en: 'Report Writing', bn: 'প্রতিবেদন' },
+            { id: 'probondho', en: 'Essay Writing', bn: 'প্রবন্ধ রচনা' }
+        ]
+    },
+    'English 1st Paper': {
+        en: 'English 1st Paper',
+        bn: 'ইংরেজি ১ম পত্র',
         chapters: [
             { id: 'unit-1', en: 'Unit 1: Good Citizens', bn: 'ইউনিট ১: ভালো নাগরিক' },
             { id: 'unit-2', en: 'Unit 2: Pastimes', bn: 'ইউনিট ২: অবসর যাপন' },
@@ -57,6 +77,24 @@ const SSC_COMMON = {
             { id: 'unit-12', en: 'Unit 12: Roots', bn: 'ইউনিট ১২: শিকড়' },
             { id: 'unit-13', en: 'Unit 13: Media and E-communications', bn: 'ইউনিট ১৩: মিডিয়া ও ই-যোগাযোগ' },
             { id: 'unit-14', en: 'Unit 14: Pleasure and Purpose', bn: 'ইউনিট ১৪: আনন্দ ও উদ্দেশ্য' }
+        ]
+    },
+    'English 2nd Paper': {
+        en: 'English 2nd Paper',
+        bn: 'ইংরেজি ২য় পত্র',
+        chapters: [
+            { id: 'gap-filling', en: 'Gap Filling', bn: 'শূন্যস্থান পূরণ' },
+            { id: 'substitution', en: 'Substitution Table', bn: 'প্রতিস্থাপন সারণি' },
+            { id: 'right-form', en: 'Right Form of Verbs', bn: 'ক্রিয়াপদের সঠিক রূপ' },
+            { id: 'narration', en: 'Narrative Style', bn: 'বাক্য রূপান্তর (উক্তি)' },
+            { id: 'voice', en: 'Voice Change', bn: 'বাচ্য পরিবর্তন' },
+            { id: 'tag-questions', en: 'Tag Questions', bn: 'ট্যাগ প্রশ্ন' },
+            { id: 'connectors', en: 'Sentence Connectors', bn: 'বাক্য সংযোগকারী' },
+            { id: 'punctuation', en: 'Punctuation', bn: 'বিরাম চিহ্ন' },
+            { id: 'cv', en: 'CV with Cover Letter', bn: 'জীবনবৃত্তান্ত ও আবেদনপত্র' },
+            { id: 'formal-letters', en: 'Formal Letters/Emails', bn: 'আনুষ্ঠানিক চিঠি/ইমেইল' },
+            { id: 'paragraph', en: 'Paragraph Writing', bn: 'অনুচ্ছেদ রচনা' },
+            { id: 'composition', en: 'Composition Writing', bn: 'রচনা' }
         ]
     },
     'General Mathematics': {
@@ -505,6 +543,73 @@ const HSC_BUSINESS = {
             { id: 'ch9', en: 'Cost & Volume', bn: 'ব্যয় ও ব্যয়ের শ্রেণিবিন্যাস' },
             { id: 'ch10', en: 'Management Accounting', bn: 'ব্যবস্থাপনা হিসাববিজ্ঞান পরিচিতি' }
         ]
+    },
+    'Management 1st Paper': {
+        en: 'Management 1st Paper',
+        bn: 'ব্যবস্থাপনা ১ম পত্র',
+        chapters: [
+            { id: 'ch1', en: 'Nature', bn: 'মৌলিক ধারণা' },
+            { id: 'ch2', en: 'Environment', bn: 'পরিবেশ' },
+            { id: 'ch3', en: 'Types', bn: 'ধরন' },
+            { id: 'ch4', en: 'Partnership', bn: 'অংশীদারি' },
+            { id: 'ch5', en: 'Joint Stock', bn: 'যৌথ মূলধনি' },
+            { id: 'ch6', en: 'Co-operative', bn: 'সমবায়' },
+            { id: 'ch7', en: 'State', bn: 'রাষ্ট্রীয়' },
+            { id: 'ch8', en: 'Legal', bn: 'আইনগত' },
+            { id: 'ch9', en: 'Support', bn: 'সহায়ক সেবা' },
+            { id: 'ch10', en: 'Entrepreneurship', bn: 'উদ্যোগ' },
+            { id: 'ch11', en: 'ICT', bn: 'আইসিটি' },
+            { id: 'ch12', en: 'Ethics', bn: 'নৈতিকতা' }
+        ]
+    },
+    'Management 2nd Paper': {
+        en: 'Management 2nd Paper',
+        bn: 'ব্যবস্থাপনা ২য় পত্র',
+        chapters: [
+            { id: 'ch1', en: 'Concepts', bn: 'ধারণা' },
+            { id: 'ch2', en: 'Principles', bn: 'নীতি' },
+            { id: 'ch3', en: 'Planning', bn: 'পরিকল্পনা' },
+            { id: 'ch4', en: 'Organizing', bn: 'সংগঠিতকরণ' },
+            { id: 'ch5', en: 'Staffing', bn: 'কর্মীসংস্থান' },
+            { id: 'ch6', en: 'Leadership', bn: 'নেতৃত্ব' },
+            { id: 'ch7', en: 'Motivation', bn: 'প্রেষণা' },
+            { id: 'ch8', en: 'Communication', bn: 'যোগাযোগ' },
+            { id: 'ch9', en: 'Coordination', bn: 'সমন্বয়' },
+            { id: 'ch10', en: 'Control', bn: 'নিয়ন্ত্রণ' }
+        ]
+    },
+    'Finance 1st Paper': {
+        en: 'Finance 1st Paper',
+        bn: 'ফিন্যান্স ১ম পত্র',
+        chapters: [
+            { id: 'ch1', en: 'Introduction', bn: 'সূচনা' },
+            { id: 'ch2', en: 'Legal', bn: 'আইনগত' },
+            { id: 'ch3', en: 'Time Value', bn: 'সময়মূল্য' },
+            { id: 'ch4', en: 'Analysis', bn: 'বিশ্লেষণ' },
+            { id: 'ch5', en: 'Short-term', bn: 'স্বল্পমেয়াদী' },
+            { id: 'ch6', en: 'Long-term', bn: 'দীর্ঘমেয়াদী' },
+            { id: 'ch7', en: 'Cost of Capital', bn: 'মূলধন ব্যয়' },
+            { id: 'ch8', en: 'Capital Budgeting', bn: 'মূলধন বাজেটিং' },
+            { id: 'ch9', en: 'Risk', bn: 'ঝুঁকি' }
+        ]
+    },
+    'Finance 2nd Paper': {
+        en: 'Finance 2nd Paper',
+        bn: 'ফিন্যান্স ২য় পত্র',
+        chapters: [
+            { id: 'ch1', en: 'Banking', bn: 'ব্যাংকিং' },
+            { id: 'ch2', en: 'Central Bank', bn: 'কেন্দ্রীয় ব্যাংক' },
+            { id: 'ch3', en: 'Commercial Bank', bn: 'বাণিজ্যিক ব্যাংক' },
+            { id: 'ch4', en: 'Bank Account', bn: 'ব্যাংক হিসাব' },
+            { id: 'ch5', en: 'Instruments', bn: 'ঋণের দলিল' },
+            { id: 'ch6', en: 'Cheque', bn: 'চেক' },
+            { id: 'ch7', en: 'Bill', bn: 'বিনিময় বিল' },
+            { id: 'ch8', en: 'E-Banking', bn: 'আধুনিক ব্যাংকিং' },
+            { id: 'ch9', en: 'Insurance', bn: 'বিমা' },
+            { id: 'ch10', en: 'Life Insurance', bn: 'জীবন বিমা' },
+            { id: 'ch11', en: 'Marine', bn: 'নৌ বিমা' },
+            { id: 'ch12', en: 'Fire', bn: 'অগ্নি বিমা' }
+        ]
     }
 };
 
@@ -539,6 +644,38 @@ const HSC_HUMANITIES = {
             { id: 'ch8', en: 'Public Opinion', bn: 'জনমত ও রাজনৈতিক সংস্কৃতি' },
             { id: 'ch9', en: 'Bureaucracy', bn: 'জনসেবা ও আমলাতন্ত্র' },
             { id: 'ch10', en: 'Nationalism', bn: 'দেশপ্রেম ও জাতীয়তাবাদ' }
+        ]
+    },
+    'Economics 2nd Paper': {
+        en: 'Economics 2nd Paper',
+        bn: 'অর্থনীতি ২য় পত্র',
+        chapters: [
+            { id: 'ch1', en: 'BD Economy', bn: 'বাংলাদেশের অর্থনীতি' },
+            { id: 'ch2', en: 'Agriculture', bn: 'কৃষি' },
+            { id: 'ch3', en: 'Industry', bn: 'শিল্প' },
+            { id: 'ch4', en: 'Population', bn: 'জনসংখ্যা' },
+            { id: 'ch5', en: 'Food Security', bn: 'খাদ্য নিরাপত্তা' },
+            { id: 'ch6', en: 'Finance', bn: 'অর্থায়ন' },
+            { id: 'ch7', en: 'Inflation', bn: 'মুদ্রাস্ফীতি' },
+            { id: 'ch8', en: 'Trade', bn: 'বাণিজ্য' },
+            { id: 'ch9', en: 'Public Finance', bn: 'সরকারি অর্থব্যবস্থা' },
+            { id: 'ch10', en: 'Planning', bn: 'পরিকল্পনা' }
+        ]
+    },
+    'Civics 2nd Paper': {
+        en: 'Civics & Good Governance 2nd Paper',
+        bn: 'পৌরনীতি ও সুশাসন ২য় পত্র',
+        chapters: [
+            { id: 'ch1', en: 'British India', bn: 'ব্রিটিশ ভারত' },
+            { id: 'ch2', en: 'Pakistan Period', bn: 'পাকিস্তান আমল' },
+            { id: 'ch3', en: 'Political Personalities', bn: 'রাজনৈতিক ব্যক্তিত্ব' },
+            { id: 'ch4', en: 'Constitution', bn: 'সংবিধান' },
+            { id: 'ch5', en: 'Govt Structure', bn: 'সরকার কাঠামো' },
+            { id: 'ch6', en: 'Local Govt', bn: 'স্থানীয় শাসন' },
+            { id: 'ch7', en: 'Constitutional Organs', bn: 'সাংবিধানিক প্রতিষ্ঠান' },
+            { id: 'ch8', en: 'Elections', bn: 'নির্বাচন' },
+            { id: 'ch9', en: 'Foreign Policy', bn: 'বৈদেশিক নীতি' },
+            { id: 'ch10', en: 'Citizen Problems', bn: 'নাগরিক সমস্যা' }
         ]
     }
 };
