@@ -585,11 +585,30 @@ function updateGreeting() {
     const greetingEl = document.querySelector('[data-key="greeting"]');
     const nick = currentLang === 'bn' ? (userProfile.nicknameBn || userProfile.nickname) : userProfile.nickname;
 
-    // Construct greeting based on lang
-    if (currentLang === 'bn') {
-        greetingEl.innerHTML = `শুভ সন্ধ্যা, ${nick || 'শিক্ষার্থী'}! 🚀`;
+    // Time-based greeting with Happy Studying for late night
+    const hour = new Date().getHours();
+    let greetingEn, greetingBn;
+
+    if (hour >= 5 && hour < 12) {
+        greetingEn = "Good Morning";
+        greetingBn = "সুপ্রভাত";
+    } else if (hour >= 12 && hour < 17) {
+        greetingEn = "Good Afternoon";
+        greetingBn = "শুভ অপরাহ্ন";
+    } else if (hour >= 17 && hour < 21) {
+        greetingEn = "Good Evening";
+        greetingBn = "শুভ সন্ধ্যা";
     } else {
-        greetingEl.innerHTML = `Good Evening, ${nick || 'Student'}! 🚀`;
+        // Late night study session - encouraging message!
+        greetingEn = "Happy Studying";
+        greetingBn = "শুভ পড়াশোনা";
+    }
+
+    // Construct greeting based on lang (always use 🚀)
+    if (currentLang === 'bn') {
+        greetingEl.innerHTML = `${greetingBn}, ${nick || 'শিক্ষার্থী'}! 🚀`;
+    } else {
+        greetingEl.innerHTML = `${greetingEn}, ${nick || 'Student'}! 🚀`;
     }
 
     // Update Profile Name in View
