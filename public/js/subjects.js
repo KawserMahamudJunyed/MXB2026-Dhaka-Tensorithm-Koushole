@@ -1,8 +1,102 @@
 // ============================================
 // NCTB 2026 Academic Year - Complete Subject & Chapter List
+// Class 6-8 - General Curriculum (No Group System)
 // Class 9-10 (SSC) - 2012 Curriculum with Group System
 // Class 11-12 (HSC) - Standard Group System
 // ============================================
+
+// ==================== JUNIOR (CLASS 6-8) ====================
+
+const JUNIOR_SUBJECTS = {
+    'Bangla': {
+        en: 'Bangla',
+        bn: 'বাংলা',
+        chapters: [
+            { id: 'ch1', en: 'Prose', bn: 'গদ্য' },
+            { id: 'ch2', en: 'Poetry', bn: 'কবিতা' },
+            { id: 'ch3', en: 'Grammar', bn: 'ব্যাকরণ' },
+            { id: 'ch4', en: 'Essay Writing', bn: 'রচনা' }
+        ]
+    },
+    'English': {
+        en: 'English',
+        bn: 'ইংরেজি',
+        chapters: [
+            { id: 'ch1', en: 'Reading', bn: 'পড়া' },
+            { id: 'ch2', en: 'Writing', bn: 'লেখা' },
+            { id: 'ch3', en: 'Grammar', bn: 'ব্যাকরণ' },
+            { id: 'ch4', en: 'Vocabulary', bn: 'শব্দভাণ্ডার' }
+        ]
+    },
+    'Mathematics': {
+        en: 'Mathematics',
+        bn: 'গণিত',
+        chapters: [
+            { id: 'ch1', en: 'Numbers', bn: 'সংখ্যা' },
+            { id: 'ch2', en: 'Algebra', bn: 'বীজগণিত' },
+            { id: 'ch3', en: 'Geometry', bn: 'জ্যামিতি' },
+            { id: 'ch4', en: 'Statistics', bn: 'পরিসংখ্যান' }
+        ]
+    },
+    'General Science': {
+        en: 'General Science',
+        bn: 'সাধারণ বিজ্ঞান',
+        chapters: [
+            { id: 'ch1', en: 'Living World', bn: 'জীবজগৎ' },
+            { id: 'ch2', en: 'Matter & Energy', bn: 'পদার্থ ও শক্তি' },
+            { id: 'ch3', en: 'Environment', bn: 'পরিবেশ' },
+            { id: 'ch4', en: 'Health & Hygiene', bn: 'স্বাস্থ্য ও স্বাস্থ্যবিধি' }
+        ]
+    },
+    'Bangladesh & Global Studies': {
+        en: 'Bangladesh & Global Studies',
+        bn: 'বাংলাদেশ ও বিশ্বপরিচয়',
+        chapters: [
+            { id: 'ch1', en: 'Our Country', bn: 'আমাদের দেশ' },
+            { id: 'ch2', en: 'History', bn: 'ইতিহাস' },
+            { id: 'ch3', en: 'Geography', bn: 'ভূগোল' },
+            { id: 'ch4', en: 'Citizenship', bn: 'নাগরিকতা' }
+        ]
+    },
+    'Religion & Moral Education': {
+        en: 'Religion & Moral Education',
+        bn: 'ধর্ম ও নৈতিক শিক্ষা',
+        chapters: [
+            { id: 'ch1', en: 'Faith', bn: 'ঈমান' },
+            { id: 'ch2', en: 'Worship', bn: 'ইবাদত' },
+            { id: 'ch3', en: 'Morals', bn: 'নৈতিকতা' },
+            { id: 'ch4', en: 'Biography', bn: 'জীবনী' }
+        ]
+    },
+    'ICT': {
+        en: 'ICT',
+        bn: 'তথ্য ও যোগাযোগ প্রযুক্তি',
+        chapters: [
+            { id: 'ch1', en: 'Computer Basics', bn: 'কম্পিউটার পরিচিতি' },
+            { id: 'ch2', en: 'Internet', bn: 'ইন্টারনেট' },
+            { id: 'ch3', en: 'Office Applications', bn: 'অফিস অ্যাপ্লিকেশন' },
+            { id: 'ch4', en: 'Cyber Safety', bn: 'সাইবার নিরাপত্তা' }
+        ]
+    },
+    'Arts & Crafts': {
+        en: 'Arts & Crafts',
+        bn: 'চারু ও কারুকলা',
+        chapters: [
+            { id: 'ch1', en: 'Drawing', bn: 'অঙ্কন' },
+            { id: 'ch2', en: 'Painting', bn: 'চিত্রাঙ্কন' },
+            { id: 'ch3', en: 'Crafts', bn: 'হস্তশিল্প' }
+        ]
+    },
+    'Physical Education': {
+        en: 'Physical Education',
+        bn: 'শারীরিক শিক্ষা',
+        chapters: [
+            { id: 'ch1', en: 'Exercise', bn: 'ব্যায়াম' },
+            { id: 'ch2', en: 'Sports', bn: 'খেলাধুলা' },
+            { id: 'ch3', en: 'Health', bn: 'স্বাস্থ্য' }
+        ]
+    }
+};
 
 // ==================== SSC (CLASS 9-10) ====================
 
@@ -682,12 +776,23 @@ const HSC_HUMANITIES = {
 
 // ==================== HELPER FUNCTIONS ====================
 
+function isJunior(className) {
+    return ['6', '7', '8'].includes(String(className));
+}
+
 function isHSC(className) {
     return ['11', '12', '11-12'].includes(String(className));
 }
 
 function getSubjects(group, className) {
-    const isHsc = isHSC(className);
+    const classStr = String(className);
+
+    // Class 6-8: No groups, use JUNIOR_SUBJECTS
+    if (isJunior(classStr)) {
+        return Object.keys(JUNIOR_SUBJECTS);
+    }
+
+    const isHsc = isHSC(classStr);
     let subjects = [];
 
     // Add Common Subjects
@@ -697,7 +802,7 @@ function getSubjects(group, className) {
         subjects = [...Object.keys(SSC_COMMON)];
     }
 
-    // Add Group-Specific Subjects
+    // Add Group-Specific Subjects (Only for Class 9-12)
     if (group === 'Science') {
         subjects = [...subjects, ...Object.keys(isHsc ? HSC_SCIENCE : SSC_SCIENCE)];
     } else if (group === 'Business Studies') {
@@ -710,7 +815,14 @@ function getSubjects(group, className) {
 }
 
 function getSubjectData(subjectName, group, className) {
-    const isHsc = isHSC(className);
+    const classStr = String(className);
+
+    // Class 6-8: Check JUNIOR_SUBJECTS
+    if (isJunior(classStr)) {
+        if (JUNIOR_SUBJECTS[subjectName]) return JUNIOR_SUBJECTS[subjectName];
+    }
+
+    const isHsc = isHSC(classStr);
 
     // Check Common
     const common = isHsc ? HSC_COMMON : SSC_COMMON;
@@ -739,6 +851,7 @@ function getChapters(subjectName, group, className) {
 // ==================== EXPORT GLOBAL ====================
 
 if (typeof window !== 'undefined') {
+    window.JUNIOR_SUBJECTS = JUNIOR_SUBJECTS;
     window.SSC_COMMON = SSC_COMMON;
     window.SSC_SCIENCE = SSC_SCIENCE;
     window.SSC_BUSINESS = SSC_BUSINESS;
@@ -750,5 +863,7 @@ if (typeof window !== 'undefined') {
     window.getSubjects = getSubjects;
     window.getSubjectData = getSubjectData;
     window.getChapters = getChapters;
+    window.isJunior = isJunior;
     window.isHSC = isHSC;
 }
+

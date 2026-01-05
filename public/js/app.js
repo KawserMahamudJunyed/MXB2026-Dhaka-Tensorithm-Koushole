@@ -739,8 +739,11 @@ function updateGreeting() {
         let cls = userProfile.class || "10";
         let group = userProfile.group;
 
+        // Check if Junior class (6-8) - no groups for these
+        const isJunior = ['6', '7', '8'].includes(String(cls).trim());
+
         // Auto-detect University based on Group (Heuristic for corrupted data)
-        const uniSubjects = ['CSE', 'EEE', 'BBA', 'English', 'Economics', 'Medical', 'Mathematics', 'Architecture', 'Law', 'Physics', 'Chemistry', 'Biology'];
+        const uniSubjects = ['CSE', 'EEE', 'BBA', 'English', 'Economics', 'Medical', 'Mathematics', 'Architecture', 'Law', 'Physics', 'Chemistry', 'Biology', 'Civil', 'Mechanical', 'Textile', 'MBBS', 'Pharmacy', 'Nursing', 'Accounting', 'Finance', 'Marketing', 'Sociology', 'Bangla', 'History', 'Philosophy'];
         const isUniSubject = group && uniSubjects.some(s => group.includes(s));
 
         let isUniversity = String(cls).trim() === 'University' || String(cls).trim() === 'বিশ্ববিদ্যালয়' || String(cls).includes('University');
@@ -754,8 +757,11 @@ function updateGreeting() {
             const dept = group || (currentLang === 'bn' ? 'বিভাগ নির্বাচন করা হয়নি' : 'No Dept Selected');
             const suffix = currentLang === 'bn' ? 'ডিপার্টমেন্ট' : 'Department';
             profileGroup.innerText = `${cls} • ${dept} ${suffix}`;
+        } else if (isJunior) {
+            // Class 6-8: No group needed
+            profileGroup.innerText = currentLang === 'bn' ? `শ্রেণি ${cls}` : `Class ${cls}`;
         } else {
-            // Default School Logic - Remove "Science" default to avoid confusion
+            // Class 9-12: Show group
             const displayGroup = group || (currentLang === 'bn' ? 'গ্রুপ নির্বাচন করা হয়নি' : 'No Group');
             const suffix = currentLang === 'bn' ? 'গ্রুপ' : 'Group';
             profileGroup.innerText = `Class ${cls} • ${displayGroup} ${suffix}`;
