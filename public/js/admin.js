@@ -12,12 +12,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const subjectSelect = document.getElementById('subject');
 
     // NCTB 2026 Fallback Data
-    const FALLBACK_SUBJECTS_6_8 = {
-        'Junior': ['Bangla 1st Paper', 'Bangla 2nd Paper', 'English 1st Paper', 'English 2nd Paper', 'Mathematics', 'Science', 'Bangladesh & Global Studies', 'Religion & Moral Education (Islam)', 'ICT', 'Work & Life Skills', 'Arts & Culture', 'Health & Physical Education']
-    };
+    // Class 6-8: No groups needed - detected by class value
+    const FALLBACK_SUBJECTS_6_8 = ['Bangla 1st Paper', 'Bangla 2nd Paper', 'English 1st Paper', 'English 2nd Paper', 'Mathematics', 'Science', 'Bangladesh & Global Studies', 'Religion & Moral Education (Islam)', 'ICT', 'Work & Life Skills', 'Arts & Culture', 'Health & Physical Education'];
 
     const FALLBACK_SUBJECTS_9_10 = {
-        'Common': ['Bangla', 'English', 'General Mathematics', 'ICT'],
+        'Common': ['Bangla 1st Paper', 'Bangla 2nd Paper', 'English 1st Paper', 'English 2nd Paper', 'General Mathematics', 'ICT'],
         'Science': ['Physics', 'Chemistry', 'Biology', 'Higher Mathematics', 'Bangladesh & Global Studies'],
         'Business Studies': ['General Science', 'Accounting', 'Finance & Banking', 'Business Entrepreneurship'],
         'Humanities': ['General Science', 'Geography & Environment', 'History of BD & World', 'Civics & Citizenship']
@@ -35,14 +34,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isJunior = ['6', '7', '8'].includes(classStr);
         const isHSC = ['11', '12', '11-12'].includes(classStr);
 
-        // Junior classes don't have groups
+        // Class 6-8: No groups, return directly
         if (isJunior) {
-            return FALLBACK_SUBJECTS_6_8['Junior'] || [];
+            return FALLBACK_SUBJECTS_6_8;
         }
 
         const data = isHSC ? FALLBACK_SUBJECTS_11_12 : FALLBACK_SUBJECTS_9_10;
         let list = [...(data['Common'] || [])];
-        if (group && data[group]) list = [...list, ...data[group]];
+        if (group && group !== 'None' && data[group]) list = [...list, ...data[group]];
         return [...new Set(list)];
     }
 
