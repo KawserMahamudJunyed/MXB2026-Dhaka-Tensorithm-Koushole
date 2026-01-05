@@ -6,97 +6,159 @@
 // ============================================
 
 // ==================== JUNIOR (CLASS 6-8) ====================
+// NCTB 2026 New Curriculum - Competency-Based Learning
 
 const JUNIOR_SUBJECTS = {
     'Bangla': {
         en: 'Bangla',
         bn: 'বাংলা',
         chapters: [
-            { id: 'ch1', en: 'Prose', bn: 'গদ্য' },
-            { id: 'ch2', en: 'Poetry', bn: 'কবিতা' },
-            { id: 'ch3', en: 'Grammar', bn: 'ব্যাকরণ' },
-            { id: 'ch4', en: 'Essay Writing', bn: 'রচনা' }
+            { id: 'ch1', en: 'Reading Comprehension', bn: 'পড়া ও বুঝা' },
+            { id: 'ch2', en: 'Prose Selection', bn: 'গদ্য নির্বাচন' },
+            { id: 'ch3', en: 'Poetry Selection', bn: 'পদ্য নির্বাচন' },
+            { id: 'ch4', en: 'Language & Grammar', bn: 'ভাষা ও ব্যাকরণ' },
+            { id: 'ch5', en: 'Sentence Building', bn: 'বাক্য গঠন' },
+            { id: 'ch6', en: 'Parts of Speech', bn: 'পদ প্রকরণ' },
+            { id: 'ch7', en: 'Verbs', bn: 'ক্রিয়াপদ' },
+            { id: 'ch8', en: 'Essay Writing', bn: 'রচনা লেখা' },
+            { id: 'ch9', en: 'Letter Writing', bn: 'পত্র লেখা' },
+            { id: 'ch10', en: 'Summary & Précis', bn: 'সারাংশ ও সারমর্ম' }
         ]
     },
     'English': {
         en: 'English',
         bn: 'ইংরেজি',
         chapters: [
-            { id: 'ch1', en: 'Reading', bn: 'পড়া' },
-            { id: 'ch2', en: 'Writing', bn: 'লেখা' },
-            { id: 'ch3', en: 'Grammar', bn: 'ব্যাকরণ' },
-            { id: 'ch4', en: 'Vocabulary', bn: 'শব্দভাণ্ডার' }
+            { id: 'ch1', en: 'Listening & Speaking', bn: 'শোনা ও বলা' },
+            { id: 'ch2', en: 'Reading Skills', bn: 'পড়ার দক্ষতা' },
+            { id: 'ch3', en: 'Writing Skills', bn: 'লেখার দক্ষতা' },
+            { id: 'ch4', en: 'Parts of Speech', bn: 'পদ প্রকরণ' },
+            { id: 'ch5', en: 'Tenses', bn: 'কাল' },
+            { id: 'ch6', en: 'Sentence Types', bn: 'বাক্যের প্রকার' },
+            { id: 'ch7', en: 'Voice & Narration', bn: 'বাচ্য ও উক্তি' },
+            { id: 'ch8', en: 'Prepositions', bn: 'পদান্বয়ী অব্যয়' },
+            { id: 'ch9', en: 'Paragraph Writing', bn: 'অনুচ্ছেদ লেখা' },
+            { id: 'ch10', en: 'Story & Dialogue', bn: 'গল্প ও কথোপকথন' }
         ]
     },
     'Mathematics': {
         en: 'Mathematics',
         bn: 'গণিত',
         chapters: [
-            { id: 'ch1', en: 'Numbers', bn: 'সংখ্যা' },
-            { id: 'ch2', en: 'Algebra', bn: 'বীজগণিত' },
-            { id: 'ch3', en: 'Geometry', bn: 'জ্যামিতি' },
-            { id: 'ch4', en: 'Statistics', bn: 'পরিসংখ্যান' }
+            { id: 'ch1', en: 'Number System', bn: 'সংখ্যা পদ্ধতি' },
+            { id: 'ch2', en: 'Integers', bn: 'পূর্ণ সংখ্যা' },
+            { id: 'ch3', en: 'Fractions', bn: 'ভগ্নাংশ' },
+            { id: 'ch4', en: 'Decimals', bn: 'দশমিক সংখ্যা' },
+            { id: 'ch5', en: 'Ratio & Proportion', bn: 'অনুপাত ও সমানুপাত' },
+            { id: 'ch6', en: 'Percentage', bn: 'শতকরা' },
+            { id: 'ch7', en: 'Profit & Loss', bn: 'লাভ ও ক্ষতি' },
+            { id: 'ch8', en: 'Algebraic Expressions', bn: 'বীজগাণিতিক রাশি' },
+            { id: 'ch9', en: 'Simple Equations', bn: 'সরল সমীকরণ' },
+            { id: 'ch10', en: 'Geometry Basics', bn: 'জ্যামিতির মৌলিক ধারণা' },
+            { id: 'ch11', en: 'Lines & Angles', bn: 'রেখা ও কোণ' },
+            { id: 'ch12', en: 'Triangles', bn: 'ত্রিভুজ' },
+            { id: 'ch13', en: 'Area & Perimeter', bn: 'ক্ষেত্রফল ও পরিসীমা' },
+            { id: 'ch14', en: 'Data Handling', bn: 'উপাত্ত ব্যবস্থাপনা' }
         ]
     },
-    'General Science': {
-        en: 'General Science',
-        bn: 'সাধারণ বিজ্ঞান',
+    'Science': {
+        en: 'Science',
+        bn: 'বিজ্ঞান',
         chapters: [
-            { id: 'ch1', en: 'Living World', bn: 'জীবজগৎ' },
-            { id: 'ch2', en: 'Matter & Energy', bn: 'পদার্থ ও শক্তি' },
-            { id: 'ch3', en: 'Environment', bn: 'পরিবেশ' },
-            { id: 'ch4', en: 'Health & Hygiene', bn: 'স্বাস্থ্য ও স্বাস্থ্যবিধি' }
+            { id: 'ch1', en: 'Scientific Investigation', bn: 'বৈজ্ঞানিক অনুসন্ধান' },
+            { id: 'ch2', en: 'Living World', bn: 'জীবজগৎ' },
+            { id: 'ch3', en: 'Human Body', bn: 'মানবদেহ' },
+            { id: 'ch4', en: 'Plants', bn: 'উদ্ভিদ' },
+            { id: 'ch5', en: 'Animals', bn: 'প্রাণী' },
+            { id: 'ch6', en: 'Matter & Its Properties', bn: 'পদার্থ ও তার বৈশিষ্ট্য' },
+            { id: 'ch7', en: 'Force & Motion', bn: 'বল ও গতি' },
+            { id: 'ch8', en: 'Heat & Temperature', bn: 'তাপ ও তাপমাত্রা' },
+            { id: 'ch9', en: 'Light', bn: 'আলো' },
+            { id: 'ch10', en: 'Sound', bn: 'শব্দ' },
+            { id: 'ch11', en: 'Electricity', bn: 'বিদ্যুৎ' },
+            { id: 'ch12', en: 'Environment', bn: 'পরিবেশ' },
+            { id: 'ch13', en: 'Earth & Space', bn: 'পৃথিবী ও মহাকাশ' }
         ]
     },
     'Bangladesh & Global Studies': {
         en: 'Bangladesh & Global Studies',
         bn: 'বাংলাদেশ ও বিশ্বপরিচয়',
         chapters: [
-            { id: 'ch1', en: 'Our Country', bn: 'আমাদের দেশ' },
-            { id: 'ch2', en: 'History', bn: 'ইতিহাস' },
-            { id: 'ch3', en: 'Geography', bn: 'ভূগোল' },
-            { id: 'ch4', en: 'Citizenship', bn: 'নাগরিকতা' }
+            { id: 'ch1', en: 'Our Liberation War', bn: 'আমাদের মুক্তিযুদ্ধ' },
+            { id: 'ch2', en: 'Bangabandhu', bn: 'বঙ্গবন্ধু' },
+            { id: 'ch3', en: 'Bangladesh Geography', bn: 'বাংলাদেশের ভূগোল' },
+            { id: 'ch4', en: 'Population & Society', bn: 'জনসংখ্যা ও সমাজ' },
+            { id: 'ch5', en: 'Our Economy', bn: 'আমাদের অর্থনীতি' },
+            { id: 'ch6', en: 'Government System', bn: 'সরকার ব্যবস্থা' },
+            { id: 'ch7', en: 'Citizenship', bn: 'নাগরিকতা' },
+            { id: 'ch8', en: 'Rights & Duties', bn: 'অধিকার ও কর্তব্য' },
+            { id: 'ch9', en: 'World Civilizations', bn: 'বিশ্ব সভ্যতা' },
+            { id: 'ch10', en: 'Globalization', bn: 'বিশ্বায়ন' }
         ]
     },
-    'Religion & Moral Education': {
-        en: 'Religion & Moral Education',
-        bn: 'ধর্ম ও নৈতিক শিক্ষা',
+    'Religion & Moral Education (Islam)': {
+        en: 'Religion & Moral Education (Islam)',
+        bn: 'ইসলাম ও নৈতিক শিক্ষা',
         chapters: [
-            { id: 'ch1', en: 'Faith', bn: 'ঈমান' },
-            { id: 'ch2', en: 'Worship', bn: 'ইবাদত' },
-            { id: 'ch3', en: 'Morals', bn: 'নৈতিকতা' },
-            { id: 'ch4', en: 'Biography', bn: 'জীবনী' }
+            { id: 'ch1', en: 'Aqeedah (Faith)', bn: 'আকিদা (বিশ্বাস)' },
+            { id: 'ch2', en: 'Ibadah (Worship)', bn: 'ইবাদত' },
+            { id: 'ch3', en: 'Quran Recitation', bn: 'কুরআন তিলাওয়াত' },
+            { id: 'ch4', en: 'Hadith', bn: 'হাদিস' },
+            { id: 'ch5', en: 'Akhlaq (Morals)', bn: 'আখলাক (নৈতিকতা)' },
+            { id: 'ch6', en: 'Islamic History', bn: 'ইসলামের ইতিহাস' }
         ]
     },
     'ICT': {
         en: 'ICT',
-        bn: 'তথ্য ও যোগাযোগ প্রযুক্তি',
+        bn: 'ডিজিটাল প্রযুক্তি',
         chapters: [
-            { id: 'ch1', en: 'Computer Basics', bn: 'কম্পিউটার পরিচিতি' },
-            { id: 'ch2', en: 'Internet', bn: 'ইন্টারনেট' },
-            { id: 'ch3', en: 'Office Applications', bn: 'অফিস অ্যাপ্লিকেশন' },
-            { id: 'ch4', en: 'Cyber Safety', bn: 'সাইবার নিরাপত্তা' }
+            { id: 'ch1', en: 'Digital World', bn: 'ডিজিটাল বিশ্ব' },
+            { id: 'ch2', en: 'Computer Basics', bn: 'কম্পিউটার পরিচিতি' },
+            { id: 'ch3', en: 'Operating System', bn: 'অপারেটিং সিস্টেম' },
+            { id: 'ch4', en: 'Word Processing', bn: 'ওয়ার্ড প্রসেসিং' },
+            { id: 'ch5', en: 'Spreadsheet', bn: 'স্প্রেডশিট' },
+            { id: 'ch6', en: 'Presentation', bn: 'উপস্থাপনা' },
+            { id: 'ch7', en: 'Internet & Email', bn: 'ইন্টারনেট ও ইমেইল' },
+            { id: 'ch8', en: 'Cyber Safety', bn: 'সাইবার নিরাপত্তা' },
+            { id: 'ch9', en: 'Programming Basics', bn: 'প্রোগ্রামিং এর ভিত্তি' }
         ]
     },
-    'Arts & Crafts': {
-        en: 'Arts & Crafts',
-        bn: 'চারু ও কারুকলা',
+    'Work & Life Skills': {
+        en: 'Work & Life Skills',
+        bn: 'কর্ম ও জীবনমুখী শিক্ষা',
+        chapters: [
+            { id: 'ch1', en: 'Self Development', bn: 'আত্মউন্নয়ন' },
+            { id: 'ch2', en: 'Career Planning', bn: 'ক্যারিয়ার পরিকল্পনা' },
+            { id: 'ch3', en: 'Vocational Skills', bn: 'কারিগরি দক্ষতা' },
+            { id: 'ch4', en: 'Financial Literacy', bn: 'আর্থিক সাক্ষরতা' },
+            { id: 'ch5', en: 'Health & Safety', bn: 'স্বাস্থ্য ও নিরাপত্তা' }
+        ]
+    },
+    'Arts & Culture': {
+        en: 'Arts & Culture',
+        bn: 'শিল্প ও সংস্কৃতি',
         chapters: [
             { id: 'ch1', en: 'Drawing', bn: 'অঙ্কন' },
             { id: 'ch2', en: 'Painting', bn: 'চিত্রাঙ্কন' },
-            { id: 'ch3', en: 'Crafts', bn: 'হস্তশিল্প' }
+            { id: 'ch3', en: 'Crafts', bn: 'হস্তশিল্প' },
+            { id: 'ch4', en: 'Folk Culture', bn: 'লোক সংস্কৃতি' },
+            { id: 'ch5', en: 'Music Basics', bn: 'সংগীতের ভিত্তি' }
         ]
     },
-    'Physical Education': {
-        en: 'Physical Education',
-        bn: 'শারীরিক শিক্ষা',
+    'Health & Physical Education': {
+        en: 'Health & Physical Education',
+        bn: 'স্বাস্থ্য ও শারীরিক শিক্ষা',
         chapters: [
-            { id: 'ch1', en: 'Exercise', bn: 'ব্যায়াম' },
-            { id: 'ch2', en: 'Sports', bn: 'খেলাধুলা' },
-            { id: 'ch3', en: 'Health', bn: 'স্বাস্থ্য' }
+            { id: 'ch1', en: 'Physical Fitness', bn: 'শারীরিক সুস্থতা' },
+            { id: 'ch2', en: 'Exercise & Yoga', bn: 'ব্যায়াম ও যোগ' },
+            { id: 'ch3', en: 'Sports & Games', bn: 'খেলাধুলা' },
+            { id: 'ch4', en: 'First Aid', bn: 'প্রাথমিক চিকিৎসা' },
+            { id: 'ch5', en: 'Nutrition', bn: 'পুষ্টি' },
+            { id: 'ch6', en: 'Mental Health', bn: 'মানসিক স্বাস্থ্য' }
         ]
     }
 };
+
 
 // ==================== SSC (CLASS 9-10) ====================
 

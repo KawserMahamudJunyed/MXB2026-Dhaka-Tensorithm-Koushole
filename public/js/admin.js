@@ -12,22 +12,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     const subjectSelect = document.getElementById('subject');
 
     // NCTB 2026 Fallback Data
+    const FALLBACK_SUBJECTS_6_8 = {
+        'Junior': ['Bangla', 'English', 'Mathematics', 'General Science', 'Bangladesh & Global Studies', 'Religion & Moral Education', 'ICT', 'Arts & Crafts', 'Physical Education']
+    };
+
     const FALLBACK_SUBJECTS_9_10 = {
         'Common': ['Bangla', 'English', 'General Mathematics', 'ICT'],
         'Science': ['Physics', 'Chemistry', 'Biology', 'Higher Mathematics', 'Bangladesh & Global Studies'],
-        'Business Studies': ['General Science', 'Accounting', 'Finance & Banking'],
-        'Humanities': ['General Science', 'Geography & Environment']
+        'Business Studies': ['General Science', 'Accounting', 'Finance & Banking', 'Business Entrepreneurship'],
+        'Humanities': ['General Science', 'Geography & Environment', 'History of BD & World', 'Civics & Citizenship']
     };
 
     const FALLBACK_SUBJECTS_11_12 = {
         'Common': ['ICT'],
-        'Science': ['Higher Mathematics 1st Paper', 'Higher Mathematics 2nd Paper', 'Physics 1st Paper'],
-        'Business Studies': ['Accounting 1st Paper', 'Accounting 2nd Paper'],
-        'Humanities': ['Economics 1st Paper', 'Civics 1st Paper']
+        'Science': ['Higher Mathematics 1st Paper', 'Higher Mathematics 2nd Paper', 'Physics 1st Paper', 'Physics 2nd Paper', 'Chemistry 1st Paper', 'Chemistry 2nd Paper', 'Biology 1st Paper', 'Biology 2nd Paper'],
+        'Business Studies': ['Accounting 1st Paper', 'Accounting 2nd Paper', 'Management 1st Paper', 'Management 2nd Paper', 'Finance 1st Paper', 'Finance 2nd Paper'],
+        'Humanities': ['Economics 1st Paper', 'Economics 2nd Paper', 'Civics 1st Paper', 'Civics 2nd Paper']
     };
 
     function getSubjectsFallback(group, className) {
-        const isHSC = ['11', '12', '11-12'].includes(String(className));
+        const classStr = String(className);
+        const isJunior = ['6', '7', '8'].includes(classStr);
+        const isHSC = ['11', '12', '11-12'].includes(classStr);
+
+        // Junior classes don't have groups
+        if (isJunior) {
+            return FALLBACK_SUBJECTS_6_8['Junior'] || [];
+        }
+
         const data = isHSC ? FALLBACK_SUBJECTS_11_12 : FALLBACK_SUBJECTS_9_10;
         let list = [...(data['Common'] || [])];
         if (group && data[group]) list = [...list, ...data[group]];
