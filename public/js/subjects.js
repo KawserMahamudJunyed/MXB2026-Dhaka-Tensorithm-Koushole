@@ -9,36 +9,57 @@
 // NCTB 2026 New Curriculum - Competency-Based Learning
 
 const JUNIOR_SUBJECTS = {
-    'Bangla': {
-        en: 'Bangla',
-        bn: 'বাংলা',
+    'Bangla 1st Paper': {
+        en: 'Bangla 1st Paper',
+        bn: 'বাংলা ১ম পত্র',
         chapters: [
             { id: 'ch1', en: 'Reading Comprehension', bn: 'পড়া ও বুঝা' },
             { id: 'ch2', en: 'Prose Selection', bn: 'গদ্য নির্বাচন' },
             { id: 'ch3', en: 'Poetry Selection', bn: 'পদ্য নির্বাচন' },
-            { id: 'ch4', en: 'Language & Grammar', bn: 'ভাষা ও ব্যাকরণ' },
-            { id: 'ch5', en: 'Sentence Building', bn: 'বাক্য গঠন' },
-            { id: 'ch6', en: 'Parts of Speech', bn: 'পদ প্রকরণ' },
-            { id: 'ch7', en: 'Verbs', bn: 'ক্রিয়াপদ' },
-            { id: 'ch8', en: 'Essay Writing', bn: 'রচনা লেখা' },
-            { id: 'ch9', en: 'Letter Writing', bn: 'পত্র লেখা' },
-            { id: 'ch10', en: 'Summary & Précis', bn: 'সারাংশ ও সারমর্ম' }
+            { id: 'ch4', en: 'Drama', bn: 'নাটক' },
+            { id: 'ch5', en: 'Novel/Story', bn: 'উপন্যাস/গল্প' },
+            { id: 'ch6', en: 'Creative Writing', bn: 'সৃজনশীল লেখা' }
         ]
     },
-    'English': {
-        en: 'English',
-        bn: 'ইংরেজি',
+    'Bangla 2nd Paper': {
+        en: 'Bangla 2nd Paper',
+        bn: 'বাংলা ২য় পত্র',
+        chapters: [
+            { id: 'ch1', en: 'Language & Grammar', bn: 'ভাষা ও ব্যাকরণ' },
+            { id: 'ch2', en: 'Parts of Speech', bn: 'পদ প্রকরণ' },
+            { id: 'ch3', en: 'Sentence Building', bn: 'বাক্য গঠন' },
+            { id: 'ch4', en: 'Verbs', bn: 'ক্রিয়াপদ' },
+            { id: 'ch5', en: 'Nouns & Pronouns', bn: 'বিশেষ্য ও সর্বনাম' },
+            { id: 'ch6', en: 'Essay Writing', bn: 'রচনা লেখা' },
+            { id: 'ch7', en: 'Letter Writing', bn: 'পত্র লেখা' },
+            { id: 'ch8', en: 'Summary & Précis', bn: 'সারাংশ ও সারমর্ম' }
+        ]
+    },
+    'English 1st Paper': {
+        en: 'English 1st Paper',
+        bn: 'ইংরেজি ১ম পত্র',
         chapters: [
             { id: 'ch1', en: 'Listening & Speaking', bn: 'শোনা ও বলা' },
             { id: 'ch2', en: 'Reading Skills', bn: 'পড়ার দক্ষতা' },
-            { id: 'ch3', en: 'Writing Skills', bn: 'লেখার দক্ষতা' },
-            { id: 'ch4', en: 'Parts of Speech', bn: 'পদ প্রকরণ' },
-            { id: 'ch5', en: 'Tenses', bn: 'কাল' },
-            { id: 'ch6', en: 'Sentence Types', bn: 'বাক্যের প্রকার' },
-            { id: 'ch7', en: 'Voice & Narration', bn: 'বাচ্য ও উক্তি' },
-            { id: 'ch8', en: 'Prepositions', bn: 'পদান্বয়ী অব্যয়' },
-            { id: 'ch9', en: 'Paragraph Writing', bn: 'অনুচ্ছেদ লেখা' },
-            { id: 'ch10', en: 'Story & Dialogue', bn: 'গল্প ও কথোপকথন' }
+            { id: 'ch3', en: 'Comprehension', bn: 'অনুধাবন' },
+            { id: 'ch4', en: 'Story & Narrative', bn: 'গল্প ও বর্ণনা' },
+            { id: 'ch5', en: 'Dialogue Writing', bn: 'কথোপকথন লেখা' },
+            { id: 'ch6', en: 'Seen Passages', bn: 'পঠিত অনুচ্ছেদ' }
+        ]
+    },
+    'English 2nd Paper': {
+        en: 'English 2nd Paper',
+        bn: 'ইংরেজি ২য় পত্র',
+        chapters: [
+            { id: 'ch1', en: 'Parts of Speech', bn: 'পদ প্রকরণ' },
+            { id: 'ch2', en: 'Tenses', bn: 'কাল' },
+            { id: 'ch3', en: 'Sentence Types', bn: 'বাক্যের প্রকার' },
+            { id: 'ch4', en: 'Voice Change', bn: 'বাচ্য পরিবর্তন' },
+            { id: 'ch5', en: 'Narration Change', bn: 'উক্তি পরিবর্তন' },
+            { id: 'ch6', en: 'Prepositions', bn: 'পদান্বয়ী অব্যয়' },
+            { id: 'ch7', en: 'Paragraph Writing', bn: 'অনুচ্ছেদ লেখা' },
+            { id: 'ch8', en: 'Letter/Email Writing', bn: 'পত্র/ইমেইল লেখা' },
+            { id: 'ch9', en: 'Application Writing', bn: 'আবেদন লেখা' }
         ]
     },
     'Mathematics': {

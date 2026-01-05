@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // NCTB 2026 Fallback Data
     const FALLBACK_SUBJECTS_6_8 = {
-        'Junior': ['Bangla', 'English', 'Mathematics', 'General Science', 'Bangladesh & Global Studies', 'Religion & Moral Education', 'ICT', 'Arts & Crafts', 'Physical Education']
+        'Junior': ['Bangla 1st Paper', 'Bangla 2nd Paper', 'English 1st Paper', 'English 2nd Paper', 'Mathematics', 'Science', 'Bangladesh & Global Studies', 'Religion & Moral Education (Islam)', 'ICT', 'Work & Life Skills', 'Arts & Culture', 'Health & Physical Education']
     };
 
     const FALLBACK_SUBJECTS_9_10 = {
