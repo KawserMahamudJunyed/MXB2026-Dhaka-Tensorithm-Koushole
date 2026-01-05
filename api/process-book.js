@@ -17,10 +17,17 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { resourceId, fileUrl } = req.body;
+    const { resourceId, fileUrl, sourceType = 'official' } = req.body;
 
+    // resourceId can be from 'official_resources' or 'library_books' table
     if (!resourceId || !fileUrl) {
         return res.status(400).json({ error: 'resourceId and fileUrl are required' });
+    }
+
+    // Validate sourceType
+    const validSources = ['official', 'library'];
+    if (!validSources.includes(sourceType)) {
+        return res.status(400).json({ error: 'sourceType must be "official" or "library"' });
     }
 
     // Initialize clients
@@ -120,8 +127,11 @@ export default async function handler(req, res) {
         console.log('📖 Found', chapters.length, 'chapters');
 
         // Step 3: Store chapters in database
+        // Use appropriate ID column based on source type
+        const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+
         const chaptersToInsert = chapters.map(ch => ({
-            resource_id: resourceId,
+            [idColumn]: resourceId,
             chapter_number: ch.chapter_number || ch.number || 0,
             title_en: ch.title_en || ch.title || 'Unknown',
             title_bn: ch.title_bn || ch.title || 'অজানা',
@@ -134,7 +144,7 @@ export default async function handler(req, res) {
         await supabase
             .from('book_chapters')
             .delete()
-            .eq('resource_id', resourceId);
+            .eq(idColumn, resourceId);
 
         // Insert new chapters
         const { data: insertedChapters, error: insertError } = await supabase

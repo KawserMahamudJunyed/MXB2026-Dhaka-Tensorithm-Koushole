@@ -1042,8 +1042,8 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
 
             console.log("Public URL generated:", publicUrl);
 
-            // 3. Insert metadata into DB (OPTIMIZED: removed .select() to skip return fetch)
-            const { error: insertError } = await window.supabaseClient
+            // 3. Insert metadata into DB (get back the ID for chapter extraction)
+            const { data: insertedBook, error: insertError } = await window.supabaseClient
                 .from('library_books')
                 .insert({
                     user_id: user.id,
@@ -1051,14 +1051,41 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
                     file_type: getFileType(file.type, file.name),
                     file_size_bytes: file.size,
                     file_url: publicUrl,
-                    index_status: 'done'
-                });
+                    index_status: 'processing'
+                })
+                .select()
+                .single();
 
             if (insertError) {
                 console.error("Database Insert Error:", insertError);
                 throw insertError;
             }
-            console.log("Database Insert Success");
+            console.log("Database Insert Success, extracting chapters...");
+
+            // 4. Auto-extract chapters from the PDF (background, don't block UI)
+            fetch('/api/process-book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resourceId: insertedBook.id,
+                    fileUrl: publicUrl,
+                    sourceType: 'library'
+                })
+            }).then(async (response) => {
+                const result = await response.json();
+                if (result.success) {
+                    console.log(`✅ Extracted ${result.chapters?.length || 0} chapters`);
+                    // Update index_status to done
+                    await window.supabaseClient
+                        .from('library_books')
+                        .update({ index_status: 'done' })
+                        .eq('id', insertedBook.id);
+                } else {
+                    console.warn('Chapter extraction warning:', result.error);
+                }
+            }).catch(err => {
+                console.warn('Chapter extraction failed (non-blocking):', err);
+            });
 
             // Success UI Update
             const tempEl = document.getElementById(tempId);
