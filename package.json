@@ -7,7 +7,9 @@
     "dev": "vercel dev"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
     "groq-sdk": "^0.3.3",
+    "pdf-parse": "^2.4.5",
     "serve": "^14.0.0"
   }
 }

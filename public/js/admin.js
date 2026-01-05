@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("🔗 Public URL:", publicUrl);
 
             // Insert to Database
-            const { error: dbError } = await window.supabaseClient
+            const { data: insertedBook, error: dbError } = await window.supabaseClient
                 .from('official_resources')
                 .insert({
                     title: finalTitle,
@@ -214,11 +214,38 @@ document.addEventListener('DOMContentLoaded', async () => {
                     file_url: publicUrl,
                     cover_url: null,
                     uploaded_by: userEmail
-                });
+                })
+                .select()
+                .single();
 
             if (dbError) throw dbError;
 
-            showStatus('✅ Upload Successful! Book is now live.', 'text-green-500 font-bold');
+            showStatus('✅ Upload Successful! Extracting chapters...', 'text-yellow-500');
+
+            // Auto-extract chapters from the PDF
+            try {
+                const processResponse = await fetch('/api/process-book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        resourceId: insertedBook.id,
+                        fileUrl: publicUrl
+                    })
+                });
+
+                const processResult = await processResponse.json();
+
+                if (processResult.success) {
+                    showStatus(`✅ Book uploaded! ${processResult.chapters?.length || 0} chapters extracted.`, 'text-green-500 font-bold');
+                } else {
+                    console.warn('Chapter extraction warning:', processResult.error);
+                    showStatus('✅ Book uploaded! (Chapter extraction pending)', 'text-green-500');
+                }
+            } catch (processError) {
+                console.warn('Chapter extraction failed:', processError);
+                showStatus('✅ Book uploaded! (Chapters will be extracted later)', 'text-green-500');
+            }
+
             form.reset();
             setTimeout(updateSubjects, 100);
 
