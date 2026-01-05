@@ -133,7 +133,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Construct Title
         let finalTitle = `${subject} - Class ${classLevel}`;
-        if (group !== 'Common') finalTitle += ` [${group}]`;
+        // Only add group tag for Class 9-12 with actual groups (not None or Common)
+        if (group && group !== 'None' && group !== 'Common') {
+            finalTitle += ` [${group}]`;
+        }
         finalTitle += (version === 'English') ? ' (English Version)' : ' (Bangla Medium)';
 
         // Show Progress Bar UI
