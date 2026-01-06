@@ -61,15 +61,118 @@ export default async function handler(req, res) {
 
         console.log('📄 Extracted text length:', extractedText.length, 'from', totalPages, 'pages');
 
+        let textToAnalyze = extractedText;
+        let usedOCR = false;
+
         // Check if text was actually extracted
         if (!extractedText || extractedText.length < 100) {
-            console.log('⚠️ No readable text found - PDF might be image-based');
-            return res.status(200).json({
-                success: true,
-                message: 'No readable text found in PDF (might be scanned image)',
-                chapters: [],
-                isImageBased: true
-            });
+            console.log('⚠️ No readable text found - trying Gemini Vision OCR');
+
+            // Use Gemini Vision to extract text from scanned PDF
+            const geminiApiKey = process.env.GEMINI_API_KEY;
+            if (!geminiApiKey) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'No readable text found and GEMINI_API_KEY not configured for OCR',
+                    chapters: [],
+                    isImageBased: true
+                });
+            }
+
+            try {
+                // Convert PDF to base64 for Gemini
+                const base64Pdf = Buffer.from(pdfBuffer).toString('base64');
+
+                const geminiResponse = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    {
+                                        inline_data: {
+                                            mime_type: 'application/pdf',
+                                            data: base64Pdf
+                                        }
+                                    },
+                                    {
+                                        text: `You are analyzing a textbook PDF. Extract the Table of Contents or chapter list.
+                                        
+Return a JSON object with chapters in this format:
+{
+    "chapters": [
+        {"chapter_number": 1, "title_en": "Chapter Title", "title_bn": "বাংলা শিরোনাম"}
+    ]
+}
+
+Important:
+- Look for chapter headings, unit titles, or table of contents
+- If in Bangla, provide English translations
+- Return ONLY valid JSON`
+                                    }
+                                ]
+                            }],
+                            generationConfig: {
+                                temperature: 0.1,
+                                maxOutputTokens: 2048
+                            }
+                        })
+                    }
+                );
+
+                const geminiData = await geminiResponse.json();
+                const geminiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                console.log('🔮 Gemini OCR response:', geminiText.substring(0, 500));
+
+                // Try to parse chapters directly from Gemini response
+                const jsonMatch = geminiText.match(/\{[\s\S]*"chapters"[\s\S]*\}/);
+                if (jsonMatch) {
+                    const parsedChapters = JSON.parse(jsonMatch[0]);
+                    const chapters = parsedChapters.chapters || [];
+
+                    if (chapters.length > 0) {
+                        // Store chapters directly
+                        const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+                        const chaptersToInsert = chapters.map(ch => ({
+                            [idColumn]: resourceId,
+                            chapter_number: ch.chapter_number || 0,
+                            title_en: ch.title_en || ch.title || 'Unknown',
+                            title_bn: ch.title_bn || ch.title || 'অজানা',
+                            content_extracted: false
+                        }));
+
+                        await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
+                        const { data: insertedChapters, error: insertError } = await supabase
+                            .from('book_chapters')
+                            .insert(chaptersToInsert)
+                            .select();
+
+                        if (insertError) {
+                            throw new Error('Database insert failed: ' + insertError.message);
+                        }
+
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Chapters extracted via OCR',
+                            chapters: insertedChapters,
+                            usedOCR: true
+                        });
+                    }
+                }
+
+                textToAnalyze = geminiText;
+                usedOCR = true;
+            } catch (ocrError) {
+                console.error('OCR Error:', ocrError);
+                return res.status(200).json({
+                    success: true,
+                    message: 'OCR failed: ' + ocrError.message,
+                    chapters: [],
+                    isImageBased: true
+                });
+            }
         }
 
         // Step 2: Use AI to identify chapters from the text
@@ -105,7 +208,7 @@ export default async function handler(req, res) {
                 },
                 {
                     role: 'user',
-                    content: `Find chapters in this textbook text:\n\n${extractedText.substring(0, 10000)}`
+                    content: `Find chapters in this textbook text:\n\n${textToAnalyze.substring(0, 10000)}`
                 }
             ],
             model: 'meta-llama/llama-4-scout-17b-16e-instruct',
