@@ -61,37 +61,51 @@ export default async function handler(req, res) {
 
         console.log('📄 Extracted text length:', extractedText.length, 'from', totalPages, 'pages');
 
+        // Check if text was actually extracted
+        if (!extractedText || extractedText.length < 100) {
+            console.log('⚠️ No readable text found - PDF might be image-based');
+            return res.status(200).json({
+                success: true,
+                message: 'No readable text found in PDF (might be scanned image)',
+                chapters: [],
+                isImageBased: true
+            });
+        }
+
         // Step 2: Use AI to identify chapters from the text
         const completion = await groq.chat.completions.create({
             messages: [
                 {
                     role: 'system',
-                    content: `You are an expert at analyzing NCTB (Bangladesh National Curriculum) textbook content.
-                    Given the text from the first pages of a textbook, identify and extract the chapter list.
+                    content: `You are an expert at analyzing textbook content, especially NCTB (Bangladesh National Curriculum) books.
+                    Given extracted text from a textbook PDF, identify the chapter/section list.
                     
-                    Return a JSON array of chapters with this structure:
+                    Look for patterns like:
+                    - "Chapter 1", "অধ্যায় ১", "পাঠ ১"
+                    - Numbered sections
+                    - Table of Contents entries
+                    - Unit headings
+                    
+                    Return a JSON object with this structure:
                     {
                         "chapters": [
                             {
                                 "chapter_number": 1,
                                 "title_en": "Chapter title in English",
-                                "title_bn": "অধ্যায়ের শিরোনাম বাংলায়",
-                                "page_start": 1
+                                "title_bn": "বাংলায় শিরোনাম"
                             }
                         ]
                     }
                     
-                    Important:
-                    - Extract both Bangla and English titles if available
-                    - If only Bangla is available, translate to English
-                    - If only English is available, transliterate to Bangla
-                    - Include page numbers if visible
-                    - Focus on main chapters, not sub-sections
+                    Rules:
+                    - If text is in Bangla, translate to English for title_en
+                    - If text is in English, transliterate to Bangla for title_bn
+                    - If you can't find chapters, return {"chapters": []}
                     - Return ONLY valid JSON, no markdown`
                 },
                 {
                     role: 'user',
-                    content: `Extract the chapter list from this textbook content:\n\n${extractedText.substring(0, 8000)}`
+                    content: `Find chapters in this textbook text:\n\n${extractedText.substring(0, 10000)}`
                 }
             ],
             model: 'meta-llama/llama-4-scout-17b-16e-instruct',
@@ -101,29 +115,36 @@ export default async function handler(req, res) {
         });
 
         const aiResponse = completion.choices[0]?.message?.content;
-        console.log('🤖 AI Response:', aiResponse);
+        console.log('🤖 AI Response:', aiResponse?.substring(0, 500));
 
         // Parse AI response
         let chaptersData;
         try {
             chaptersData = JSON.parse(aiResponse);
         } catch (parseError) {
-            // Try to extract JSON from response
+            console.warn('Failed to parse AI response, trying to extract JSON');
             const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 chaptersData = JSON.parse(jsonMatch[0]);
             } else {
-                throw new Error('Failed to parse AI response as JSON');
+                chaptersData = { chapters: [] };
             }
         }
 
-        const chapters = chaptersData.chapters || chaptersData;
-
-        if (!Array.isArray(chapters) || chapters.length === 0) {
-            throw new Error('No chapters found in the document');
-        }
+        const chapters = Array.isArray(chaptersData.chapters) ? chaptersData.chapters :
+            Array.isArray(chaptersData) ? chaptersData : [];
 
         console.log('📖 Found', chapters.length, 'chapters');
+
+        // If no chapters found, return success with empty array
+        if (chapters.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: 'No chapters detected in the document',
+                chapters: [],
+                textLength: extractedText.length
+            });
+        }
 
         // Step 3: Store chapters in database
         // Use appropriate ID column based on source type
