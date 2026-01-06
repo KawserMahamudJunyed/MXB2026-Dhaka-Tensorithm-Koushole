@@ -103,25 +103,34 @@ export default async function handler(req, res) {
                                         }
                                     },
                                     {
-                                        text: `You are analyzing a textbook PDF. Extract the Table of Contents or chapter list.
-                                        
-Return a JSON object with chapters in this format:
+                                        text: `Analyze this NCTB (Bangladesh National Curriculum) textbook PDF.
+
+TASK: Find the "সূচিপত্র" (Table of Contents) page and extract ALL chapters.
+
+Look for patterns like:
+- "প্রথম অধ্যায়", "দ্বিতীয় অধ্যায়", "তৃতীয় অধ্যায়" etc.
+- Chapter titles in Bangla with page numbers
+- Numbered sections (১, ২, ৩ or 1, 2, 3)
+
+Return JSON format:
 {
     "chapters": [
-        {"chapter_number": 1, "title_en": "Chapter Title", "title_bn": "বাংলা শিরোনাম"}
+        {"chapter_number": 1, "title_en": "English Translation", "title_bn": "বাংলা শিরোনাম", "page_start": 1}
     ]
 }
 
-Important:
-- Look for chapter headings, unit titles, or table of contents
-- If in Bangla, provide English translations
-- Return ONLY valid JSON`
+RULES:
+1. Extract ALL chapters from the table of contents
+2. Translate Bangla titles to English for title_en
+3. Keep original Bangla in title_bn
+4. Include page numbers if visible
+5. Return ONLY valid JSON, no markdown or explanation`
                                     }
                                 ]
                             }],
                             generationConfig: {
                                 temperature: 0.1,
-                                maxOutputTokens: 2048
+                                maxOutputTokens: 4096
                             }
                         })
                     }
