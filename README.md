@@ -32,6 +32,11 @@ Koushole employs a sophisticated **Agentic AI Architecture** to deliver real-tim
 -   **Flow**: `Intent: "Draw..."` → `Prompt Refinement` → **FLUX.1-dev (HF)** → `Visual Output`
 -   **Innovation**: Instantly generates scientific diagrams within the chat interface.
 
+### 4. Book OCR & Chapter Extraction 📖
+-   **Goal**: Process scanned textbooks.
+-   **Flow**: `PDF Upload` → **Gemini 2.0 Flash** → `Chapter Detection` → `Database Storage`
+-   **Innovation**: Extracts chapters from scanned Bangla PDFs with auto-retry on rate limits.
+
 ---
 
 ## ✨ Key Features
@@ -198,6 +203,7 @@ Run the setup script in Supabase SQL Editor:
 | **Orchestration** | Vercel Serverless Functions |
 | **AI (Logic)** | Llama 4 Scout (via Groq) |
 | **AI (Vision)** | FLUX.1-dev (via Hugging Face) |
+| **AI (OCR)** | Gemini 2.0 Flash (via Google AI) |
 
 ---
 
@@ -205,21 +211,26 @@ Run the setup script in Supabase SQL Editor:
 
 ```
 koushole-app/
-├── api/                    # Vercel serverless functions
-│   ├── chat.js             # AI chat endpoint
-│   ├── generate-quiz.js    # Quiz generation
-│   └── generate-image.js   # Image generation
+├── api/                         # Vercel serverless functions
+│   ├── chat.js                  # AI chat endpoint
+│   ├── generate.js              # Quiz generation
+│   ├── generate-image.js        # Image generation
+│   └── process-book.js          # PDF OCR & chapter extraction
 ├── public/
-│   ├── index.html          # Main app
-│   ├── admin.html          # Admin panel
+│   ├── index.html               # Main app
+│   ├── admin.html               # Admin panel
+│   ├── reset-password.html      # Password recovery
 │   ├── js/
-│   │   ├── app.js          # Main app logic
-│   │   ├── admin.js        # Admin panel logic
-│   │   ├── subjects.js     # NCTB 2026 curriculum (subjects & chapters)
-│   │   ├── quiz.js         # Quiz functionality
+│   │   ├── app.js               # Main app logic
+│   │   ├── admin.js             # Admin panel logic
+│   │   ├── quiz.js              # Quiz functionality
+│   │   ├── subjects.js          # NCTB curriculum data
+│   │   ├── fetchOfficialResources.js
 │   │   └── supabase-config.js
 │   └── css/
-└── vercel.json             # Deployment config
+├── scripts/
+│   └── supabase_setup.sql       # Complete DB setup
+└── vercel.json                  # Deployment config
 ```
 
 ---
