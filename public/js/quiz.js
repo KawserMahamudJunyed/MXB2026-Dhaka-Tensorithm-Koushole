@@ -240,7 +240,7 @@ function updateChapters() {
     }
 }
 
-function openQuizConfig(bookName = null, presetSubject = null, presetTopic = null) {
+async function openQuizConfig(bookName = null, presetSubject = null, presetTopic = null) {
     currentQuizContext = bookName ? 'Book' : 'General';
     currentBookName = bookName || '';
 
