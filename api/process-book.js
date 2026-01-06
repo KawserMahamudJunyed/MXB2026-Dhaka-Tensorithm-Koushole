@@ -137,47 +137,76 @@ RULES:
                 );
 
                 const geminiData = await geminiResponse.json();
+                console.log('🔮 Gemini raw response status:', geminiResponse.status);
+
+                // Check for Gemini API errors
+                if (geminiData.error) {
+                    console.error('Gemini API error:', geminiData.error);
+                    return res.status(200).json({
+                        success: false,
+                        message: 'Gemini API error: ' + (geminiData.error.message || JSON.stringify(geminiData.error)),
+                        chapters: [],
+                        debug: geminiData.error
+                    });
+                }
+
                 const geminiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                console.log('🔮 Gemini OCR response:', geminiText.substring(0, 500));
+                console.log('🔮 Gemini OCR response length:', geminiText.length);
+                console.log('🔮 Gemini OCR response:', geminiText.substring(0, 1000));
 
                 // Try to parse chapters directly from Gemini response
                 const jsonMatch = geminiText.match(/\{[\s\S]*"chapters"[\s\S]*\}/);
                 if (jsonMatch) {
-                    const parsedChapters = JSON.parse(jsonMatch[0]);
-                    const chapters = parsedChapters.chapters || [];
+                    try {
+                        const parsedChapters = JSON.parse(jsonMatch[0]);
+                        const chapters = parsedChapters.chapters || [];
 
-                    if (chapters.length > 0) {
-                        // Store chapters directly
-                        const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
-                        const chaptersToInsert = chapters.map(ch => ({
-                            [idColumn]: resourceId,
-                            chapter_number: ch.chapter_number || 0,
-                            title_en: ch.title_en || ch.title || 'Unknown',
-                            title_bn: ch.title_bn || ch.title || 'অজানা',
-                            content_extracted: false
-                        }));
+                        if (chapters.length > 0) {
+                            // Store chapters directly
+                            const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+                            const chaptersToInsert = chapters.map(ch => ({
+                                [idColumn]: resourceId,
+                                chapter_number: ch.chapter_number || 0,
+                                title_en: ch.title_en || ch.title || 'Unknown',
+                                title_bn: ch.title_bn || ch.title || 'অজানা',
+                                content_extracted: false
+                            }));
 
-                        await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
-                        const { data: insertedChapters, error: insertError } = await supabase
-                            .from('book_chapters')
-                            .insert(chaptersToInsert)
-                            .select();
+                            await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
+                            const { data: insertedChapters, error: insertError } = await supabase
+                                .from('book_chapters')
+                                .insert(chaptersToInsert)
+                                .select();
 
-                        if (insertError) {
-                            throw new Error('Database insert failed: ' + insertError.message);
+                            if (insertError) {
+                                throw new Error('Database insert failed: ' + insertError.message);
+                            }
+
+                            return res.status(200).json({
+                                success: true,
+                                message: 'Chapters extracted via OCR',
+                                chapters: insertedChapters,
+                                usedOCR: true
+                            });
                         }
-
-                        return res.status(200).json({
-                            success: true,
-                            message: 'Chapters extracted via OCR',
-                            chapters: insertedChapters,
-                            usedOCR: true
-                        });
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
                     }
                 }
 
-                textToAnalyze = geminiText;
-                usedOCR = true;
+                // If we get here, OCR worked but no chapters found in expected format
+                // Return debug info
+                return res.status(200).json({
+                    success: true,
+                    message: 'OCR worked but no chapters found in response',
+                    chapters: [],
+                    usedOCR: true,
+                    debug: {
+                        responseLength: geminiText.length,
+                        responsePreview: geminiText.substring(0, 500)
+                    }
+                });
+
             } catch (ocrError) {
                 console.error('OCR Error:', ocrError);
                 return res.status(200).json({
