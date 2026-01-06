@@ -71,60 +71,175 @@ export default async function handler(req, res) {
         // unpdf often fails to extract Bangla text properly
         const textLength = textToAnalyze.trim().length;
         if (textLength < 500) {
-            console.log('⚠️ Poor text extraction (' + textLength + ' chars) - trying OCR.space...');
+            console.log('⚠️ Poor text extraction (' + textLength + ' chars) - trying Gemini Vision...');
 
-            // OCR.space API - 500 free calls/month, no rate limits
-            const ocrApiKey = process.env.OCR_SPACE_API_KEY || 'helloworld'; // 'helloworld' is free demo key
-            
-            try {
-                const base64Pdf = Buffer.from(pdfBytesCopy).toString('base64');
-                
-                // OCR.space supports PDF via base64
-                const formData = new URLSearchParams();
-                formData.append('base64Image', `data:application/pdf;base64,${base64Pdf}`);
-                formData.append('language', 'ben'); // Bengali language
-                formData.append('isTable', 'true');
-                formData.append('OCREngine', '2'); // Engine 2 is better for Asian languages
-                formData.append('filetype', 'PDF');
-                
-                console.log('🔮 Calling OCR.space API...');
-                const ocrResponse = await fetch('https://api.ocr.space/parse/image', {
-                    method: 'POST',
-                    headers: {
-                        'apikey': ocrApiKey,
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: formData.toString()
-                });
-
-                const ocrData = await ocrResponse.json();
-                console.log('🔮 OCR.space response:', JSON.stringify(ocrData).substring(0, 300));
-
-                if (ocrData.IsErroredOnProcessing) {
-                    throw new Error(ocrData.ErrorMessage?.[0] || 'OCR processing failed');
-                }
-
-                // Extract text from all parsed pages
-                const ocrText = ocrData.ParsedResults?.map(r => r.ParsedText).join('\n') || '';
-                console.log('🔮 OCR extracted text length:', ocrText.length);
-
-                if (ocrText.length > 50) {
-                    textToAnalyze = ocrText;
-                    usedOCR = true;
-                } else {
-                    return res.status(200).json({
-                        success: true,
-                        message: 'OCR extracted no readable text',
-                        chapters: [],
-                        isImageBased: true
-                    });
-                }
-
-            } catch (ocrError) {
-                console.error('OCR.space Error:', ocrError.message);
+            // Gemini Vision API - supports PDFs up to 20MB, excellent Bangla OCR
+            const geminiApiKey = process.env.GEMINI_API_KEY;
+            if (!geminiApiKey) {
                 return res.status(200).json({
                     success: true,
-                    message: 'OCR failed: ' + ocrError.message,
+                    message: 'GEMINI_API_KEY not configured for OCR',
+                    chapters: [],
+                    isImageBased: true
+                });
+            }
+
+            const fileSizeMB = pdfBytesCopy.length / (1024 * 1024);
+            console.log('📄 PDF size:', fileSizeMB.toFixed(2), 'MB');
+
+            if (fileSizeMB > 20) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'PDF too large for Gemini Vision (max 20MB)',
+                    chapters: [],
+                    isImageBased: true
+                });
+            }
+
+            // Helper function to call Gemini with retry
+            async function callGeminiWithRetry(base64Pdf, maxRetries = 2) {
+                for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                    try {
+                        console.log(`🔮 Gemini Vision attempt ${attempt + 1}...`);
+
+                        const geminiResponse = await fetch(
+                            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
+                            {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    contents: [{
+                                        parts: [
+                                            {
+                                                inline_data: {
+                                                    mime_type: 'application/pdf',
+                                                    data: base64Pdf
+                                                }
+                                            },
+                                            {
+                                                text: `Analyze this NCTB (Bangladesh National Curriculum) textbook PDF.
+
+TASK: Extract the Table of Contents ("সূচিপত্র") and ALL chapter information.
+
+Look for patterns:
+- "প্রথম অধ্যায়", "দ্বিতীয় অধ্যায়", "তৃতীয় অধ্যায়" etc.
+- Chapter titles in Bangla with page numbers
+- Unit headings, section titles
+
+Return JSON format ONLY:
+{
+    "chapters": [
+        {
+            "chapter_number": 1,
+            "title_en": "English Translation of Chapter Title",
+            "title_bn": "বাংলা অধ্যায় শিরোনাম",
+            "page_start": 1
+        }
+    ],
+    "book_title": "Book name if visible",
+    "subject": "Subject area"
+}
+
+RULES:
+1. Extract ALL chapters from the table of contents
+2. Translate Bangla titles to English for title_en
+3. Keep original Bangla in title_bn
+4. Include page numbers if visible
+5. Return ONLY valid JSON, no markdown`
+                                            }
+                                        ]
+                                    }],
+                                    generationConfig: {
+                                        temperature: 0.1,
+                                        maxOutputTokens: 4096
+                                    }
+                                })
+                            }
+                        );
+
+                        const geminiData = await geminiResponse.json();
+
+                        // Check for rate limit error
+                        if (geminiData.error?.message?.includes('quota') ||
+                            geminiData.error?.message?.includes('rate') ||
+                            geminiData.error?.code === 429) {
+
+                            if (attempt < maxRetries) {
+                                console.log('⏳ Rate limited, waiting 30 seconds...');
+                                await new Promise(resolve => setTimeout(resolve, 30000));
+                                continue;
+                            }
+                            throw new Error('Rate limit exceeded after retries');
+                        }
+
+                        if (geminiData.error) {
+                            throw new Error(geminiData.error.message || JSON.stringify(geminiData.error));
+                        }
+
+                        return geminiData;
+                    } catch (err) {
+                        if (attempt === maxRetries) throw err;
+                        console.log('⏳ Error, retrying in 30s:', err.message);
+                        await new Promise(resolve => setTimeout(resolve, 30000));
+                    }
+                }
+            }
+
+            try {
+                const base64Pdf = Buffer.from(pdfBytesCopy).toString('base64');
+                const geminiData = await callGeminiWithRetry(base64Pdf);
+
+                const geminiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                console.log('🔮 Gemini response length:', geminiText.length);
+                console.log('🔮 Gemini response preview:', geminiText.substring(0, 300));
+
+                // Try to parse chapters directly from Gemini
+                const jsonMatch = geminiText.match(/\{[\s\S]*"chapters"[\s\S]*\}/);
+                if (jsonMatch) {
+                    const parsedData = JSON.parse(jsonMatch[0]);
+                    const chapters = parsedData.chapters || [];
+
+                    if (chapters.length > 0) {
+                        // Store chapters in database
+                        const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+                        const chaptersToInsert = chapters.map(ch => ({
+                            [idColumn]: resourceId,
+                            chapter_number: ch.chapter_number || 0,
+                            title_en: ch.title_en || ch.title || 'Unknown',
+                            title_bn: ch.title_bn || ch.title || 'অজানা',
+                            page_start: ch.page_start || null,
+                            content_extracted: false
+                        }));
+
+                        await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
+                        const { data: insertedChapters, error: insertError } = await supabase
+                            .from('book_chapters')
+                            .insert(chaptersToInsert)
+                            .select();
+
+                        if (insertError) throw new Error('DB insert failed: ' + insertError.message);
+
+                        console.log('✅ Extracted', insertedChapters.length, 'chapters via Gemini Vision');
+
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Chapters extracted via Gemini Vision OCR',
+                            chapters: insertedChapters,
+                            usedOCR: true,
+                            model: 'gemini-2.0-flash-exp'
+                        });
+                    }
+                }
+
+                // If no chapters found, continue to Groq analysis
+                textToAnalyze = geminiText;
+                usedOCR = true;
+
+            } catch (ocrError) {
+                console.error('Gemini Vision Error:', ocrError.message);
+                return res.status(200).json({
+                    success: true,
+                    message: 'Gemini OCR failed: ' + ocrError.message,
                     chapters: [],
                     isImageBased: true
                 });
