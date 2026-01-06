@@ -53,9 +53,12 @@ export default async function handler(req, res) {
         }
 
         const pdfBuffer = await pdfResponse.arrayBuffer();
+        // Store a copy for potential OCR use (ArrayBuffer gets detached after use)
+        const pdfBytes = new Uint8Array(pdfBuffer);
+        const pdfBytesCopy = new Uint8Array(pdfBytes);
 
         // Use unpdf to extract text (Vercel-compatible)
-        const { text: extractedText, totalPages } = await extractText(new Uint8Array(pdfBuffer), {
+        const { text: extractedText, totalPages } = await extractText(pdfBytes, {
             mergePages: true
         });
 
@@ -80,8 +83,8 @@ export default async function handler(req, res) {
             }
 
             try {
-                // Convert PDF to base64 for Gemini
-                const base64Pdf = Buffer.from(pdfBuffer).toString('base64');
+                // Convert PDF to base64 for Gemini (use the copy since original was consumed)
+                const base64Pdf = Buffer.from(pdfBytesCopy).toString('base64');
 
                 const geminiResponse = await fetch(
                     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
