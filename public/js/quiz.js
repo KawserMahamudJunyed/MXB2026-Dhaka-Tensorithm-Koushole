@@ -278,14 +278,74 @@ function openQuizConfig(bookName = null, presetSubject = null, presetTopic = nul
             opt.innerText = currentLang === 'bn' && subData?.bn ? subData.bn : name;
             subjectSelect.appendChild(opt);
         });
+
+        // --- ADD LIBRARY BOOKS TO DROPDOWN ---
+        let libraryBooks = [];
+        try {
+            if (window.supabaseClient) {
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
+                if (user) {
+                    const { data: books } = await window.supabaseClient
+                        .from('library_books')
+                        .select('id, title')
+                        .eq('user_id', user.id)
+                        .order('created_at', { ascending: false });
+                    libraryBooks = books || [];
+                }
+            }
+        } catch (e) {
+            console.warn('Could not fetch library books:', e);
+        }
+
+        // Add separator and library books if any exist
+        if (libraryBooks.length > 0) {
+            const separator = document.createElement('option');
+            separator.disabled = true;
+            separator.innerText = '── My Library ──';
+            subjectSelect.appendChild(separator);
+
+            libraryBooks.forEach(book => {
+                const opt = document.createElement('option');
+                opt.value = `library:${book.id}`;
+                opt.innerText = `📚 ${book.title}`;
+                opt.dataset.libraryId = book.id;
+                subjectSelect.appendChild(opt);
+            });
+        }
+
         subjectSelect.disabled = false;
 
         // Function to populate chapters for selected subject
-        function populateChapters(subjectName) {
+        async function populateChapters(subjectValue) {
             topicSelect.innerHTML = `<option value="all">${currentLang === 'bn' ? 'সব অধ্যায়' : 'All Chapters'}</option>`;
 
-            if (window.getChapters) {
-                const chapters = window.getChapters(subjectName, userGroup, userClass);
+            // Check if it's a library book
+            if (subjectValue.startsWith('library:')) {
+                const bookId = subjectValue.replace('library:', '');
+                try {
+                    const { data: chapters } = await window.supabaseClient
+                        .from('book_chapters')
+                        .select('id, chapter_number, title_en, title_bn')
+                        .eq('library_book_id', bookId)
+                        .order('chapter_number');
+
+                    if (chapters && chapters.length > 0) {
+                        chapters.forEach(chap => {
+                            const opt = document.createElement('option');
+                            opt.value = chap.id;
+                            opt.innerText = currentLang === 'bn' ?
+                                (chap.title_bn || chap.title_en) :
+                                (chap.title_en || chap.title_bn);
+                            topicSelect.appendChild(opt);
+                        });
+                    } else {
+                        topicSelect.innerHTML = `<option value="all">${currentLang === 'bn' ? 'সম্পূর্ণ বই' : 'Entire Book'}</option>`;
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch book chapters:', e);
+                }
+            } else if (window.getChapters) {
+                const chapters = window.getChapters(subjectValue, userGroup, userClass);
                 chapters.forEach(chap => {
                     const opt = document.createElement('option');
                     opt.value = chap.id;
