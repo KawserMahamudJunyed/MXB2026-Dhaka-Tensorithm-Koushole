@@ -67,9 +67,10 @@ export default async function handler(req, res) {
         let textToAnalyze = extractedText;
         let usedOCR = false;
 
-        // Check if text was actually extracted
-        if (!extractedText || extractedText.length < 100) {
-            console.log('⚠️ No readable text found - trying Gemini Vision OCR');
+        // Check if text was actually extracted (use higher threshold for Bangla PDFs)
+        // unpdf often fails to extract Bangla text properly
+        if (!extractedText || extractedText.length < 500) {
+            console.log('⚠️ Poor text extraction (' + extractedText.length + ' chars) - trying Gemini Vision OCR');
 
             // Use Gemini Vision to extract text from scanned PDF
             const geminiApiKey = process.env.GEMINI_API_KEY;
