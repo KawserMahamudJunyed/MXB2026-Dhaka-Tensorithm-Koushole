@@ -118,6 +118,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // -------------------------------------------------------------------
+    // WAIT FOR SUPABASE CLIENT (prevents hanging)
+    // -------------------------------------------------------------------
+    const waitForSupabase = (maxWait = 5000) => {
+        return new Promise((resolve) => {
+            const start = Date.now();
+            const check = () => {
+                if (window.supabaseClient) {
+                    resolve(true);
+                } else if (Date.now() - start > maxWait) {
+                    resolve(false);
+                } else {
+                    setTimeout(check, 100);
+                }
+            };
+            check();
+        });
+    };
+
+    const supabaseReady = await waitForSupabase();
+    if (!supabaseReady) {
+        alert("Failed to initialize. Please refresh the page.");
+        submitBtn.textContent = 'Error - Refresh Page';
+        return;
+    }
+
+    // -------------------------------------------------------------------
     // AUTHENTICATION CHECK
     // -------------------------------------------------------------------
     const { data: { session } } = await window.supabaseClient.auth.getSession();
