@@ -41,9 +41,11 @@ Koushole employs a sophisticated **Agentic AI Architecture** to deliver real-tim
 |---------|-------------|
 | **Official NCTB 2026 Books** | Admin-uploaded textbooks aligned with the latest NCTB curriculum |
 | **Custom Library** | Upload PDFs, EPUBs, TXT, or **photos of offline books** (JPG, PNG) |
-| **Complete Curriculum** | SSC (Class 9-10) & HSC (Class 11-12) with all subjects & chapters |
+| **Complete Curriculum** | Class 6-8, SSC (Class 9-10) & HSC (Class 11-12) with all subjects & chapters |
 | **Group-Based Filtering** | Science, Business Studies, Humanities - content filtered per student |
 | **University Support** | Department-based profiles for higher education students |
+| **Gemini Vision OCR** | Extract chapters from scanned PDFs using AI vision 🆕 |
+| **Library Quiz Integration** | Take quizzes directly from your uploaded books 🆕 |
 
 ### 📝 Smart Assessment
 | Feature | Description |
@@ -71,6 +73,14 @@ Koushole employs a sophisticated **Agentic AI Architecture** to deliver real-tim
 | **Voice Input** | Speech-to-text support for asking questions |
 | **Dark Mode** | Premium OLED-friendly dark theme |
 | **Responsive Design** | Optimized for mobile, tablet, and desktop |
+
+### 🔐 Authentication & Security
+| Feature | Description |
+|---------|-------------|
+| **Email Authentication** | Secure sign-up and login via Supabase |
+| **Password Recovery** | Forgot password with email reset link 🆕 |
+| **Row Level Security** | Data isolation per user |
+| **Admin Authorization** | Whitelisted admin emails for book uploads |
 
 ---
 
@@ -141,6 +151,7 @@ const ALLOWED_ADMINS = [
     ```env
     GROQ_API_KEY=your_groq_key
     HF_API_KEY=your_huggingface_key
+    GEMINI_API_KEY=your_gemini_key  # For OCR (optional)
     ```
 
 4.  **Run Locally**
