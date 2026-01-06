@@ -71,222 +71,57 @@ export default async function handler(req, res) {
         // unpdf often fails to extract Bangla text properly
         const textLength = textToAnalyze.trim().length;
         if (textLength < 500) {
-            console.log('⚠️ Poor text extraction (' + textLength + ' chars) - trying OCR...');
+            console.log('⚠️ Poor text extraction (' + textLength + ' chars) - trying OCR.space...');
 
+            // OCR.space API - 500 free calls/month, no rate limits
+            const ocrApiKey = process.env.OCR_SPACE_API_KEY || 'helloworld'; // 'helloworld' is free demo key
+            
             try {
-                // Try Groq vision first (using your existing API key)
-                console.log('🔮 Trying Groq Llama 3.2 Vision...');
-
-                // Groq requires images, not PDFs - try with URL first
-                const groqVisionResponse = await groq.chat.completions.create({
-                    messages: [
-                        {
-                            role: 'user',
-                            content: [
-                                {
-                                    type: 'text',
-                                    text: `Analyze this NCTB Bangladesh textbook. Find the "সূচিপত্র" (Table of Contents) and extract ALL chapter titles.
-
-Return JSON format ONLY:
-{
-    "chapters": [
-        {"chapter_number": 1, "title_en": "English Translation", "title_bn": "বাংলা শিরোনাম"}
-    ]
-}
-
-Look for: প্রথম অধ্যায়, দ্বিতীয় অধ্যায়, etc. Translate Bangla to English.`
-                                },
-                                {
-                                    type: 'image_url',
-                                    image_url: {
-                                        url: fileUrl
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    model: 'llama-3.2-11b-vision-preview',
-                    temperature: 0.1,
-                    max_tokens: 4096
+                const base64Pdf = Buffer.from(pdfBytesCopy).toString('base64');
+                
+                // OCR.space supports PDF via base64
+                const formData = new URLSearchParams();
+                formData.append('base64Image', `data:application/pdf;base64,${base64Pdf}`);
+                formData.append('language', 'ben'); // Bengali language
+                formData.append('isTable', 'true');
+                formData.append('OCREngine', '2'); // Engine 2 is better for Asian languages
+                formData.append('filetype', 'PDF');
+                
+                console.log('🔮 Calling OCR.space API...');
+                const ocrResponse = await fetch('https://api.ocr.space/parse/image', {
+                    method: 'POST',
+                    headers: {
+                        'apikey': ocrApiKey,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
                 });
 
-                const groqVisionText = groqVisionResponse.choices?.[0]?.message?.content || '';
-                console.log('🔮 Groq Vision response length:', groqVisionText.length);
+                const ocrData = await ocrResponse.json();
+                console.log('🔮 OCR.space response:', JSON.stringify(ocrData).substring(0, 300));
 
-                if (groqVisionText.length > 0) {
-                    const jsonMatch = groqVisionText.match(/\{[\s\S]*"chapters"[\s\S]*\}/);
-                    if (jsonMatch) {
-                        const parsedChapters = JSON.parse(jsonMatch[0]);
-                        const chapters = parsedChapters.chapters || [];
-
-                        if (chapters.length > 0) {
-                            const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
-                            const chaptersToInsert = chapters.map(ch => ({
-                                [idColumn]: resourceId,
-                                chapter_number: ch.chapter_number || 0,
-                                title_en: ch.title_en || ch.title || 'Unknown',
-                                title_bn: ch.title_bn || ch.title || 'অজানা',
-                                content_extracted: false
-                            }));
-
-                            await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
-                            const { data: insertedChapters, error: insertError } = await supabase
-                                .from('book_chapters')
-                                .insert(chaptersToInsert)
-                                .select();
-
-                            if (insertError) throw new Error('DB insert failed: ' + insertError.message);
-
-                            return res.status(200).json({
-                                success: true,
-                                message: 'Chapters extracted via Groq Vision',
-                                chapters: insertedChapters,
-                                usedOCR: true,
-                                model: 'groq-llama-3.2-vision'
-                            });
-                        }
-                    }
+                if (ocrData.IsErroredOnProcessing) {
+                    throw new Error(ocrData.ErrorMessage?.[0] || 'OCR processing failed');
                 }
 
-            } catch (groqVisionError) {
-                console.log('⚠️ Groq Vision failed, trying Gemini 1.5 Flash:', groqVisionError.message);
-            }
+                // Extract text from all parsed pages
+                const ocrText = ocrData.ParsedResults?.map(r => r.ParsedText).join('\n') || '';
+                console.log('🔮 OCR extracted text length:', ocrText.length);
 
-            // Fallback to Gemini 1.5 Flash (better rate limits than 2.0)
-            try {
-                const geminiApiKey = process.env.GEMINI_API_KEY;
-                if (!geminiApiKey) {
+                if (ocrText.length > 50) {
+                    textToAnalyze = ocrText;
+                    usedOCR = true;
+                } else {
                     return res.status(200).json({
                         success: true,
-                        message: 'No GEMINI_API_KEY for OCR fallback',
+                        message: 'OCR extracted no readable text',
                         chapters: [],
                         isImageBased: true
                     });
                 }
 
-                const base64Pdf = Buffer.from(pdfBytesCopy).toString('base64');
-
-                const geminiResponse = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    {
-                                        inline_data: {
-                                            mime_type: 'application/pdf',
-                                            data: base64Pdf
-                                        }
-                                    },
-                                    {
-                                        text: `Analyze this NCTB (Bangladesh National Curriculum) textbook PDF.
-
-TASK: Find the "সূচিপত্র" (Table of Contents) page and extract ALL chapters.
-
-Look for patterns like:
-- "প্রথম অধ্যায়", "দ্বিতীয় অধ্যায়", "তৃতীয় অধ্যায়" etc.
-- Chapter titles in Bangla with page numbers
-- Numbered sections (১, ২, ৩ or 1, 2, 3)
-
-Return JSON format:
-{
-    "chapters": [
-        {"chapter_number": 1, "title_en": "English Translation", "title_bn": "বাংলা শিরোনাম", "page_start": 1}
-    ]
-}
-
-RULES:
-1. Extract ALL chapters from the table of contents
-2. Translate Bangla titles to English for title_en
-3. Keep original Bangla in title_bn
-4. Include page numbers if visible
-5. Return ONLY valid JSON, no markdown or explanation`
-                                    }
-                                ]
-                            }],
-                            generationConfig: {
-                                temperature: 0.1,
-                                maxOutputTokens: 4096
-                            }
-                        })
-                    }
-                );
-
-                const geminiData = await geminiResponse.json();
-                console.log('🔮 Gemini raw response status:', geminiResponse.status);
-
-                // Check for Gemini API errors
-                if (geminiData.error) {
-                    console.error('Gemini API error:', geminiData.error);
-                    return res.status(200).json({
-                        success: false,
-                        message: 'Gemini API error: ' + (geminiData.error.message || JSON.stringify(geminiData.error)),
-                        chapters: [],
-                        debug: geminiData.error
-                    });
-                }
-
-                const geminiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                console.log('🔮 Gemini OCR response length:', geminiText.length);
-                console.log('🔮 Gemini OCR response:', geminiText.substring(0, 1000));
-
-                // Try to parse chapters directly from Gemini response
-                const jsonMatch = geminiText.match(/\{[\s\S]*"chapters"[\s\S]*\}/);
-                if (jsonMatch) {
-                    try {
-                        const parsedChapters = JSON.parse(jsonMatch[0]);
-                        const chapters = parsedChapters.chapters || [];
-
-                        if (chapters.length > 0) {
-                            // Store chapters directly
-                            const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
-                            const chaptersToInsert = chapters.map(ch => ({
-                                [idColumn]: resourceId,
-                                chapter_number: ch.chapter_number || 0,
-                                title_en: ch.title_en || ch.title || 'Unknown',
-                                title_bn: ch.title_bn || ch.title || 'অজানা',
-                                content_extracted: false
-                            }));
-
-                            await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
-                            const { data: insertedChapters, error: insertError } = await supabase
-                                .from('book_chapters')
-                                .insert(chaptersToInsert)
-                                .select();
-
-                            if (insertError) {
-                                throw new Error('Database insert failed: ' + insertError.message);
-                            }
-
-                            return res.status(200).json({
-                                success: true,
-                                message: 'Chapters extracted via OCR',
-                                chapters: insertedChapters,
-                                usedOCR: true
-                            });
-                        }
-                    } catch (parseError) {
-                        console.error('JSON parse error:', parseError);
-                    }
-                }
-
-                // If we get here, OCR worked but no chapters found in expected format
-                // Return debug info
-                return res.status(200).json({
-                    success: true,
-                    message: 'OCR worked but no chapters found in response',
-                    chapters: [],
-                    usedOCR: true,
-                    debug: {
-                        responseLength: geminiText.length,
-                        responsePreview: geminiText.substring(0, 500)
-                    }
-                });
-
             } catch (ocrError) {
-                console.error('OCR Error:', ocrError);
+                console.error('OCR.space Error:', ocrError.message);
                 return res.status(200).json({
                     success: true,
                     message: 'OCR failed: ' + ocrError.message,
