@@ -1,5 +1,10 @@
 import Groq from 'groq-sdk';
 import { createClient } from '@supabase/supabase-js';
+import { createRequire } from 'module';
+
+// Use createRequire for CommonJS packages in ESM
+const require = createRequire(import.meta.url);
+const pdfParse = require('pdf-parse');
 
 export default async function handler(req, res) {
     // CORS Headers
@@ -53,10 +58,9 @@ export default async function handler(req, res) {
 
         const pdfBuffer = await pdfResponse.arrayBuffer();
 
-        // Dynamic import for pdf-parse (CommonJS module)
-        const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default;
+        // Parse PDF (first 10 pages for TOC extraction)
         const pdfData = await pdfParse(Buffer.from(pdfBuffer), {
-            max: 10 // Only parse first 10 pages for TOC
+            max: 10
         });
 
         const extractedText = pdfData.text;
