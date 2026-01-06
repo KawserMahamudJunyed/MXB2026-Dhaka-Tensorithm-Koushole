@@ -71,25 +71,103 @@ export default async function handler(req, res) {
         // unpdf often fails to extract Bangla text properly
         const textLength = textToAnalyze.trim().length;
         if (textLength < 500) {
-            console.log('⚠️ Poor text extraction (' + textLength + ' chars) - trying Gemini Vision OCR');
-
-            // Use Gemini Vision to extract text from scanned PDF
-            const geminiApiKey = process.env.GEMINI_API_KEY;
-            if (!geminiApiKey) {
-                return res.status(200).json({
-                    success: true,
-                    message: 'No readable text found and GEMINI_API_KEY not configured for OCR',
-                    chapters: [],
-                    isImageBased: true
-                });
-            }
+            console.log('⚠️ Poor text extraction (' + textLength + ' chars) - trying OCR...');
 
             try {
-                // Convert PDF to base64 for Gemini (use the copy since original was consumed)
+                // Try Groq vision first (using your existing API key)
+                console.log('🔮 Trying Groq Llama 3.2 Vision...');
+
+                // Groq requires images, not PDFs - try with URL first
+                const groqVisionResponse = await groq.chat.completions.create({
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: `Analyze this NCTB Bangladesh textbook. Find the "সূচিপত্র" (Table of Contents) and extract ALL chapter titles.
+
+Return JSON format ONLY:
+{
+    "chapters": [
+        {"chapter_number": 1, "title_en": "English Translation", "title_bn": "বাংলা শিরোনাম"}
+    ]
+}
+
+Look for: প্রথম অধ্যায়, দ্বিতীয় অধ্যায়, etc. Translate Bangla to English.`
+                                },
+                                {
+                                    type: 'image_url',
+                                    image_url: {
+                                        url: fileUrl
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    model: 'llama-3.2-11b-vision-preview',
+                    temperature: 0.1,
+                    max_tokens: 4096
+                });
+
+                const groqVisionText = groqVisionResponse.choices?.[0]?.message?.content || '';
+                console.log('🔮 Groq Vision response length:', groqVisionText.length);
+
+                if (groqVisionText.length > 0) {
+                    const jsonMatch = groqVisionText.match(/\{[\s\S]*"chapters"[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const parsedChapters = JSON.parse(jsonMatch[0]);
+                        const chapters = parsedChapters.chapters || [];
+
+                        if (chapters.length > 0) {
+                            const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+                            const chaptersToInsert = chapters.map(ch => ({
+                                [idColumn]: resourceId,
+                                chapter_number: ch.chapter_number || 0,
+                                title_en: ch.title_en || ch.title || 'Unknown',
+                                title_bn: ch.title_bn || ch.title || 'অজানা',
+                                content_extracted: false
+                            }));
+
+                            await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
+                            const { data: insertedChapters, error: insertError } = await supabase
+                                .from('book_chapters')
+                                .insert(chaptersToInsert)
+                                .select();
+
+                            if (insertError) throw new Error('DB insert failed: ' + insertError.message);
+
+                            return res.status(200).json({
+                                success: true,
+                                message: 'Chapters extracted via Groq Vision',
+                                chapters: insertedChapters,
+                                usedOCR: true,
+                                model: 'groq-llama-3.2-vision'
+                            });
+                        }
+                    }
+                }
+
+            } catch (groqVisionError) {
+                console.log('⚠️ Groq Vision failed, trying Gemini 1.5 Flash:', groqVisionError.message);
+            }
+
+            // Fallback to Gemini 1.5 Flash (better rate limits than 2.0)
+            try {
+                const geminiApiKey = process.env.GEMINI_API_KEY;
+                if (!geminiApiKey) {
+                    return res.status(200).json({
+                        success: true,
+                        message: 'No GEMINI_API_KEY for OCR fallback',
+                        chapters: [],
+                        isImageBased: true
+                    });
+                }
+
                 const base64Pdf = Buffer.from(pdfBytesCopy).toString('base64');
 
                 const geminiResponse = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
