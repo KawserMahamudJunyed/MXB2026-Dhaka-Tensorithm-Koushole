@@ -167,7 +167,7 @@ Look for: প্রথম অধ্যায়, দ্বিতীয় অধ
                 const base64Pdf = Buffer.from(pdfBytesCopy).toString('base64');
 
                 const geminiResponse = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
