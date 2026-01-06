@@ -48,9 +48,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------------
     // SUBJECT LOADING LOGIC (RUNS IMMEDIATELY)
     // -------------------------------------------------------------------
+    const groupContainer = document.getElementById('group-container');
+
+    function updateGroupVisibility() {
+        const classValue = classSelect ? classSelect.value : '';
+        const isJunior = ['6', '7', '8'].includes(classValue);
+
+        if (groupContainer) {
+            if (isJunior) {
+                groupContainer.classList.add('hidden');
+                if (groupSelect) groupSelect.value = 'Common'; // Reset to Common for juniors
+            } else {
+                groupContainer.classList.remove('hidden');
+            }
+        }
+    }
+
     function updateSubjects() {
-        const group = groupSelect ? groupSelect.value : 'Science';
-        const className = classSelect ? classSelect.value : '9';
+        const group = groupSelect ? groupSelect.value : 'Common';
+        const className = classSelect ? classSelect.value : '9-10';
 
         console.log(`🔄 Updating Subjects for Group: ${group}, Class: ${className}`);
 
@@ -71,10 +87,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (groupSelect) groupSelect.addEventListener('change', updateSubjects);
-    if (classSelect) classSelect.addEventListener('change', updateSubjects);
+    if (classSelect) {
+        classSelect.addEventListener('change', () => {
+            updateGroupVisibility();
+            updateSubjects();
+        });
+    }
 
+    updateGroupVisibility();
     updateSubjects();
-
 
     // -------------------------------------------------------------------
     // AUTHENTICATION CHECK
