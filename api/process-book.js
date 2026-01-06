@@ -1,10 +1,6 @@
 import Groq from 'groq-sdk';
 import { createClient } from '@supabase/supabase-js';
-import { createRequire } from 'module';
-
-// Use createRequire for CommonJS packages in ESM
-const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
+import { extractText } from 'unpdf';
 
 export default async function handler(req, res) {
     // CORS Headers
@@ -50,7 +46,7 @@ export default async function handler(req, res) {
     try {
         console.log('📚 Processing book:', fileUrl);
 
-        // Step 1: Fetch PDF and extract text (first few pages for TOC)
+        // Step 1: Fetch PDF and extract text using unpdf
         const pdfResponse = await fetch(fileUrl);
         if (!pdfResponse.ok) {
             throw new Error('Failed to fetch PDF');
@@ -58,13 +54,12 @@ export default async function handler(req, res) {
 
         const pdfBuffer = await pdfResponse.arrayBuffer();
 
-        // Parse PDF (first 10 pages for TOC extraction)
-        const pdfData = await pdfParse(Buffer.from(pdfBuffer), {
-            max: 10
+        // Use unpdf to extract text (Vercel-compatible)
+        const { text: extractedText, totalPages } = await extractText(new Uint8Array(pdfBuffer), {
+            mergePages: true
         });
 
-        const extractedText = pdfData.text;
-        console.log('📄 Extracted text length:', extractedText.length);
+        console.log('📄 Extracted text length:', extractedText.length, 'from', totalPages, 'pages');
 
         // Step 2: Use AI to identify chapters from the text
         const completion = await groq.chat.completions.create({
