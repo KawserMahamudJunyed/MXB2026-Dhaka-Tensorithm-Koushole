@@ -62,15 +62,16 @@ export default async function handler(req, res) {
             mergePages: true
         });
 
-        console.log('📄 Extracted text length:', extractedText.length, 'from', totalPages, 'pages');
+        console.log('📄 Extracted text length:', extractedText?.length || 0, 'from', totalPages, 'pages');
 
-        let textToAnalyze = extractedText;
+        let textToAnalyze = extractedText || '';
         let usedOCR = false;
 
         // Check if text was actually extracted (use higher threshold for Bangla PDFs)
         // unpdf often fails to extract Bangla text properly
-        if (!extractedText || extractedText.length < 500) {
-            console.log('⚠️ Poor text extraction (' + extractedText.length + ' chars) - trying Gemini Vision OCR');
+        const textLength = textToAnalyze.trim().length;
+        if (textLength < 500) {
+            console.log('⚠️ Poor text extraction (' + textLength + ' chars) - trying Gemini Vision OCR');
 
             // Use Gemini Vision to extract text from scanned PDF
             const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -249,7 +250,8 @@ Important:
                 success: true,
                 message: 'No chapters detected in the document',
                 chapters: [],
-                textLength: extractedText.length
+                textLength: textToAnalyze.length,
+                usedOCR: usedOCR
             });
         }
 
