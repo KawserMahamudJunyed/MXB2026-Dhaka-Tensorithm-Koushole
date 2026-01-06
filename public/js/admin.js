@@ -98,6 +98,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateSubjects();
 
     // -------------------------------------------------------------------
+    // PREVENT FORM SUBMISSION UNTIL READY (FIXES RACE CONDITION)
+    // -------------------------------------------------------------------
+    let isReady = false;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Checking access...';
+
+    // Attach submit handler IMMEDIATELY to prevent page refresh
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!isReady) {
+            showStatus('⏳ Please wait, loading...', 'text-yellow-500');
+            return;
+        }
+
+        // Upload logic continues below after auth check passes
+        handleUpload(e);
+    });
+
+    // -------------------------------------------------------------------
     // AUTHENTICATION CHECK
     // -------------------------------------------------------------------
     const { data: { session } } = await window.supabaseClient.auth.getSession();
@@ -134,12 +154,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     console.log("🔐 Admin access verified for:", userEmail);
 
+    // Enable upload now that auth is complete
+    isReady = true;
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Upload Book';
+
     // -------------------------------------------------------------------
     // UPLOAD LOGIC WITH PROGRESS BAR
     // -------------------------------------------------------------------
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
+    async function handleUpload(e) {
         const version = document.getElementById('version').value;
         const group = document.getElementById('group').value;
         const subject = document.getElementById('subject').value;
@@ -284,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             submitBtn.disabled = false;
             submitBtn.style.opacity = '1';
         }
-    });
+    }
 
     function showStatus(msg, classes) {
         statusMsg.innerHTML = `<p class="${classes}">${msg}</p>`;
