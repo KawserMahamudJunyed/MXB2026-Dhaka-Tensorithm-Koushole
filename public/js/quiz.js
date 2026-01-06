@@ -355,20 +355,18 @@ async function openQuizConfig(bookName = null, presetSubject = null, presetTopic
             }
         }
 
-        // Populate chapters for first subject
-        if (subjectNames.length > 0) {
-            populateChapters(subjectNames[0]);
-        }
-
         // Handle subject change for chapters
         subjectSelect.onchange = () => {
             populateChapters(subjectSelect.value);
         };
 
+        // Populate chapters for first subject (after onchange is set)
         if (presetSubject) {
             subjectSelect.value = presetSubject;
-            subjectSelect.dispatchEvent(new Event('change'));
         }
+        // Always populate chapters for current selection
+        await populateChapters(subjectSelect.value);
+
         if (presetTopic) topicSelect.value = presetTopic;
     }
 
