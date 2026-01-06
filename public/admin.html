@@ -76,13 +76,27 @@
                     <option value="11-12">HSC 11-12 (Both)</option>
                 </select>
             </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">Subject</label>
-                <select id="subject"
-                    class="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors text-white"
-                    required>
-                    <!-- Options populated by JS -->
-                </select>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Subject</label>
+                    <select id="subject"
+                        class="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors text-white"
+                        required>
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Part <span class="text-xs opacity-50">(for large
+                            books)</span></label>
+                    <select id="book-part"
+                        class="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors text-white">
+                        <option value="Full">Full Book</option>
+                        <option value="Part 1">Part 1</option>
+                        <option value="Part 2">Part 2</option>
+                        <option value="Part 3">Part 3</option>
+                        <option value="Part 4">Part 4</option>
+                    </select>
+                </div>
             </div>
 
             <div>

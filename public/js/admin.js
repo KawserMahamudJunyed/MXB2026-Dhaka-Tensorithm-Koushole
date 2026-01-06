@@ -131,11 +131,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        // Get book part selection
+        const bookPart = document.getElementById('book-part').value;
+
         // Construct Title
         let finalTitle = `${subject} - Class ${classLevel}`;
         // Only add group tag for Class 9-12 with actual groups (not None or Common)
         if (group && group !== 'None' && group !== 'Common') {
             finalTitle += ` [${group}]`;
+        }
+        // Add part info if not full book
+        if (bookPart && bookPart !== 'Full') {
+            finalTitle += ` - ${bookPart}`;
         }
         finalTitle += (version === 'English') ? ' (English Version)' : ' (Bangla Medium)';
 
