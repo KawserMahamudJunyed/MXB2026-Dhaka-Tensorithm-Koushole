@@ -164,14 +164,28 @@ const ALLOWED_ADMINS = [
 
 ## 🗄️ Database Setup
 
-Run these SQL scripts in Supabase SQL Editor:
+Run the setup script in Supabase SQL Editor:
 
-1. **Profiles & Auth Tables** - `database_schema.sql`
-2. **Official Resources** - `official_resources_schema.sql`
-3. **Chat History** - `chat_history_schema.sql`
-4. **Storage Buckets** - Create `books` and `official-books` buckets
+1. Open [`scripts/supabase_setup.sql`](scripts/supabase_setup.sql)
+2. Run in **Supabase Dashboard → SQL Editor**
+3. Create storage buckets in **Storage** tab:
+   - `books` (user uploads)
+   - `official-books` (NCTB books)
 
-> ⚠️ **Supabase Free Tier Limitation**: Maximum file upload size is **50 MB**. For larger files, upgrade to a paid plan or compress PDFs before uploading.
+### Tables Created
+| Table | Description |
+|-------|-------------|
+| `profiles` | User profiles with education info |
+| `learning_stats` | Daily progress tracking |
+| `quiz_attempts` | Quiz history and scores |
+| `chat_history` | AI tutor conversations |
+| `library_books` | User uploaded books |
+| `book_chapters` | Extracted chapters (OCR) |
+| `book_content` | Full text for quiz generation |
+| `official_resources` | Admin uploaded NCTB books |
+| `notifications` | User notifications |
+
+> ⚠️ **Supabase Free Tier Limitation**: Maximum file upload size is **50 MB**.
 
 ---
 
