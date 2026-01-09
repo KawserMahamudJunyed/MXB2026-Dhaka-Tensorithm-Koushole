@@ -544,6 +544,24 @@ const SSC_HUMANITIES = {
             { id: 'ch10', en: 'Independence', bn: 'স্বাধীন বাংলাদেশের অভ্যুদয়ে নাগরিক চেতনা' },
             { id: 'ch11', en: 'Int Organizations', bn: 'বাংলাদেশ ও আন্তর্জাতিক সংগঠন' }
         ]
+    },
+    'Economics': {
+        en: 'Economics',
+        bn: 'অর্থনীতি',
+        chapters: [
+            { id: 'ch1', en: 'Basic Concepts', bn: 'অর্থনীতির প্রাথমিক ধারণা' },
+            { id: 'ch2', en: 'Utility & Demand', bn: 'উপযোগ, চাহিদা ও ভোক্তার আচরণ' },
+            { id: 'ch3', en: 'Supply', bn: 'সরবরাহ' },
+            { id: 'ch4', en: 'Price Determination', bn: 'বাজার দর নির্ধারণ' },
+            { id: 'ch5', en: 'Production', bn: 'উৎপাদন' },
+            { id: 'ch6', en: 'Cost & Revenue', bn: 'উৎপাদন ব্যয় ও আয়' },
+            { id: 'ch7', en: 'Market Structure', bn: 'বাজার কাঠামো' },
+            { id: 'ch8', en: 'National Income', bn: 'জাতীয় আয়' },
+            { id: 'ch9', en: 'Money & Banking', bn: 'মুদ্রা ও ব্যাংক ব্যবস্থা' },
+            { id: 'ch10', en: 'Public Finance', bn: 'সরকারি অর্থব্যবস্থা' },
+            { id: 'ch11', en: 'BD Economy', bn: 'বাংলাদেশের অর্থনীতি' },
+            { id: 'ch12', en: 'International Trade', bn: 'আন্তর্জাতিক বাণিজ্য' }
+        ]
     }
 };
 
