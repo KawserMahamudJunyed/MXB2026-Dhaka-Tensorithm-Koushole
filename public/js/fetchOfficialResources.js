@@ -49,11 +49,17 @@ async function fetchOfficialResources() {
 
         console.log(`🎯 Querying books for classes: ${JSON.stringify(targetClasses)}, group: ${userGroup}`);
 
-        // 4. Execute Query - Get all books for these classes
+        // 4. Determine Language Version
+        // currentLang is global from utils.js ('en' or 'bn')
+        const targetVersion = (typeof currentLang !== 'undefined' && currentLang === 'bn') ? 'bangla' : 'english';
+        console.log(`🗣️ Language: ${targetVersion} (${currentLang})`);
+
+        // 5. Execute Query - Get all books for these classes AND language
         const { data, error } = await window.supabaseClient
             .from('official_resources')
             .select('*')
             .in('class_level', targetClasses)
+            .eq('version', targetVersion)
             .order('created_at', { ascending: false });
 
         if (error) throw error;

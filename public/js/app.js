@@ -181,6 +181,11 @@ function checkAuth() {
         if (mainHeader) mainHeader.classList.remove('hidden');
         if (mainContent) mainContent.classList.add('pb-24');
         updateGreeting();
+
+        // Fetch Official Resources on Auth Success
+        if (typeof fetchOfficialResources === 'function') {
+            fetchOfficialResources();
+        }
     } else {
         showView('view-landing');
         if (mainNav) mainNav.classList.add('hidden');

@@ -141,6 +141,11 @@ function setLanguage(lang) {
 
     // Refresh dynamic user data with new language
     if (typeof updateUI === 'function') updateUI();
+
+    // Refresh Official Resources if the function exists
+    if (typeof fetchOfficialResources === 'function') {
+        fetchOfficialResources();
+    }
 }
 
 // --- VIEW NAVIGATION ---
