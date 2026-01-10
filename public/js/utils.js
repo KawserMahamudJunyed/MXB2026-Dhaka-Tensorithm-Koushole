@@ -7,6 +7,18 @@ function t(key) {
     return translations[currentLang][key] || key;
 }
 
+// Helper to convert numbers to Bangla numerals
+function toBanglaNum(num) {
+    if (currentLang !== 'bn') return String(num);
+    const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return String(num).replace(/[0-9]/g, d => banglaDigits[d]);
+}
+
+// Helper for localized number display (shorthand)
+function localNum(num) {
+    return toBanglaNum(num);
+}
+
 // --- THEME LOGIC ---
 function syncThemeIcons() {
     const html = document.documentElement;

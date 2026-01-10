@@ -1579,7 +1579,12 @@ async function initLearningChart() {
                     beginAtZero: true,
                     max: 100,
                     grid: { color: 'rgba(156, 163, 175, 0.2)' },
-                    ticks: { color: '#9CA3AF' }
+                    ticks: {
+                        color: '#9CA3AF',
+                        callback: function (value) {
+                            return typeof localNum === 'function' ? localNum(value) : value;
+                        }
+                    }
                 },
                 x: { grid: { display: false }, ticks: { color: '#9CA3AF' } }
             }
@@ -1677,7 +1682,7 @@ function updateUI() {
 
     // 2. Streak (Header + Profile)
     const streakValue = userMemory.day_streak || 0;
-    const streakText = `${streakValue} ${currentLang === 'bn' ? 'দিন' : 'Days'} `;
+    const streakText = `${localNum(streakValue)} ${currentLang === 'bn' ? 'দিন' : 'Days'} `;
 
     // Update all data-key="streak" elements
     document.querySelectorAll('[data-key="streak"]').forEach(el => el.innerText = streakText);
@@ -1688,15 +1693,15 @@ function updateUI() {
 
     // Profile page streak (just the number)
     const streakProfileEl = document.getElementById('streak-profile-display');
-    if (streakProfileEl) streakProfileEl.innerText = streakValue;
+    if (streakProfileEl) streakProfileEl.innerText = localNum(streakValue);
 
     // 3. XP / Score
     const xpEl = document.getElementById('xp-display');
-    if (xpEl) xpEl.innerText = (userMemory.total_xp || 0).toLocaleString();
+    if (xpEl) xpEl.innerText = localNum(userMemory.total_xp || 0);
 
     // 4. Accuracy
     const accEl = document.getElementById('accuracy-display');
-    if (accEl) accEl.innerText = `${userMemory.accuracy_percentage || 0}% `;
+    if (accEl) accEl.innerText = `${localNum(userMemory.accuracy_percentage || 0)}% `;
 
     // 5. Update Profile Info (with Bangla support - FULL NAME)
     // 5. Update Profile Info
