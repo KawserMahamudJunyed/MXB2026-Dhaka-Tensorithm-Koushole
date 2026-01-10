@@ -290,7 +290,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     class_level: classLevel,
                     file_url: publicUrl,
                     cover_url: null,
-                    uploaded_by: userEmail
+                    uploaded_by: userEmail,
+                    version: version.toLowerCase()
                 })
                 .select()
                 .single();
