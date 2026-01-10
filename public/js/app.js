@@ -1769,14 +1769,16 @@ function updateUI() {
             // Populate weaknesses
             const container = document.getElementById('needs-attention-container');
             if (container) {
-                container.innerHTML = userMemory.weaknesses.map(w => `
+                container.innerHTML = userMemory.weaknesses.map(w => {
+                    const displayName = typeof translateTopic === 'function' ? translateTopic(w) : w;
+                    return `
                     <div class="group bg-surface rounded-xl p-4 border border-divider flex items-center justify-between transition-colors duration-300 hover:border-rose/30">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-lg bg-surface border border-rose/30 flex items-center justify-center text-rose transition-colors group-hover:bg-rose/10">
                                 <i class="fas fa-exclamation group-hover:rotate-12 transition-transform"></i>
                             </div>
                             <div>
-                                <h4 class="text-text-primary text-lg font-semibold title-font transition-colors">${w}</h4>
+                                <h4 class="text-text-primary text-lg font-semibold title-font transition-colors">${displayName}</h4>
                                 <p class="text-text-secondary text-xs body-font">${typeof t === 'function' ? t('accuracyLabel1') : 'Needs practice'}</p>
                             </div>
                         </div>
@@ -1785,7 +1787,8 @@ function updateUI() {
                             ${typeof t === 'function' ? t('retryBtn') : 'Retry'}
                         </button>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             }
         }
     } else {

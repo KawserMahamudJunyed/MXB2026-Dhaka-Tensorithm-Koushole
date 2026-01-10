@@ -949,6 +949,45 @@ function getChapters(subjectName, group, className) {
     return subjectData?.chapters || [];
 }
 
+// ==================== TOPIC TRANSLATION ====================
+// Translates topic/chapter names from English to Bangla based on currentLang
+
+function translateTopic(topicName) {
+    if (typeof currentLang === 'undefined' || currentLang !== 'bn') {
+        return topicName; // Return as-is if English mode
+    }
+
+    // Search in all subject databases
+    const allSubjects = [
+        JUNIOR_SUBJECTS,
+        SSC_COMMON, SSC_SCIENCE, SSC_BUSINESS, SSC_HUMANITIES,
+        HSC_COMMON, HSC_SCIENCE, HSC_BUSINESS, HSC_HUMANITIES
+    ];
+
+    for (const subjects of allSubjects) {
+        for (const subjectKey in subjects) {
+            const subject = subjects[subjectKey];
+
+            // Check if topic matches subject name
+            if (subject.en === topicName) {
+                return subject.bn;
+            }
+
+            // Check chapters
+            if (subject.chapters) {
+                for (const chapter of subject.chapters) {
+                    if (chapter.en === topicName) {
+                        return chapter.bn;
+                    }
+                }
+            }
+        }
+    }
+
+    // If no translation found, return original
+    return topicName;
+}
+
 // ==================== EXPORT GLOBAL ====================
 
 if (typeof window !== 'undefined') {
@@ -966,5 +1005,6 @@ if (typeof window !== 'undefined') {
     window.getChapters = getChapters;
     window.isJunior = isJunior;
     window.isHSC = isHSC;
+    window.translateTopic = translateTopic;
 }
 
