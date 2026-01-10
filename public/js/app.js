@@ -1764,12 +1764,12 @@ function updateUI() {
                             </div>
                             <div>
                                 <h4 class="text-text-primary text-lg font-semibold title-font transition-colors">${w}</h4>
-                                <p class="text-text-secondary text-xs body-font">Needs practice</p>
+                                <p class="text-text-secondary text-xs body-font">${typeof t === 'function' ? t('accuracyLabel1') : 'Needs practice'}</p>
                             </div>
                         </div>
                         <button onclick="openQuizConfig(null, null, '${w}')"
                             class="px-4 py-2 rounded-full border border-amber text-amber text-xs font-bold hover:bg-amber hover:text-black transition-colors body-font">
-                            Retry
+                            ${typeof t === 'function' ? t('retryBtn') : 'Retry'}
                         </button>
                     </div>
                 `).join('');

@@ -139,6 +139,28 @@ function setLanguage(lang) {
         });
     }
 
+    // Translate Question count dropdown options
+    const questionSelect = document.getElementById('config-question-count');
+    if (questionSelect) {
+        const questionsWord = lang === 'bn' ? 'টি প্রশ্ন' : 'Questions';
+        const customWord = lang === 'bn' ? 'কাস্টম...' : 'Custom...';
+        questionSelect.querySelectorAll('option').forEach(opt => {
+            if (opt.value === 'custom') {
+                opt.textContent = customWord;
+            } else if (opt.value) {
+                opt.textContent = `${opt.value} ${questionsWord}`;
+            }
+        });
+    }
+
+    // Translate Chart subtitle
+    const chartSubtitle = document.querySelector('[data-key="chartSubtitle"]');
+    if (!chartSubtitle) {
+        // Add data-key to chart subtitle if missing
+        const chartSubEl = document.querySelector('.chart-subtitle');
+        if (chartSubEl) chartSubEl.setAttribute('data-key', 'chartSubtitle');
+    }
+
     // Refresh dynamic user data with new language
     if (typeof updateUI === 'function') updateUI();
 
