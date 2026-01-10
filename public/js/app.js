@@ -1588,8 +1588,17 @@ async function initLearningChart() {
 }
 
 async function fetchQuizHistory() {
+    // Day names in both languages
+    const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNamesBn = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি'];
+    const dayNames = (typeof currentLang !== 'undefined' && currentLang === 'bn') ? dayNamesBn : dayNamesEn;
+
+    const defaultLabels = (typeof currentLang !== 'undefined' && currentLang === 'bn')
+        ? ['সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি', 'রবি']
+        : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
     const defaultData = {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        labels: defaultLabels,
         scores: [0, 0, 0, 0, 0, 0, 0],
         hasData: false
     };
@@ -1621,7 +1630,6 @@ async function fetchQuizHistory() {
         }
 
         // Group by day and calculate average score
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const dailyScores = {};
 
         // Initialize last 7 days

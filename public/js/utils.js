@@ -164,6 +164,11 @@ function setLanguage(lang) {
     // Refresh dynamic user data with new language
     if (typeof updateUI === 'function') updateUI();
 
+    // Refresh chart with new day labels
+    if (typeof initLearningChart === 'function') {
+        initLearningChart();
+    }
+
     // Refresh Official Resources if the function exists
     if (typeof fetchOfficialResources === 'function') {
         fetchOfficialResources();
