@@ -103,6 +103,10 @@ const translations = {
         earnBadges: "Complete quizzes to earn badges!",
         account: "Account",
         // Library Section
+        officialResources: "Official Resources",
+        loadingResources: "Loading resources...",
+        noBooksFound: "No official books found for your class.",
+        loadResourcesError: "Failed to load resources",
         tapUpload: "Tap to Upload Book",
         fileTypes: "PDF, EPUB (Max 50MB)",
         yourBooks: "Your Books",
@@ -230,6 +234,10 @@ const translations = {
         earnBadges: "ব্যাজ পেতে কুইজ সম্পন্ন করুন!",
         account: "একাউন্ট",
         // Library Section
+        officialResources: "অফিসিয়াল বই",
+        loadingResources: "বই লোড হচ্ছে...",
+        noBooksFound: "আপনার শ্রেণীর জন্য কোনো বই পাওয়া যায়নি।",
+        loadResourcesError: "বই লোড করতে সমস্যা হয়েছে",
         tapUpload: "বই আপলোড করতে ট্যাপ করুন",
         fileTypes: "PDF, EPUB (সর্বোচ্চ ৫০MB)",
         yourBooks: "আপনার বইগুলো",

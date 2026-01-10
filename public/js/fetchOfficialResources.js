@@ -92,14 +92,16 @@ async function fetchOfficialResources() {
                 </div>
             `).join('');
         } else {
+            // Use translation if available
+            const emptyMsg = (typeof t === 'function') ? t('noBooksFound') : 'No official books found for your class.';
             container.innerHTML = `
                 <div class="text-center text-text-secondary text-xs py-4 opacity-50">
-                    No official books found for Class ${userClass} (${userGroup}).<br>
-                    <span class="text-text-tertiary">Admins can upload books in the Admin panel.</span>
+                    ${emptyMsg}
                 </div>`;
         }
     } catch (err) {
         console.error("❌ Error fetching official resources:", err);
-        container.innerHTML = `<div class="text-center text-rose text-xs py-4">Failed to load resources: ${err.message}</div>`;
+        const errorMsg = (typeof t === 'function') ? t('loadResourcesError') : 'Failed to load resources';
+        container.innerHTML = `<div class="text-center text-rose text-xs py-4">${errorMsg}</div>`;
     }
 }
