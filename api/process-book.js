@@ -221,82 +221,40 @@ RULES:
 
                         console.log('✅ Extracted', insertedChapters.length, 'chapters via Gemini Vision');
 
-                        // Step: Extract full text content for quiz generation
-                        console.log('📖 Extracting full text content for quiz generation...');
+                        // Store the Gemini response text as content (reuse existing response)
+                        console.log('📖 Storing extracted text content...');
                         try {
-                            const contentResponse = await fetch(
-                                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
-                                {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        contents: [{
-                                            parts: [
-                                                {
-                                                    inline_data: {
-                                                        mime_type: 'application/pdf',
-                                                        data: base64Pdf
-                                                    }
-                                                },
-                                                {
-                                                    text: `Extract ALL readable text from this textbook PDF. 
-Include chapter titles, headings, paragraphs, formulas, definitions, and examples.
-Output the complete text content in a readable format.
-For Bangla text, preserve the original script.
-For formulas/equations, use LaTeX format like $F = ma$.
-Maximum output length.`
-                                                }
-                                            ]
-                                        }],
-                                        generationConfig: {
-                                            temperature: 0.1,
-                                            maxOutputTokens: 8192
-                                        }
-                                    })
-                                }
-                            );
+                            const contentIdColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
 
-                            const contentData = await contentResponse.json();
-                            const extractedContent = contentData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                            // Delete existing content
+                            await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
 
-                            if (extractedContent.length > 100) {
-                                // Store content for each chapter or as a whole
-                                const contentIdColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
-
-                                // Delete existing content for this resource
-                                const { error: deleteError } = await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
-                                if (deleteError) console.warn('⚠️ Delete warning:', deleteError.message);
-
-                                // Store the extracted content
-                                const insertData = {
-                                    [contentIdColumn]: resourceId,
-                                    chapter_id: insertedChapters[0]?.id,
-                                    content_text: extractedContent.substring(0, 100000)
-                                };
-                                console.log('📝 Inserting content:', JSON.stringify({ ...insertData, content_text: `[${extractedContent.length} chars]` }));
-
+                            // Store geminiText directly (no second API call)
+                            if (geminiText.length > 100) {
                                 const { error: contentError } = await supabase
                                     .from('book_content')
-                                    .insert(insertData);
+                                    .insert({
+                                        [contentIdColumn]: resourceId,
+                                        chapter_id: insertedChapters[0]?.id,
+                                        content_text: geminiText.substring(0, 100000)
+                                    });
 
                                 if (contentError) {
-                                    console.error('❌ Content storage FAILED:', contentError.message, contentError.details);
+                                    console.error('❌ Content storage failed:', contentError.message);
                                 } else {
-                                    console.log('✅ Stored', extractedContent.length, 'chars of content');
+                                    console.log('✅ Stored', geminiText.length, 'chars of content');
                                 }
-                            } else {
-                                console.warn('⚠️ Extracted content too short:', extractedContent.length, 'chars');
                             }
                         } catch (contentErr) {
-                            console.error('❌ Content extraction error:', contentErr.message);
+                            console.error('❌ Content error:', contentErr.message);
                         }
 
                         return res.status(200).json({
                             success: true,
-                            message: 'Chapters extracted via Gemini Vision OCR',
+                            message: `Extracted ${insertedChapters.length} chapters`,
                             chapters: insertedChapters,
-                            usedOCR: true,
-                            model: 'gemini-1.5-pro'
+                            contentStored: geminiText.length > 100,
+                            usedOCR: true
                         });
                     }
                 }
