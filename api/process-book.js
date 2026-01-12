@@ -221,22 +221,21 @@ RULES:
 
                         console.log('✅ Extracted', insertedChapters.length, 'chapters via Gemini Vision');
 
-                        // Store the Gemini response text as content (reuse existing response)
+                        // Store the Gemini response text as content
                         console.log('📖 Storing extracted text content...');
                         try {
-                            const contentIdColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+                            // Delete existing content for these chapters
+                            for (const ch of insertedChapters) {
+                                await supabase.from('book_content').delete().eq('chapter_id', ch.id);
+                            }
 
-                            // Delete existing content
-                            await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
-
-                            // Store geminiText directly (no second API call)
-                            if (geminiText.length > 100) {
+                            // Store geminiText with first chapter (actual column is 'content', not 'content_text')
+                            if (geminiText.length > 100 && insertedChapters[0]?.id) {
                                 const { error: contentError } = await supabase
                                     .from('book_content')
                                     .insert({
-                                        [contentIdColumn]: resourceId,
-                                        chapter_id: insertedChapters[0]?.id,
-                                        content_text: geminiText.substring(0, 100000)
+                                        chapter_id: insertedChapters[0].id,
+                                        content: geminiText.substring(0, 100000)
                                     });
 
                                 if (contentError) {
@@ -382,21 +381,22 @@ RULES:
         console.log('✅ Stored', insertedChapters.length, 'chapters in database');
 
         // Step 4: Store full text content for quiz generation
-        const contentIdColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+        if (insertedChapters[0]?.id) {
+            // Delete existing content for first chapter
+            await supabase.from('book_content').delete().eq('chapter_id', insertedChapters[0].id);
 
-        // Delete existing content
-        await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
+            const { error: contentError } = await supabase
+                .from('book_content')
+                .insert({
+                    chapter_id: insertedChapters[0].id,
+                    content: extractedText.substring(0, 100000)
+                });
 
-        const { error: contentError } = await supabase
-            .from('book_content')
-            .insert({
-                [contentIdColumn]: resourceId,
-                chapter_id: insertedChapters[0]?.id,
-                content_text: extractedText.substring(0, 100000) // Store up to 100k chars
-            });
-
-        if (contentError) {
-            console.warn('Warning: Failed to store book content:', contentError.message);
+            if (contentError) {
+                console.warn('Warning: Failed to store book content:', contentError.message);
+            } else {
+                console.log('✅ Stored', extractedText.length, 'chars of content');
+            }
         }
 
         res.status(200).json({
