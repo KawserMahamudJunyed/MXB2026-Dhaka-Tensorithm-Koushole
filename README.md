@@ -169,11 +169,12 @@ const ALLOWED_ADMINS = [
 
 ## 🗄️ Database Setup
 
-Run the setup script in Supabase SQL Editor:
+Run the complete setup script in Supabase SQL Editor:
 
-1. Open [`scripts/supabase_setup.sql`](scripts/supabase_setup.sql)
-2. Run in **Supabase Dashboard → SQL Editor**
-3. Create storage buckets in **Storage** tab:
+1. Open [`scripts/database_setup.sql`](scripts/database_setup.sql)
+2. Copy the **entire file** contents
+3. Paste and run in **Supabase Dashboard → SQL Editor**
+4. Create storage buckets in **Storage** tab:
    - `books` (user uploads)
    - `official-books` (NCTB books)
 
@@ -229,7 +230,7 @@ koushole-app/
 │   │   └── supabase-config.js
 │   └── css/
 ├── scripts/
-│   └── supabase_setup.sql       # Complete DB setup
+│   └── database_setup.sql       # Complete DB setup
 └── vercel.json                  # Deployment config
 ```
 

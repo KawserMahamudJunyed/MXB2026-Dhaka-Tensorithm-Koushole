@@ -1,6 +1,14 @@
 -- =====================================================
--- KOUSHOLE - COMPLETE SUPABASE SETUP
--- Run this in Supabase SQL Editor (in order)
+-- KOUSHOLE - COMPLETE SUPABASE DATABASE SETUP
+-- =====================================================
+-- 
+-- HOW TO USE:
+-- 1. Go to Supabase Dashboard > SQL Editor
+-- 2. Create a new query
+-- 3. Copy and paste this entire file
+-- 4. Click "Run" to execute all commands
+--
+-- This will create all tables, policies, and functions needed.
 -- =====================================================
 
 -- =====================================================
@@ -222,7 +230,7 @@ CREATE TABLE IF NOT EXISTS official_resources (
     subject TEXT NOT NULL,
     class TEXT NOT NULL, -- '6', '7', '8', '9', '10', '9-10', '11', '12', '11-12'
     subject_group TEXT NOT NULL, -- 'science', 'business', 'humanities', 'general'
-    version TEXT NOT NULL, -- 'bangla', 'english'
+    version TEXT NOT NULL DEFAULT 'english', -- 'bangla', 'english'
     file_url TEXT NOT NULL,
     file_size_bytes BIGINT,
     is_processed BOOLEAN DEFAULT FALSE,
@@ -344,6 +352,17 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =====================================================
+-- STEP 12: MIGRATION FIXES (Run if upgrading)
+-- =====================================================
+
+-- Add version column if missing (for existing installations)
+ALTER TABLE official_resources 
+ADD COLUMN IF NOT EXISTS version TEXT DEFAULT 'english';
+
+-- Update existing records if version is NULL
+UPDATE official_resources SET version = 'english' WHERE version IS NULL;
 
 -- =====================================================
 -- DONE! Your Supabase is ready for Koushole 🚀
