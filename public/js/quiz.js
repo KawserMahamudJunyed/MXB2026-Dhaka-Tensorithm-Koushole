@@ -434,6 +434,8 @@ ${accuracy > 80 ? '- Include some CHALLENGING questions' : ''}`;
 - Random Seed: ${randomSeed} (use this to ensure variety)
 - Each question MUST be different and unique
 - Cover DIFFERENT concepts within the topic
+- For MATH/PHYSICS/CHEMISTRY: Use LaTeX format for equations wrapped in $ signs
+  Examples: $F = ma$, $E = mc^2$, $\\frac{a}{b}$, $\\sqrt{x}$, $x^2 + y^2 = z^2$
 - ${langInstruction}
 
 Mix these question types EVENLY:
@@ -704,6 +706,11 @@ function renderQuestion() {
         `;
     }
     document.getElementById('quiz-progress').style.width = `${((currentQuestionIndex) / currentQuizQuestions.length) * 100}%`;
+
+    // Trigger MathJax to render any LaTeX equations
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise().catch((err) => console.warn('MathJax typeset error:', err));
+    }
 }
 
 
@@ -858,31 +865,40 @@ function checkAnswer(type, selectedIdx = null) {
         const q = currentQuizQuestions[currentQuestionIndex];
         let userAns = document.getElementById('quiz-answer-display') ? document.getElementById('quiz-answer-display').innerText.toLowerCase().trim() : "";
 
-        // Filter out system messages
-        if (userAns.includes("tap mic") || userAns.includes("কথা বলতে")) userAns = "";
-
-        const correctAns = (q.correctAnswer || q.answer || "").toLowerCase().trim();
-
-        // Tokenize and compare
-        const clean = (str) => str.replace(/[^\w\s\u0980-\u09FF]/g, '').split(/\s+/).filter(w => w.length > 1);
-        const uWords = clean(userAns);
-        const cWords = clean(correctAns);
-
-        // Check for specific numerical match (exact) or word overlap
-        const intersection = uWords.filter(w => cWords.includes(w));
-        const matchRatio = cWords.length > 0 ? intersection.length / cWords.length : 0;
-
-        if (cWords.length === 0) {
-            isCorrect = false;
-        } else if (uWords.join(' ') === cWords.join(' ')) {
-            isCorrect = true; // Exact match
-        } else if (matchRatio >= 0.6 || (cWords.length === 1 && userAns.includes(correctAns))) {
-            isCorrect = true; // 60% overlap or direct inclusion for single words
+        // Filter out system messages (multiple languages)
+        if (userAns.includes("tap mic") || userAns.includes("কথা বলতে") || userAns.includes("listening") || userAns.includes("শুনছি")) {
+            userAns = "";
         }
-        // Show correct answer if wrong
+
+        // Prioritize 'answer' field (what AI generates) over 'correctAnswer'
+        const correctAns = (q.answer || q.correctAnswer || "").toLowerCase().trim();
+
+        // Handle empty user input
+        if (userAns === "" || correctAns === "") {
+            isCorrect = false;
+        } else {
+            // Tokenize and compare
+            const clean = (str) => str.replace(/[^\w\s\u0980-\u09FF]/g, '').split(/\s+/).filter(w => w.length > 1);
+            const uWords = clean(userAns);
+            const cWords = clean(correctAns);
+
+            // Check for specific numerical match (exact) or word overlap
+            const intersection = uWords.filter(w => cWords.includes(w));
+            const matchRatio = cWords.length > 0 ? intersection.length / cWords.length : 0;
+
+            if (uWords.join(' ') === cWords.join(' ')) {
+                isCorrect = true; // Exact match
+            } else if (cWords.length === 1 && userAns.includes(correctAns)) {
+                isCorrect = true; // Single word direct inclusion
+            } else if (matchRatio >= 0.7) {
+                isCorrect = true; // 70% overlap (stricter threshold)
+            }
+        }
+
+        // Show correct answer if wrong (use the actual value, not undefined field)
         const display = document.getElementById('quiz-answer-display');
         if (!isCorrect && correctAns && display) {
-            display.innerHTML += `<br><span class="text-emerald text-sm">Correct: ${q.correctAnswer}</span>`;
+            display.innerHTML += `<br><span class="text-emerald text-sm">Correct: ${q.answer || q.correctAnswer}</span>`;
         }
     }
 
