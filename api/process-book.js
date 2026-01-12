@@ -221,31 +221,65 @@ RULES:
 
                         console.log('✅ Extracted', insertedChapters.length, 'chapters via Gemini Vision');
 
-                        // Store the Gemini response text as content
-                        console.log('📖 Storing extracted text content...');
+                        // Store actual book content with SECOND Gemini call (for text extraction)
+                        console.log('📖 Extracting full text content...');
                         try {
-                            // Delete existing content for these chapters
-                            for (const ch of insertedChapters) {
-                                await supabase.from('book_content').delete().eq('chapter_id', ch.id);
-                            }
+                            const contentResponse = await fetch(
+                                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+                                {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        contents: [{
+                                            parts: [
+                                                {
+                                                    inline_data: {
+                                                        mime_type: 'application/pdf',
+                                                        data: base64Pdf
+                                                    }
+                                                },
+                                                {
+                                                    text: `Extract the main educational content from this textbook.
+Include: definitions, concepts, formulas, examples, key points.
+For equations use LaTeX format: $equation$.
+Output as readable text, not JSON. Maximum detail.`
+                                                }
+                                            ]
+                                        }],
+                                        generationConfig: {
+                                            temperature: 0.2,
+                                            maxOutputTokens: 8192
+                                        }
+                                    })
+                                }
+                            );
 
-                            // Store geminiText with first chapter (actual column is 'content', not 'content_text')
-                            if (geminiText.length > 100 && insertedChapters[0]?.id) {
+                            const contentData = await contentResponse.json();
+                            const bookContent = contentData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+                            console.log('📄 Extracted content length:', bookContent.length);
+
+                            if (bookContent.length > 200 && insertedChapters[0]?.id) {
+                                // Delete existing content
+                                await supabase.from('book_content').delete().eq('chapter_id', insertedChapters[0].id);
+
                                 const { error: contentError } = await supabase
                                     .from('book_content')
                                     .insert({
                                         chapter_id: insertedChapters[0].id,
-                                        content: geminiText.substring(0, 100000)
+                                        content: bookContent.substring(0, 100000)
                                     });
 
                                 if (contentError) {
                                     console.error('❌ Content storage failed:', contentError.message);
                                 } else {
-                                    console.log('✅ Stored', geminiText.length, 'chars of content');
+                                    console.log('✅ Stored', bookContent.length, 'chars of content');
                                 }
+                            } else {
+                                console.warn('⚠️ Content too short or no chapters:', bookContent.length);
                             }
                         } catch (contentErr) {
-                            console.error('❌ Content error:', contentErr.message);
+                            console.error('❌ Content extraction failed:', contentErr.message);
                         }
 
                         return res.status(200).json({
