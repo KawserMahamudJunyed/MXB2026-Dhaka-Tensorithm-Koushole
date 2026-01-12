@@ -208,7 +208,7 @@ RULES:
                             title_en: ch.title_en || ch.title || 'Unknown',
                             title_bn: ch.title_bn || ch.title || 'অজানা',
                             page_start: ch.page_start || null,
-                            content_extracted: false
+                            content_extracted: true // Mark as extracted via OCR
                         }));
 
                         await supabase.from('book_chapters').delete().eq(idColumn, resourceId);
@@ -220,6 +220,70 @@ RULES:
                         if (insertError) throw new Error('DB insert failed: ' + insertError.message);
 
                         console.log('✅ Extracted', insertedChapters.length, 'chapters via Gemini Vision');
+
+                        // Step: Extract full text content for quiz generation
+                        console.log('📖 Extracting full text content for quiz generation...');
+                        try {
+                            const contentResponse = await fetch(
+                                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+                                {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        contents: [{
+                                            parts: [
+                                                {
+                                                    inline_data: {
+                                                        mime_type: 'application/pdf',
+                                                        data: base64Pdf
+                                                    }
+                                                },
+                                                {
+                                                    text: `Extract ALL readable text from this textbook PDF. 
+Include chapter titles, headings, paragraphs, formulas, definitions, and examples.
+Output the complete text content in a readable format.
+For Bangla text, preserve the original script.
+For formulas/equations, use LaTeX format like $F = ma$.
+Maximum output length.`
+                                                }
+                                            ]
+                                        }],
+                                        generationConfig: {
+                                            temperature: 0.1,
+                                            maxOutputTokens: 8192
+                                        }
+                                    })
+                                }
+                            );
+
+                            const contentData = await contentResponse.json();
+                            const extractedContent = contentData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+                            if (extractedContent.length > 100) {
+                                // Store content for each chapter or as a whole
+                                const contentIdColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+
+                                // Delete existing content for this resource
+                                await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
+
+                                // Store the extracted content
+                                const { error: contentError } = await supabase
+                                    .from('book_content')
+                                    .insert({
+                                        [contentIdColumn]: resourceId,
+                                        chapter_id: insertedChapters[0]?.id,
+                                        content_text: extractedContent.substring(0, 100000) // Store up to 100k chars
+                                    });
+
+                                if (contentError) {
+                                    console.warn('⚠️ Content storage warning:', contentError.message);
+                                } else {
+                                    console.log('✅ Stored', extractedContent.length, 'chars of content');
+                                }
+                            }
+                        } catch (contentErr) {
+                            console.warn('⚠️ Content extraction skipped:', contentErr.message);
+                        }
 
                         return res.status(200).json({
                             success: true,
@@ -354,11 +418,17 @@ RULES:
         console.log('✅ Stored', insertedChapters.length, 'chapters in database');
 
         // Step 4: Store full text content for quiz generation
+        const contentIdColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+
+        // Delete existing content
+        await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
+
         const { error: contentError } = await supabase
             .from('book_content')
             .insert({
-                chapter_id: insertedChapters[0]?.id, // Link to first chapter for now
-                content: extractedText.substring(0, 50000) // Store first 50k chars
+                [contentIdColumn]: resourceId,
+                chapter_id: insertedChapters[0]?.id,
+                content_text: extractedText.substring(0, 100000) // Store up to 100k chars
             });
 
         if (contentError) {
