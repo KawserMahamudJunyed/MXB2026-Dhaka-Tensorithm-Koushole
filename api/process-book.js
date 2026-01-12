@@ -264,25 +264,31 @@ Maximum output length.`
                                 const contentIdColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
 
                                 // Delete existing content for this resource
-                                await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
+                                const { error: deleteError } = await supabase.from('book_content').delete().eq(contentIdColumn, resourceId);
+                                if (deleteError) console.warn('⚠️ Delete warning:', deleteError.message);
 
                                 // Store the extracted content
+                                const insertData = {
+                                    [contentIdColumn]: resourceId,
+                                    chapter_id: insertedChapters[0]?.id,
+                                    content_text: extractedContent.substring(0, 100000)
+                                };
+                                console.log('📝 Inserting content:', JSON.stringify({ ...insertData, content_text: `[${extractedContent.length} chars]` }));
+
                                 const { error: contentError } = await supabase
                                     .from('book_content')
-                                    .insert({
-                                        [contentIdColumn]: resourceId,
-                                        chapter_id: insertedChapters[0]?.id,
-                                        content_text: extractedContent.substring(0, 100000) // Store up to 100k chars
-                                    });
+                                    .insert(insertData);
 
                                 if (contentError) {
-                                    console.warn('⚠️ Content storage warning:', contentError.message);
+                                    console.error('❌ Content storage FAILED:', contentError.message, contentError.details);
                                 } else {
                                     console.log('✅ Stored', extractedContent.length, 'chars of content');
                                 }
+                            } else {
+                                console.warn('⚠️ Extracted content too short:', extractedContent.length, 'chars');
                             }
                         } catch (contentErr) {
-                            console.warn('⚠️ Content extraction skipped:', contentErr.message);
+                            console.error('❌ Content extraction error:', contentErr.message);
                         }
 
                         return res.status(200).json({

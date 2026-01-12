@@ -5,7 +5,8 @@
   "scripts": {
     "start": "serve public",
     "dev": "vercel dev",
-    "batch-process": "node scripts/batch-process-books.js"
+    "batch-process": "node scripts/batch-process-books.js",
+    "batch-library": "node scripts/batch-process-library.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
