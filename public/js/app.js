@@ -883,22 +883,42 @@ async function populateChatBookContext(libraryBooks) {
         selector.appendChild(libraryGroup);
     }
 
-    // Fetch and add official resources
+    // Fetch and add official resources - filtered by class like library page
     try {
         if (window.supabaseClient) {
+            // Get user's class and group (same logic as fetchOfficialResources.js)
+            let userClass = localStorage.getItem('userClass') || '10';
+            let userGroup = localStorage.getItem('userGroup') || 'Science';
+
+            // Determine target classes (e.g. "9" also matches "9-10")
+            let targetClasses = [userClass];
+            if (['9', '10'].includes(userClass)) targetClasses.push('9-10');
+            else if (['11', '12'].includes(userClass)) targetClasses.push('11-12');
+            if (userClass === 'University') targetClasses.push('University');
+
             const targetVersion = lang === 'bn' ? 'bangla' : 'english';
+
             const { data: officialBooks } = await window.supabaseClient
                 .from('official_resources')
                 .select('id, title, subject, class_level, chunks_generated')
+                .in('class_level', targetClasses)
                 .eq('version', targetVersion)
-                .order('title', { ascending: true })
-                .limit(20);
+                .order('title', { ascending: true });
 
-            if (officialBooks && officialBooks.length > 0) {
+            // Filter by group (client-side like fetchOfficialResources)
+            const filteredBooks = officialBooks ? officialBooks.filter(book => {
+                const title = book.title.toLowerCase();
+                const isCommon = title.includes('[common]') || !title.includes('[');
+                const isUserGroup = title.toLowerCase().includes(`[${userGroup.toLowerCase()}]`);
+                return isCommon || isUserGroup;
+            }) : [];
+
+            if (filteredBooks.length > 0) {
                 const officialGroup = document.createElement('optgroup');
-                officialGroup.label = officialLabel;
+                const classLabel = lang === 'bn' ? `শ্রেণি ${userClass}` : `Class ${userClass}`;
+                officialGroup.label = `${officialLabel} (${classLabel})`;
 
-                officialBooks.forEach(book => {
+                filteredBooks.forEach(book => {
                     const option = document.createElement('option');
                     option.value = book.id;
                     option.dataset.sourceType = 'official';
