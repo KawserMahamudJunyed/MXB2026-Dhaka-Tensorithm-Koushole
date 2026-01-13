@@ -10,8 +10,8 @@
  * - Database migration must be applied (book_chunks table)
  */
 
-require('dotenv').config();
-const { createClient } = require('@supabase/supabase-js');
+import 'dotenv/config';
+import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
