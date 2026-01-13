@@ -879,7 +879,9 @@ async function populateChatBookContext(libraryBooks) {
             const option = document.createElement('option');
             option.value = book.id;
             option.dataset.sourceType = 'library';
-            const title = book.title.length > 25 ? book.title.substring(0, 25) + '...' : book.title;
+            // Use Bangla title if available and language is Bangla
+            const displayTitle = (lang === 'bn' && book.title_bn) ? book.title_bn : book.title;
+            const title = displayTitle.length > 25 ? displayTitle.substring(0, 25) + '...' : displayTitle;
             const ragReady = book.chunks_generated ? ' ✓' : ' ⏳';
             option.textContent = title + ragReady;
             libraryGroup.appendChild(option);
