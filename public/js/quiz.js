@@ -599,8 +599,6 @@ function renderQuestion() {
     if (q.type === 'text') q.type = 'voice';
 
     document.getElementById('feedback-area').classList.add('hidden');
-    const watchBtn = document.getElementById('watch-lesson-btn');
-    if (watchBtn) watchBtn.classList.add('hidden'); // Reset
 
     // Reset question header display (in case previous was fill_gap)
     document.getElementById('quiz-question-text').style.display = '';
@@ -611,7 +609,7 @@ function renderQuestion() {
         q.options.forEach((opt, idx) => {
             container.innerHTML += `
                 <button onclick="checkAnswer('mcq', ${idx})" 
-                class="quiz-option w-full text-left p-4 rounded-xl bg-surface border border-divider text-text-primary font-medium hover:border-amber transition-all active:scale-[0.98] hover:scale-[1.01] transition-transform">
+                class="quiz-option w-full text-left p-4 min-h-[52px] h-auto rounded-xl bg-surface border border-divider text-text-primary font-medium hover:border-amber transition-all active:scale-[0.98] hover:scale-[1.01] transition-transform">
                     ${String.fromCharCode(65 + idx)}. ${opt}
                 </button>
             `;
@@ -622,7 +620,7 @@ function renderQuestion() {
         document.getElementById('quiz-question-text').style.display = 'none';
 
         const optionsHtml = q.options.map((opt, idx) =>
-            `<button onclick="checkAnswer('fill_gap', ${idx})" class="quiz-option px-4 py-2 bg-surface border border-divider rounded-full text-sm font-bold hover:border-amber transition-colors">${opt}</button>`
+            `<button onclick="checkAnswer('fill_gap', ${idx})" class="quiz-option px-4 py-3 min-h-[48px] bg-surface border border-divider rounded-xl text-sm font-bold hover:border-amber transition-colors">${opt}</button>`
         ).join(' ');
 
         container.innerHTML = `
@@ -917,13 +915,7 @@ function checkAnswer(type, selectedIdx = null) {
             saveMemory();
         }
 
-        // Show Watch Lesson Button with Khan Academy Search
-        const watchBtn = document.getElementById('watch-lesson-btn');
-        if (watchBtn) {
-            const searchTerm = encodeURIComponent(`${q.topic} ${selectedDifficulty === 'Hard' ? 'advanced' : 'basics'}`);
-            watchBtn.href = `https://www.khanacademy.org/search?q=${searchTerm}`;
-            watchBtn.classList.remove('hidden');
-        }
+        // Khan Academy video option removed - API unreliable
 
         document.getElementById('feedback-area').classList.remove('hidden');
         if (navigator.vibrate) navigator.vibrate(200);

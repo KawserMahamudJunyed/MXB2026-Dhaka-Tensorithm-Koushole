@@ -824,14 +824,19 @@ async function fetchLibraryBooks() {
             }
 
             libraryBooks = validBooks.map(book => ({
+                id: book.id, // Include ID for RAG chat
                 name: book.title,
                 date: new Date(book.created_at).toLocaleDateString(),
                 status: book.index_status === 'done' ? 'Ready' : 'Processing',
                 color: book.index_status === 'done' ? 'sky' : 'amber',
                 file_type: book.file_type || 'pdf',
-                url: book.file_url // Pass the URL to the renderer
+                url: book.file_url, // Pass the URL to the renderer
+                chunks_generated: book.chunks_generated || false
             }));
             renderLibrary();
+
+            // Populate chat book context selector for RAG
+            populateChatBookContext(validBooks);
         } else {
             // Show empty state
             const list = document.getElementById('library-list');
@@ -846,6 +851,26 @@ async function fetchLibraryBooks() {
     } catch (err) {
         console.error("Error fetching library:", err);
     }
+}
+
+// Populate chat book context selector for RAG
+function populateChatBookContext(books) {
+    const selector = document.getElementById('chat-book-context');
+    if (!selector) return;
+
+    // Keep the default option
+    selector.innerHTML = '<option value="">General Chat (No Book)</option>';
+
+    // Add books that are ready for RAG
+    books.forEach(book => {
+        const option = document.createElement('option');
+        option.value = book.id;
+        const title = book.title.length > 30 ? book.title.substring(0, 30) + '...' : book.title;
+        const ragReady = book.chunks_generated ? ' 📚' : ' ⏳';
+        option.textContent = title + ragReady;
+        option.title = book.chunks_generated ? 'RAG Ready - Ask questions about this book' : 'Processing - Wait for embeddings';
+        selector.appendChild(option);
+    });
 }
 
 async function fetchChatHistory() {
@@ -1358,12 +1383,25 @@ async function sendMessage() {
         attachmentHTML = `<div class="mt-2 text-[10px] text-text-secondary italic"><i class="fas fa-paperclip"></i> ${preview.children.length} attachment(s) sent</div>`;
     }
 
+    // Check if a book context is selected
+    const bookContextSelect = document.getElementById('chat-book-context');
+    const selectedBookId = bookContextSelect?.value || '';
+    const isRagMode = selectedBookId && selectedBookId !== '';
+
+    // Get book name for display
+    let bookContextLabel = '';
+    if (isRagMode) {
+        const selectedOption = bookContextSelect.options[bookContextSelect.selectedIndex];
+        bookContextLabel = `<div class="text-[10px] text-sky mt-1"><i class="fas fa-book"></i> ${selectedOption.text}</div>`;
+    }
+
     chatContainer.innerHTML += `
         <div class="flex gap-3 flex-row-reverse animate-fade-in-up">
             <div class="w-8 h-8 rounded-full bg-divider flex items-center justify-center text-text-secondary text-xs">${(userProfile.nickname || userProfile.name || 'U')[0].toUpperCase()}</div>
             <div class="bg-amber text-black font-medium p-3 rounded-2xl rounded-tr-none max-w-[85%] text-sm shadow-amber-glow body-font">
                 ${text || "Sent attachments"}
                 ${attachmentHTML}
+                ${bookContextLabel}
             </div>
         </div>`;
 
@@ -1378,7 +1416,7 @@ async function sendMessage() {
         <div id="${typingId}" class="flex gap-3 animate-fade-in-up">
             <div class="w-8 h-8 rounded-full bg-amber/20 border border-amber/50 flex items-center justify-center text-amber text-xs"><i class="fas fa-robot"></i></div>
             <div class="bg-surface border border-divider p-3 rounded-2xl rounded-tl-none text-text-secondary text-xs italic">
-                Thinking...
+                ${isRagMode ? '<i class="fas fa-book-reader mr-1"></i>Reading book content...' : 'Thinking...'}
             </div>
         </div>`;
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -1389,13 +1427,24 @@ async function sendMessage() {
             memoryContext = `\n[System Note: This student has struggled with the following topics in quizzes: ${userMemory.weaknesses.join(', ')}. If relevant to their question, explain these concepts simply and offer examples to help them improve.]`;
         }
 
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+        // Choose API endpoint based on context
+        const apiEndpoint = isRagMode ? '/api/rag-chat' : '/api/chat';
+        const requestBody = isRagMode
+            ? {
+                message: text,
+                bookId: selectedBookId,
+                sourceType: 'library',
+                history: { weaknesses: userMemory.weaknesses }
+            }
+            : {
                 message: text,
                 history: { weaknesses: userMemory.weaknesses }
-            })
+            };
+
+        const response = await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
@@ -1405,7 +1454,16 @@ async function sendMessage() {
 
         const data = await response.json();
 
-        const aiText = data.reply;
+        let aiText = data.reply;
+
+        // Add source references if RAG was used
+        if (data.usedBookContext && data.sources && data.sources.length > 0) {
+            aiText += '\n\n---\n📚 **Sources from book:**\n';
+            data.sources.forEach(src => {
+                aiText += `- Source ${src.index}: "${src.text}" (${src.similarity}% match)\n`;
+            });
+        }
+
         document.getElementById(typingId).remove();
         appendAIMessage(aiText);
 

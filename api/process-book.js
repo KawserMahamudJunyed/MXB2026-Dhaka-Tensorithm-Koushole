@@ -2,6 +2,39 @@ import Groq from 'groq-sdk';
 import { createClient } from '@supabase/supabase-js';
 import { extractText } from 'unpdf';
 
+// Helper: Chunk text for RAG embeddings
+function chunkText(text, chunkSize = 2000, overlap = 200) {
+    const chunks = [];
+    let start = 0;
+
+    while (start < text.length) {
+        let end = start + chunkSize;
+
+        // Try to break at sentence/paragraph boundary
+        if (end < text.length) {
+            const breakPoints = ['. ', '। ', '\n\n', '\n', ' '];
+            for (const bp of breakPoints) {
+                const lastBreak = text.lastIndexOf(bp, end);
+                if (lastBreak > start + chunkSize / 2) {
+                    end = lastBreak + bp.length;
+                    break;
+                }
+            }
+        }
+
+        chunks.push(text.slice(start, end).trim());
+        start = end - overlap;
+
+        // Prevent infinite loop
+        if (start >= text.length - overlap) break;
+    }
+
+    return chunks.filter(c => c.length > 50); // Filter out tiny chunks
+}
+
+// HuggingFace embedding configuration
+const HF_EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2';
+
 export default async function handler(req, res) {
     // CORS Headers
     res.setHeader('Access-Control-Allow-Credentials', true);
@@ -414,7 +447,7 @@ Output as readable text, not JSON. Maximum detail.`
 
         console.log('✅ Stored', insertedChapters.length, 'chapters in database');
 
-        // Step 4: Store full text content for quiz generation
+        // Step 4: Store full text content for quiz generation (legacy)
         if (insertedChapters[0]?.id) {
             // Delete existing content for first chapter
             await supabase.from('book_content').delete().eq('chapter_id', insertedChapters[0].id);
@@ -430,6 +463,73 @@ Output as readable text, not JSON. Maximum detail.`
                 console.warn('Warning: Failed to store book content:', contentError.message);
             } else {
                 console.log('✅ Stored', extractedText.length, 'chars of content');
+            }
+        }
+
+        // Step 5: Generate RAG chunks and embeddings (NEW)
+        const hfApiKey = process.env.HF_API_KEY;
+        if (hfApiKey && extractedText.length > 200) {
+            console.log('📊 Generating RAG chunks and embeddings...');
+
+            try {
+                const chunks = chunkText(extractedText, 2000, 200);
+                console.log(`✂️ Created ${chunks.length} chunks`);
+
+                // Generate embeddings using HuggingFace
+                const embeddingsResponse = await fetch(
+                    `https://api-inference.huggingface.co/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${hfApiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            inputs: chunks,
+                            options: { wait_for_model: true }
+                        })
+                    }
+                );
+
+                if (embeddingsResponse.ok) {
+                    const embeddings = await embeddingsResponse.json();
+                    console.log(`✅ Generated ${embeddings.length} embeddings`);
+
+                    // Prepare chunks for database insertion
+                    const idColumn = sourceType === 'library' ? 'library_book_id' : 'resource_id';
+                    const chunkRecords = chunks.map((text, index) => ({
+                        [idColumn]: resourceId,
+                        chunk_index: index,
+                        chunk_text: text,
+                        embedding: `[${embeddings[index].join(',')}]`
+                    }));
+
+                    // Delete existing chunks
+                    await supabase.from('book_chunks').delete().eq(idColumn, resourceId);
+
+                    // Insert in batches
+                    const batchSize = 50;
+                    for (let i = 0; i < chunkRecords.length; i += batchSize) {
+                        const batch = chunkRecords.slice(i, i + batchSize);
+                        await supabase.from('book_chunks').insert(batch);
+                    }
+
+                    // Update book record
+                    const bookTable = sourceType === 'library' ? 'library_books' : 'official_resources';
+                    await supabase
+                        .from(bookTable)
+                        .update({
+                            chunks_generated: true,
+                            total_chunks: chunks.length
+                        })
+                        .eq('id', resourceId);
+
+                    console.log(`✅ Stored ${chunks.length} RAG chunks with embeddings`);
+                } else {
+                    console.warn('⚠️ Embedding API failed, skipping RAG chunks');
+                }
+            } catch (ragError) {
+                console.error('⚠️ RAG chunk generation failed (non-blocking):', ragError.message);
             }
         }
 
