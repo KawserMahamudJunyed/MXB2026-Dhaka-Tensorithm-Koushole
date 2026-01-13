@@ -477,7 +477,7 @@ Output as readable text, not JSON. Maximum detail.`
 
                 // Generate embeddings using HuggingFace
                 const embeddingsResponse = await fetch(
-                    `https://api-inference.huggingface.co/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+                    `https://router.huggingface.co/hf-inference/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
                     {
                         method: 'POST',
                         headers: {

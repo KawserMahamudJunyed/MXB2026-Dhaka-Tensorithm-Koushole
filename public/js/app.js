@@ -854,23 +854,65 @@ async function fetchLibraryBooks() {
 }
 
 // Populate chat book context selector for RAG
-function populateChatBookContext(books) {
+async function populateChatBookContext(libraryBooks) {
     const selector = document.getElementById('chat-book-context');
     if (!selector) return;
 
-    // Keep the default option
-    selector.innerHTML = '<option value="">General Chat (No Book)</option>';
+    // Get language for labels
+    const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+    const defaultLabel = lang === 'bn' ? 'সাধারণ চ্যাট (কোনো বই নেই)' : 'General Chat (No Book)';
+    const libraryLabel = lang === 'bn' ? '📖 আমার বইসমূহ' : '📖 My Library';
+    const officialLabel = lang === 'bn' ? '📚 অফিসিয়াল রিসোর্স' : '📚 Official Resources';
 
-    // Add books that are ready for RAG
-    books.forEach(book => {
-        const option = document.createElement('option');
-        option.value = book.id;
-        const title = book.title.length > 30 ? book.title.substring(0, 30) + '...' : book.title;
-        const ragReady = book.chunks_generated ? ' 📚' : ' ⏳';
-        option.textContent = title + ragReady;
-        option.title = book.chunks_generated ? 'RAG Ready - Ask questions about this book' : 'Processing - Wait for embeddings';
-        selector.appendChild(option);
-    });
+    selector.innerHTML = `<option value="">${defaultLabel}</option>`;
+
+    // Add library books group
+    if (libraryBooks && libraryBooks.length > 0) {
+        const libraryGroup = document.createElement('optgroup');
+        libraryGroup.label = libraryLabel;
+
+        libraryBooks.forEach(book => {
+            const option = document.createElement('option');
+            option.value = book.id;
+            option.dataset.sourceType = 'library';
+            const title = book.title.length > 25 ? book.title.substring(0, 25) + '...' : book.title;
+            const ragReady = book.chunks_generated ? ' ✓' : ' ⏳';
+            option.textContent = title + ragReady;
+            libraryGroup.appendChild(option);
+        });
+        selector.appendChild(libraryGroup);
+    }
+
+    // Fetch and add official resources
+    try {
+        if (window.supabaseClient) {
+            const targetVersion = lang === 'bn' ? 'bangla' : 'english';
+            const { data: officialBooks } = await window.supabaseClient
+                .from('official_resources')
+                .select('id, title, subject, class_level, chunks_generated')
+                .eq('version', targetVersion)
+                .order('title', { ascending: true })
+                .limit(20);
+
+            if (officialBooks && officialBooks.length > 0) {
+                const officialGroup = document.createElement('optgroup');
+                officialGroup.label = officialLabel;
+
+                officialBooks.forEach(book => {
+                    const option = document.createElement('option');
+                    option.value = book.id;
+                    option.dataset.sourceType = 'official';
+                    const title = book.title.length > 25 ? book.title.substring(0, 25) + '...' : book.title;
+                    const ragReady = book.chunks_generated ? ' ✓' : ' ⏳';
+                    option.textContent = `${title}${ragReady}`;
+                    officialGroup.appendChild(option);
+                });
+                selector.appendChild(officialGroup);
+            }
+        }
+    } catch (err) {
+        console.warn('Could not load official resources for chat:', err);
+    }
 }
 
 async function fetchChatHistory() {
@@ -1429,11 +1471,16 @@ async function sendMessage() {
 
         // Choose API endpoint based on context
         const apiEndpoint = isRagMode ? '/api/rag-chat' : '/api/chat';
+
+        // Get source type from selected option's dataset
+        const selectedOption = bookContextSelect?.options[bookContextSelect.selectedIndex];
+        const sourceType = selectedOption?.dataset?.sourceType || 'library';
+
         const requestBody = isRagMode
             ? {
                 message: text,
                 bookId: selectedBookId,
-                sourceType: 'library',
+                sourceType: sourceType,
                 history: { weaknesses: userMemory.weaknesses }
             }
             : {

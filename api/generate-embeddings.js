@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
         // Generate embeddings using Hugging Face Inference API
         const embeddingsResponse = await fetch(
-            `https://api-inference.huggingface.co/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+            `https://router.huggingface.co/hf-inference/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
             {
                 method: 'POST',
                 headers: {
@@ -125,7 +125,7 @@ export default async function handler(req, res) {
 // Helper: Generate embedding for a single query (used by rag-chat)
 export async function generateQueryEmbedding(text, hfApiKey) {
     const response = await fetch(
-        `https://api-inference.huggingface.co/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+        `https://router.huggingface.co/hf-inference/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
         {
             method: 'POST',
             headers: {

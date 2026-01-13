@@ -1,39 +1,31 @@
 /**
- * Batch Process Library Books Only
+ * Batch Reprocess Library Books for RAG Embeddings
  * 
- * This script processes user-uploaded books from library_books table
- * to extract content and populate the book_content table.
+ * HOW TO USE:
+ * 1. Run: node scripts/batch-process-library.js
+ * 2. This will re-process all library books that don't have embeddings yet
  * 
- * Usage:
- *   node scripts/batch-process-library.js
+ * REQUIREMENTS:
+ * - Set SUPABASE_URL and SUPABASE_SERVICE_KEY in .env
+ * - Database migration must be applied (book_chunks table)
  */
 
-import { createClient } from '@supabase/supabase-js';
-import 'dotenv/config';
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
 
-// Configuration
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
-const API_BASE = process.env.API_BASE || 'https://koushole.vercel.app';
-
-// Delay between API calls to avoid rate limits (in ms)
-const DELAY_BETWEEN_BOOKS = 35000; // 35 seconds
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const API_BASE = process.env.VERCEL_URL || 'https://koushole.vercel.app';
 
 if (!SUPABASE_KEY) {
-    console.error('❌ Missing SUPABASE_SERVICE_KEY in .env');
+    console.error('❌ SUPABASE_SERVICE_KEY not set in .env');
     process.exit(1);
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function processBook(book, index, total) {
-    console.log(`\n📚 [${index + 1}/${total}] Processing: ${book.title}`);
-    console.log(`   ID: ${book.id}`);
-    console.log(`   URL: ${book.file_url?.substring(0, 60)}...`);
+async function reprocessBook(book, sourceType) {
+    console.log(`📚 Processing: ${book.title} (${sourceType})`);
 
     try {
         const response = await fetch(`${API_BASE}/api/process-book`, {
@@ -42,80 +34,83 @@ async function processBook(book, index, total) {
             body: JSON.stringify({
                 resourceId: book.id,
                 fileUrl: book.file_url,
-                sourceType: 'library'
+                sourceType: sourceType
             })
         });
 
-        const result = await response.json();
-
-        if (result.success) {
-            console.log(`   ✅ Success: ${result.message}`);
-            if (result.chapters?.length) {
-                console.log(`   📖 Chapters: ${result.chapters.length}`);
-            }
-            return { success: true, book: book.title };
-        } else {
-            console.log(`   ⚠️ Warning: ${result.message || result.error}`);
-            return { success: false, book: book.title, error: result.error };
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || `HTTP ${response.status}`);
         }
-    } catch (error) {
-        console.log(`   ❌ Error: ${error.message}`);
-        return { success: false, book: book.title, error: error.message };
+
+        const result = await response.json();
+        console.log(`✅ Done: ${book.title} - ${result.chapters?.length || 0} chapters`);
+        return true;
+    } catch (err) {
+        console.error(`❌ Failed: ${book.title} - ${err.message}`);
+        return false;
     }
 }
 
 async function main() {
-    console.log('🚀 Library Books Processing Script');
-    console.log('===================================\n');
+    console.log('🚀 Starting batch reprocess for RAG embeddings...\n');
 
-    console.log('📋 Fetching books from library_books...');
-    const { data: books, error } = await supabase
+    // 1. Get library books without chunks
+    console.log('📖 Fetching library books without embeddings...');
+    const { data: libraryBooks, error: libErr } = await supabase
         .from('library_books')
-        .select('id, title, file_url, user_id')
-        .order('created_at', { ascending: true });
+        .select('id, title, file_url')
+        .or('chunks_generated.is.null,chunks_generated.eq.false')
+        .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error('❌ Failed to fetch library books:', error.message);
-        process.exit(1);
+    if (libErr) {
+        console.error('Library fetch error:', libErr);
+    } else {
+        console.log(`Found ${libraryBooks?.length || 0} library books to process`);
     }
 
-    if (books.length === 0) {
-        console.log('📚 No library books found. Users haven\'t uploaded any books yet.\n');
-        process.exit(0);
+    // 2. Get official resources without chunks
+    console.log('📚 Fetching official resources without embeddings...');
+    const { data: officialBooks, error: offErr } = await supabase
+        .from('official_resources')
+        .select('id, title, file_url')
+        .or('chunks_generated.is.null,chunks_generated.eq.false')
+        .order('created_at', { ascending: false });
+
+    if (offErr) {
+        console.error('Official resources fetch error:', offErr);
+    } else {
+        console.log(`Found ${officialBooks?.length || 0} official books to process`);
     }
 
-    console.log(`📚 Found ${books.length} library books to process\n`);
+    console.log('\n--- Starting Processing ---\n');
 
-    const results = { success: 0, failed: 0, errors: [] };
+    let successCount = 0;
+    let failCount = 0;
 
-    for (let i = 0; i < books.length; i++) {
-        const book = books[i];
-        const result = await processBook(book, i, books.length);
+    // Process library books
+    for (const book of (libraryBooks || [])) {
+        const success = await reprocessBook(book, 'library');
+        if (success) successCount++;
+        else failCount++;
 
-        if (result.success) {
-            results.success++;
-        } else {
-            results.failed++;
-            results.errors.push({ title: result.book, error: result.error });
-        }
-
-        if (i < books.length - 1) {
-            console.log(`   ⏳ Waiting ${DELAY_BETWEEN_BOOKS / 1000}s before next book...`);
-            await sleep(DELAY_BETWEEN_BOOKS);
-        }
+        // Rate limit - wait 2 seconds between requests
+        await new Promise(r => setTimeout(r, 2000));
     }
 
-    console.log('\n===================================');
-    console.log('📊 Processing Complete!');
-    console.log(`   ✅ Success: ${results.success}`);
-    console.log(`   ❌ Failed: ${results.failed}`);
+    // Process official resources
+    for (const book of (officialBooks || [])) {
+        const success = await reprocessBook(book, 'official');
+        if (success) successCount++;
+        else failCount++;
 
-    if (results.errors.length > 0) {
-        console.log('\n⚠️ Failed Books:');
-        results.errors.forEach(e => console.log(`   - ${e.title}: ${e.error}`));
+        // Rate limit - wait 2 seconds between requests
+        await new Promise(r => setTimeout(r, 2000));
     }
 
-    console.log('\n✨ Done!');
+    console.log('\n--- Batch Processing Complete ---');
+    console.log(`✅ Successful: ${successCount}`);
+    console.log(`❌ Failed: ${failCount}`);
 }
 
 main().catch(console.error);

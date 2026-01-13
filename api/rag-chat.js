@@ -156,7 +156,7 @@ ${context}`;
 // Helper: Generate embedding for a query
 async function generateQueryEmbedding(text, hfApiKey) {
     const response = await fetch(
-        `https://api-inference.huggingface.co/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+        `https://router.huggingface.co/hf-inference/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
         {
             method: 'POST',
             headers: {
