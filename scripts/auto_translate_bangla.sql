@@ -177,6 +177,12 @@ SET title = REPLACE(title, 'General Mathematics', 'Mathematics')
 WHERE class_level IN ('9', '10', '9-10') 
   AND title LIKE '%General Mathematics%';
 
+-- Fix SUBJECT column: General Mathematics → Mathematics for Class 9-10
+UPDATE official_resources
+SET subject = 'Mathematics'
+WHERE class_level IN ('9', '10', '9-10') 
+  AND subject = 'General Mathematics';
+
 -- Fix Bangla titles: সাধারণ গণিত → গণিত for Class 9-10
 UPDATE official_resources
 SET title_bn = REPLACE(title_bn, 'সাধারণ গণিত', 'গণিত')
