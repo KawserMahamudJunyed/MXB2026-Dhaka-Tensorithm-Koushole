@@ -77,20 +77,25 @@ async function fetchOfficialResources() {
 
         // 6. Render
         if (filteredData.length > 0) {
-            container.innerHTML = filteredData.map(book => `
+            container.innerHTML = filteredData.map(book => {
+                // Use Bangla title if available and language is Bangla
+                const displayTitle = (currentLang === 'bn' && book.title_bn) ? book.title_bn : book.title;
+                const classLabel = currentLang === 'bn' ? `শ্রেণি ${book.class_level}` : `Class ${book.class_level}`;
+
+                return `
                 <div class="flex items-center gap-4 bg-surface p-3 rounded-xl border border-divider hover:border-amber/50 transition-colors group cursor-pointer" onclick="window.open('${book.file_url}', '_blank')">
                     <div class="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center text-amber text-lg shrink-0 group-hover:scale-110 transition-transform">
                         <i class="fas fa-book"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-text-primary font-bold text-sm truncate max-w-[180px] sm:max-w-[280px] md:max-w-[400px]" title="${book.title}">${book.title}</h4>
-                        <p class="text-text-secondary text-xs truncate">${book.subject} • Class ${book.class_level}</p>
+                        <h4 class="text-text-primary font-bold text-sm truncate max-w-[180px] sm:max-w-[280px] md:max-w-[400px]" title="${displayTitle}">${displayTitle}</h4>
+                        <p class="text-text-secondary text-xs truncate">${book.subject} • ${classLabel}</p>
                     </div>
                     <div class="w-8 h-8 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary group-hover:text-amber group-hover:border-amber transition-all">
                         <i class="fas fa-external-link-alt text-xs"></i>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         } else {
             // Use translation if available
             const emptyMsg = (typeof t === 'function') ? t('noBooksFound') : 'No official books found for your class.';

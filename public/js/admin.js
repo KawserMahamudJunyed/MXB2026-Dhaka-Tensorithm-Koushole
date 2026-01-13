@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const FALLBACK_SUBJECTS_6_8 = ['Bangla 1st Paper', 'Bangla 2nd Paper', 'English 1st Paper', 'English 2nd Paper', 'Mathematics', 'Science', 'Bangladesh & Global Studies', 'Religion & Moral Education (Islam)', 'ICT', 'Work & Life Skills', 'Arts & Culture', 'Health & Physical Education'];
 
     const FALLBACK_SUBJECTS_9_10 = {
-        'Common': ['Bangla 1st Paper', 'Bangla 2nd Paper', 'English 1st Paper', 'English 2nd Paper', 'General Mathematics', 'ICT'],
+        'Common': ['Bangla 1st Paper', 'Bangla 2nd Paper', 'English 1st Paper', 'English 2nd Paper', 'Mathematics', 'ICT'],
         'Science': ['Physics', 'Chemistry', 'Biology', 'Higher Mathematics', 'Bangladesh & Global Studies'],
         'Business Studies': ['General Science', 'Accounting', 'Finance & Banking', 'Business Entrepreneurship'],
         'Humanities': ['General Science', 'Geography & Environment', 'History of BD & World', 'Civics & Citizenship']

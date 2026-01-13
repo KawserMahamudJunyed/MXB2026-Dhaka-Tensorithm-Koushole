@@ -274,9 +274,9 @@ const SSC_COMMON = {
             { id: 'composition', en: 'Composition Writing', bn: 'রচনা' }
         ]
     },
-    'General Mathematics': {
-        en: 'General Mathematics',
-        bn: 'সাধারণ গণিত',
+    'Mathematics': {
+        en: 'Mathematics',
+        bn: 'গণিত',
         chapters: [
             { id: 'ch1', en: 'Real Numbers', bn: 'বাস্তব সংখ্যা' },
             { id: 'ch2', en: 'Sets & Functions', bn: 'সেট ও ফাংশন' },
