@@ -187,8 +187,11 @@ function setLanguage(lang) {
     }
 
     // Refresh Chat Book Context selector for new language
-    if (typeof populateChatBookContext === 'function') {
-        populateChatBookContext(libraryBooks || []);
+    // Use window.libraryBooks if exists, or call fetchLibrary to reload
+    if (typeof fetchLibrary === 'function') {
+        fetchLibrary(); // This will call populateChatBookContext with fresh data
+    } else if (typeof populateChatBookContext === 'function') {
+        populateChatBookContext(window.libraryBooks || []);
     }
 }
 
