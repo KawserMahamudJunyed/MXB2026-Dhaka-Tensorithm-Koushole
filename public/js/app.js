@@ -847,9 +847,13 @@ async function fetchLibraryBooks() {
                     <p data-key="noBooksYet">No books uploaded yet. Upload a book above to get started!</p>
                 </div>`;
             }
+            // Still populate chat selector with official resources (even if no library books)
+            populateChatBookContext([]);
         }
     } catch (err) {
         console.error("Error fetching library:", err);
+        // Try to populate chat selector anyway with official resources
+        populateChatBookContext([]);
     }
 }
 
