@@ -906,7 +906,7 @@ async function populateChatBookContext(libraryBooks) {
 
             const { data: officialBooks } = await window.supabaseClient
                 .from('official_resources')
-                .select('id, title, subject, class_level, chunks_generated')
+                .select('id, title, title_bn, subject, class_level, chunks_generated')
                 .in('class_level', targetClasses)
                 .eq('version', targetVersion)
                 .order('title', { ascending: true });
