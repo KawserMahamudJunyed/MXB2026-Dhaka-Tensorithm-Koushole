@@ -185,6 +185,11 @@ function setLanguage(lang) {
     if (typeof fetchOfficialResources === 'function') {
         fetchOfficialResources();
     }
+
+    // Refresh Chat Book Context selector for new language
+    if (typeof populateChatBookContext === 'function') {
+        populateChatBookContext(libraryBooks || []);
+    }
 }
 
 // --- VIEW NAVIGATION ---
