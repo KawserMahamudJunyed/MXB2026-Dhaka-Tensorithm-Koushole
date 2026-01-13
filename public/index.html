@@ -120,7 +120,8 @@
 
     <header id="main-header"
         class="hidden px-3 sm:px-5 py-3 sm:py-4 flex justify-between items-center sticky top-0 z-20 bg-midnight/90 backdrop-blur-md border-b border-divider transition-colors duration-300">
-        <div class="flex items-center gap-2 sm:gap-3">
+        <a href="#" onclick="switchTab('dashboard'); return false;"
+            class="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-90 transition-opacity">
             <img id="app-logo" src="/Koushole_White.svg" alt="Koushole Logo"
                 class="h-8 object-contain transition-opacity duration-300 hover:rotate-3 transition-transform"
                 onerror="this.style.display='none'; document.getElementById('text-logo').classList.remove('hidden')">
@@ -132,7 +133,7 @@
                     class="text-[10px] sm:text-xs text-text-secondary font-medium tracking-wider body-font leading-none"
                     data-key="appSubtitle">Study Smarter</span>
             </div>
-        </div>
+        </a>
 
         <div class="flex items-center gap-1 sm:gap-4">
             <div class="flex items-center gap-1 sm:gap-2">
