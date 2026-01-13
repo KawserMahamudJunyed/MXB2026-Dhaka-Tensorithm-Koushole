@@ -919,7 +919,14 @@ async function populateChatBookContext(libraryBooks) {
 
             if (filteredBooks.length > 0) {
                 const officialGroup = document.createElement('optgroup');
-                const classLabel = lang === 'bn' ? `শ্রেণি ${userClass}` : `Class ${userClass}`;
+
+                // Convert class level to Bangla numerals
+                const toBanglaNum = (str) => {
+                    const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+                    return String(str).replace(/[0-9]/g, d => banglaDigits[d]);
+                };
+
+                const classLabel = lang === 'bn' ? `শ্রেণি ${toBanglaNum(userClass)}` : `Class ${userClass}`;
                 officialGroup.label = `${officialLabel} (${classLabel})`;
 
                 filteredBooks.forEach(book => {
