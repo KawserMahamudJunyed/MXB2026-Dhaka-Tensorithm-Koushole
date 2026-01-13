@@ -77,10 +77,46 @@ async function fetchOfficialResources() {
 
         // 6. Render
         if (filteredData.length > 0) {
+            // Subject translations for Bangla
+            const subjectTranslations = {
+                'Mathematics': 'গণিত',
+                'General Mathematics': 'গণিত',
+                'Higher Mathematics': 'উচ্চতর গণিত',
+                'Physics': 'পদার্থবিজ্ঞান',
+                'Chemistry': 'রসায়ন',
+                'Biology': 'জীববিজ্ঞান',
+                'Science': 'বিজ্ঞান',
+                'General Science': 'সাধারণ বিজ্ঞান',
+                'ICT': 'তথ্য ও যোগাযোগ প্রযুক্তি',
+                'English': 'ইংরেজি',
+                'Bangla': 'বাংলা',
+                'Bangladesh & Global Studies': 'বাংলাদেশ ও বিশ্বপরিচয়',
+                'Accounting': 'হিসাববিজ্ঞান',
+                'Finance & Banking': 'ফিন্যান্স ও ব্যাংকিং',
+                'Economics': 'অর্থনীতি',
+                'Geography & Environment': 'ভূগোল ও পরিবেশ',
+                'History': 'ইতিহাস',
+                'Civics & Citizenship': 'পৌরনীতি ও নাগরিকতা'
+            };
+
+            // Convert to Bangla numerals
+            const toBanglaNum = (str) => {
+                const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+                return String(str).replace(/[0-9]/g, d => banglaDigits[d]);
+            };
+
             container.innerHTML = filteredData.map(book => {
                 // Use Bangla title if available and language is Bangla
                 const displayTitle = (currentLang === 'bn' && book.title_bn) ? book.title_bn : book.title;
-                const classLabel = currentLang === 'bn' ? `শ্রেণি ${book.class_level}` : `Class ${book.class_level}`;
+
+                // Translate subject and class level for Bangla
+                let displaySubject = book.subject;
+                let classLabel = `Class ${book.class_level}`;
+
+                if (currentLang === 'bn') {
+                    displaySubject = subjectTranslations[book.subject] || book.subject;
+                    classLabel = `শ্রেণি ${toBanglaNum(book.class_level)}`;
+                }
 
                 return `
                 <div class="flex items-center gap-4 bg-surface p-3 rounded-xl border border-divider hover:border-amber/50 transition-colors group cursor-pointer" onclick="window.open('${book.file_url}', '_blank')">
@@ -89,7 +125,7 @@ async function fetchOfficialResources() {
                     </div>
                     <div class="flex-1 min-w-0">
                         <h4 class="text-text-primary font-bold text-sm truncate max-w-[180px] sm:max-w-[280px] md:max-w-[400px]" title="${displayTitle}">${displayTitle}</h4>
-                        <p class="text-text-secondary text-xs truncate">${book.subject} • ${classLabel}</p>
+                        <p class="text-text-secondary text-xs truncate">${displaySubject} • ${classLabel}</p>
                     </div>
                     <div class="w-8 h-8 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary group-hover:text-amber group-hover:border-amber transition-all">
                         <i class="fas fa-external-link-alt text-xs"></i>
