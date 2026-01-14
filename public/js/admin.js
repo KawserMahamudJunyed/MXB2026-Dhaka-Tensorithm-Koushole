@@ -210,9 +210,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (group && group !== 'None' && group !== 'Common') {
             finalTitle += ` [${group}]`;
         }
-        // Add part info if not full book
+        // Add part info - include "Full Book" for full books
         if (bookPart && bookPart !== 'Full') {
             finalTitle += ` - ${bookPart}`;
+        } else {
+            finalTitle += ` - Full Book`;
         }
         finalTitle += (version === 'English') ? ' (English Medium)' : ' (Bangla Medium)';
 
