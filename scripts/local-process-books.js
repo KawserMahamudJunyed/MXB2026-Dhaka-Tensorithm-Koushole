@@ -137,7 +137,7 @@ async function generateEmbeddings(chunks) {
 
     try {
         const response = await fetch(
-            `https://router.huggingface.co/hf-inference/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+            `https://api-inference.huggingface.co/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
             {
                 method: 'POST',
                 headers: {
@@ -177,14 +177,16 @@ async function processBook(book, sourceType) {
         if (!pdfResponse.ok) throw new Error('Failed to download PDF');
 
         const pdfBuffer = await pdfResponse.arrayBuffer();
-        const pdfBytes = new Uint8Array(pdfBuffer);
+        // Create separate copies to avoid detached ArrayBuffer issue
+        const pdfBytesForExtract = new Uint8Array(pdfBuffer.slice(0));
+        const pdfBytesForOCR = new Uint8Array(pdfBuffer.slice(0));
 
         // Step 2: Try text extraction first
         console.log('  📝 Trying text extraction...');
         let extractedText = '';
 
         try {
-            const { text } = await extractText(pdfBytes, { mergePages: true });
+            const { text } = await extractText(pdfBytesForExtract, { mergePages: true });
             extractedText = text || '';
         } catch (e) {
             console.log('  ⚠️ unpdf extraction failed, trying OCR...');
@@ -193,7 +195,7 @@ async function processBook(book, sourceType) {
         // Step 3: If text extraction poor, use Gemini OCR
         if (extractedText.trim().length < 500) {
             console.log(`  ⚠️ Poor extraction (${extractedText.trim().length} chars) - using OCR`);
-            const ocrText = await extractWithGemini(pdfBuffer, book.title);
+            const ocrText = await extractWithGemini(pdfBytesForOCR.buffer, book.title);
             if (ocrText) {
                 extractedText = ocrText;
             }
