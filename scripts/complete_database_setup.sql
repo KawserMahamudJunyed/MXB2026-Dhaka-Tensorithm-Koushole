@@ -355,9 +355,146 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- =====================================================
--- PART 7: STORAGE BUCKET POLICIES
+-- PART 8: GAMIFICATION & BADGES
 -- =====================================================
--- Note: Create buckets 'books' and 'official-books' in Supabase Dashboard > Storage first
+
+-- BADGE DEFINITIONS TABLE
+CREATE TABLE IF NOT EXISTS badge_definitions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL UNIQUE,
+    name_bn TEXT,
+    description TEXT,
+    description_bn TEXT,
+    icon TEXT, -- FontAwesome icon class
+    xp_reward INTEGER DEFAULT 0,
+    condition_type TEXT, -- 'streak', 'quiz_count', 'xp_total', 'subject_mastery'
+    condition_value INTEGER, -- e.g., 7 for 7-day streak
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert default badges
+INSERT INTO badge_definitions (name, name_bn, description, icon, xp_reward, condition_type, condition_value) VALUES
+    ('First Steps', 'প্রথম ধাপ', 'Complete your first quiz', 'fa-baby-carriage', 10, 'quiz_count', 1),
+    ('Quiz Master', 'কুইজ মাস্টার', 'Complete 50 quizzes', 'fa-crown', 100, 'quiz_count', 50),
+    ('Streak Starter', 'স্ট্রিক শুরু', 'Maintain a 3-day streak', 'fa-fire', 25, 'streak', 3),
+    ('Week Warrior', 'সপ্তাহ যোদ্ধা', 'Maintain a 7-day streak', 'fa-fire-flame-curved', 50, 'streak', 7),
+    ('Month Champion', 'মাসের চ্যাম্পিয়ন', 'Maintain a 30-day streak', 'fa-trophy', 200, 'streak', 30),
+    ('XP Hunter', 'এক্সপি হান্টার', 'Earn 500 XP', 'fa-star', 25, 'xp_total', 500),
+    ('XP Legend', 'এক্সপি লেজেন্ড', 'Earn 5000 XP', 'fa-medal', 100, 'xp_total', 5000),
+    ('Science Pro', 'বিজ্ঞান প্রো', 'Master Science subjects', 'fa-flask', 75, 'subject_mastery', 1),
+    ('Math Wizard', 'গণিত উইজার্ড', 'Master Mathematics', 'fa-calculator', 75, 'subject_mastery', 1)
+ON CONFLICT (name) DO NOTHING;
+
+ALTER TABLE badge_definitions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view badges" ON badge_definitions FOR SELECT USING (true);
+
+-- USER BADGES TABLE (earned badges)
+CREATE TABLE IF NOT EXISTS user_badges (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    badge_id UUID REFERENCES badge_definitions(id) ON DELETE CASCADE,
+    earned_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, badge_id)
+);
+
+ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own badges" ON user_badges FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Service can manage badges" ON user_badges FOR ALL USING (true);
+
+-- TOPIC MASTERY TABLE
+CREATE TABLE IF NOT EXISTS topic_mastery (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    subject TEXT NOT NULL,
+    chapter TEXT,
+    mastery_level INTEGER DEFAULT 0, -- 0-100
+    questions_attempted INTEGER DEFAULT 0,
+    correct_answers INTEGER DEFAULT 0,
+    last_practiced TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, subject, chapter)
+);
+
+ALTER TABLE topic_mastery ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own mastery" ON topic_mastery FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can manage own mastery" ON topic_mastery FOR ALL USING (auth.uid() = user_id);
+
+-- BOOK CONTENT TABLE (legacy, for full text storage)
+CREATE TABLE IF NOT EXISTS book_content (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    library_book_id UUID REFERENCES library_books(id) ON DELETE CASCADE,
+    resource_id UUID REFERENCES official_resources(id) ON DELETE CASCADE,
+    chapter_id UUID REFERENCES book_chapters(id) ON DELETE CASCADE,
+    content_text TEXT,
+    embedding VECTOR(1024),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE book_content ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "View book content" ON book_content FOR SELECT USING (true);
+CREATE POLICY "Service can manage content" ON book_content FOR ALL USING (true);
+
+-- REVIEW QUEUE TABLE (spaced repetition)
+CREATE TABLE IF NOT EXISTS review_queue (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    subject TEXT NOT NULL,
+    chapter TEXT,
+    question_type TEXT, -- 'mcq', 'matching', 'ordering'
+    question_data JSONB, -- The actual question
+    next_review TIMESTAMPTZ DEFAULT NOW(),
+    interval_days INTEGER DEFAULT 1,
+    ease_factor DECIMAL(4,2) DEFAULT 2.5,
+    repetitions INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE review_queue ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own queue" ON review_queue FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can manage own queue" ON review_queue FOR ALL USING (auth.uid() = user_id);
+
+-- SUBJECT TRANSLATIONS TABLE
+CREATE TABLE IF NOT EXISTS subject_translations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subject_en TEXT NOT NULL,
+    subject_bn TEXT NOT NULL,
+    category TEXT, -- 'science', 'arts', 'commerce'
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(subject_en)
+);
+
+INSERT INTO subject_translations (subject_en, subject_bn, category) VALUES
+    ('Physics', 'পদার্থবিজ্ঞান', 'science'),
+    ('Chemistry', 'রসায়ন', 'science'),
+    ('Biology', 'জীববিজ্ঞান', 'science'),
+    ('Mathematics', 'গণিত', 'science'),
+    ('Higher Mathematics', 'উচ্চতর গণিত', 'science'),
+    ('English', 'ইংরেজি', 'arts'),
+    ('Bangla', 'বাংলা', 'arts'),
+    ('History', 'ইতিহাস', 'arts'),
+    ('Geography', 'ভূগোল', 'arts'),
+    ('Economics', 'অর্থনীতি', 'commerce'),
+    ('Accounting', 'হিসাববিজ্ঞান', 'commerce'),
+    ('ICT', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'science'),
+    ('General Science', 'সাধারণ বিজ্ঞান', 'science')
+ON CONFLICT (subject_en) DO NOTHING;
+
+ALTER TABLE subject_translations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view translations" ON subject_translations FOR SELECT USING (true);
+
+-- =====================================================
+-- PART 9: STORAGE BUCKETS (IMPORTANT!)
+-- =====================================================
+-- You MUST create these manually in Supabase Dashboard > Storage:
+-- 
+-- 1. Click "New Bucket"
+-- 2. Name: "books" (for user uploads)
+--    - Make it PUBLIC: Yes
+-- 3. Name: "official-books" (for NCTB books)
+--    - Make it PUBLIC: Yes
+--
+-- After creating buckets, the policies below will work:
 
 -- For 'books' bucket (user uploads)
 CREATE POLICY "Users can upload own books" ON storage.objects
@@ -386,16 +523,19 @@ CREATE POLICY "Authenticated can upload official books" ON storage.objects
 -- ✅ SETUP COMPLETE! Your Supabase is ready for Koushole 🚀
 -- =====================================================
 -- 
--- NEXT STEPS:
--- 1. Create storage buckets: 'books' and 'official-books'
--- 2. Set environment variables in Vercel:
+-- CHECKLIST:
+-- ☐ 1. Create storage bucket: 'books' (public)
+-- ☐ 2. Create storage bucket: 'official-books' (public)
+-- ☐ 3. Set environment variables in Vercel:
 --    - SUPABASE_URL
 --    - SUPABASE_ANON_KEY
 --    - SUPABASE_SERVICE_KEY
 --    - VOYAGE_API_KEY
 --    - GROQ_API_KEY
--- 3. Run the Colab notebook to process books
+-- ☐ 4. Run the Colab notebook to process books
 --
 -- To verify installation:
 -- SELECT * FROM pg_extension WHERE extname = 'vector';
+-- SELECT COUNT(*) FROM badge_definitions; -- Should be 9
 -- =====================================================
+
