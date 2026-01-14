@@ -371,17 +371,14 @@ CREATE TABLE IF NOT EXISTS badge_definitions (
     condition_value INTEGER -- e.g., 7 for 7-day streak
 );
 
--- Insert default badges
+-- Insert default badges (matches original database)
 INSERT INTO badge_definitions (id, name_en, name_bn, description_en, description_bn, icon, xp_reward, condition_type, condition_value) VALUES
-    ('first_steps', 'First Steps', 'প্রথম ধাপ', 'Complete your first quiz', 'আপনার প্রথম কুইজ সম্পন্ন করুন', 'fa-baby-carriage', 10, 'quiz_count', 1),
-    ('quiz_master', 'Quiz Master', 'কুইজ মাস্টার', 'Complete 50 quizzes', '৫০টি কুইজ সম্পন্ন করুন', 'fa-crown', 100, 'quiz_count', 50),
-    ('streak_starter', 'Streak Starter', 'স্ট্রিক শুরু', 'Maintain a 3-day streak', '৩ দিনের স্ট্রিক বজায় রাখুন', 'fa-fire', 25, 'streak', 3),
-    ('week_warrior', 'Week Warrior', 'সপ্তাহ যোদ্ধা', 'Maintain a 7-day streak', '৭ দিনের স্ট্রিক বজায় রাখুন', 'fa-fire-flame-curved', 50, 'streak', 7),
-    ('month_champion', 'Month Champion', 'মাসের চ্যাম্পিয়ন', 'Maintain a 30-day streak', '৩০ দিনের স্ট্রিক বজায় রাখুন', 'fa-trophy', 200, 'streak', 30),
-    ('xp_hunter', 'XP Hunter', 'এক্সপি হান্টার', 'Earn 500 XP', '৫০০ এক্সপি অর্জন করুন', 'fa-star', 25, 'xp_total', 500),
-    ('xp_legend', 'XP Legend', 'এক্সপি লেজেন্ড', 'Earn 5000 XP', '৫০০০ এক্সপি অর্জন করুন', 'fa-medal', 100, 'xp_total', 5000),
-    ('science_pro', 'Science Pro', 'বিজ্ঞান প্রো', 'Master Science subjects', 'বিজ্ঞান বিষয়ে দক্ষতা অর্জন করুন', 'fa-flask', 75, 'subject_mastery', 1),
-    ('math_wizard', 'Math Wizard', 'গণিত উইজার্ড', 'Master Mathematics', 'গণিতে দক্ষতা অর্জন করুন', 'fa-calculator', 75, 'subject_mastery', 1)
+    ('first_quiz', 'First Step', 'প্রথম পদক্ষেপ', NULL, NULL, '🎯', 50, 'quiz_count', 1),
+    ('perfect_quiz', 'Perfect Score', 'নিখুঁত স্কোর', NULL, NULL, '💯', 200, 'perfect_score', 1),
+    ('streak_3', '3 Day Streak', '৩ দিনের স্ট্রিক', NULL, NULL, '🔥', 100, 'streak', 3),
+    ('streak_7', 'Week Warrior', 'সাপ্তাহিক যোদ্ধা', NULL, NULL, '⚔️', 250, 'streak', 7),
+    ('streak_30', 'Monthly Master', 'মাসিক মাস্টার', NULL, NULL, '👑', 1000, 'streak', 30),
+    ('topic_master', 'Topic Master', 'টপিক মাস্টার', NULL, NULL, '🏆', 500, 'mastery', 90)
 ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE badge_definitions ENABLE ROW LEVEL SECURITY;
