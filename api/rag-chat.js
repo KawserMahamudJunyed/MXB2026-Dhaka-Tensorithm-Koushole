@@ -1,8 +1,8 @@
 import Groq from 'groq-sdk';
 import { createClient } from '@supabase/supabase-js';
 
-// Hugging Face embedding model
-const HF_EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2';
+// Voyage AI for embeddings (matches book processing)
+const VOYAGE_EMBEDDING_MODEL = 'voyage-multilingual-2';
 
 export default async function handler(req, res) {
     // CORS Headers
@@ -27,14 +27,14 @@ export default async function handler(req, res) {
     }
 
     const groqApiKey = process.env.GROQ_API_KEY;
-    const hfApiKey = process.env.HF_API_KEY;
+    const voyageApiKey = process.env.VOYAGE_API_KEY;
 
     if (!groqApiKey) {
         return res.status(500).json({ error: 'GROQ_API_KEY not configured' });
     }
 
-    if (!hfApiKey) {
-        return res.status(500).json({ error: 'HF_API_KEY not configured' });
+    if (!voyageApiKey) {
+        return res.status(500).json({ error: 'VOYAGE_API_KEY not configured' });
     }
 
     const supabaseUrl = process.env.SUPABASE_URL || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
             console.log(`📚 RAG mode: searching book ${bookId} for: "${message.substring(0, 50)}..."`);
 
             // Step 1: Generate embedding for the query
-            const queryEmbedding = await generateQueryEmbedding(message, hfApiKey);
+            const queryEmbedding = await generateQueryEmbedding(message, voyageApiKey);
 
             // Step 2: Search for similar chunks using Supabase RPC
             const { data: chunks, error: searchError } = await supabase.rpc(
@@ -153,19 +153,20 @@ ${context}`;
     }
 }
 
-// Helper: Generate embedding for a query
-async function generateQueryEmbedding(text, hfApiKey) {
+// Helper: Generate embedding for a query using Voyage AI
+async function generateQueryEmbedding(text, voyageApiKey) {
     const response = await fetch(
-        `https://router.huggingface.co/hf-inference/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+        'https://api.voyageai.com/v1/embeddings',
         {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${hfApiKey}`,
+                'Authorization': `Bearer ${voyageApiKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                inputs: text,
-                options: { wait_for_model: true }
+                input: [text.substring(0, 8000)], // Voyage limit
+                model: VOYAGE_EMBEDDING_MODEL,
+                input_type: 'query'
             })
         }
     );
@@ -175,5 +176,6 @@ async function generateQueryEmbedding(text, hfApiKey) {
         throw new Error(`Failed to generate query embedding: ${error}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    return result.data[0].embedding;
 }

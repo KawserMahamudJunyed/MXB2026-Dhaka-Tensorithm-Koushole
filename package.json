@@ -7,8 +7,7 @@
     "dev": "vercel dev",
     "batch-process": "node scripts/batch-process-books.js",
     "batch-library": "node scripts/batch-process-library.js",
-    "batch-embeddings": "node scripts/batch-generate-embeddings.js",
-    "local-process": "node scripts/local-process-books.js"
+    "batch-embeddings": "node scripts/batch-generate-embeddings.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
