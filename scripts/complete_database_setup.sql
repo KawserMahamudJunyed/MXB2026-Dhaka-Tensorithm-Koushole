@@ -358,32 +358,31 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- PART 8: GAMIFICATION & BADGES
 -- =====================================================
 
--- BADGE DEFINITIONS TABLE
+-- BADGE DEFINITIONS TABLE (matches original schema)
 CREATE TABLE IF NOT EXISTS badge_definitions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL UNIQUE,
+    id TEXT PRIMARY KEY,
+    name_en TEXT NOT NULL,
     name_bn TEXT,
-    description TEXT,
+    description_en TEXT,
     description_bn TEXT,
     icon TEXT, -- FontAwesome icon class
     xp_reward INTEGER DEFAULT 0,
     condition_type TEXT, -- 'streak', 'quiz_count', 'xp_total', 'subject_mastery'
-    condition_value INTEGER, -- e.g., 7 for 7-day streak
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    condition_value INTEGER -- e.g., 7 for 7-day streak
 );
 
 -- Insert default badges
-INSERT INTO badge_definitions (name, name_bn, description, icon, xp_reward, condition_type, condition_value) VALUES
-    ('First Steps', 'প্রথম ধাপ', 'Complete your first quiz', 'fa-baby-carriage', 10, 'quiz_count', 1),
-    ('Quiz Master', 'কুইজ মাস্টার', 'Complete 50 quizzes', 'fa-crown', 100, 'quiz_count', 50),
-    ('Streak Starter', 'স্ট্রিক শুরু', 'Maintain a 3-day streak', 'fa-fire', 25, 'streak', 3),
-    ('Week Warrior', 'সপ্তাহ যোদ্ধা', 'Maintain a 7-day streak', 'fa-fire-flame-curved', 50, 'streak', 7),
-    ('Month Champion', 'মাসের চ্যাম্পিয়ন', 'Maintain a 30-day streak', 'fa-trophy', 200, 'streak', 30),
-    ('XP Hunter', 'এক্সপি হান্টার', 'Earn 500 XP', 'fa-star', 25, 'xp_total', 500),
-    ('XP Legend', 'এক্সপি লেজেন্ড', 'Earn 5000 XP', 'fa-medal', 100, 'xp_total', 5000),
-    ('Science Pro', 'বিজ্ঞান প্রো', 'Master Science subjects', 'fa-flask', 75, 'subject_mastery', 1),
-    ('Math Wizard', 'গণিত উইজার্ড', 'Master Mathematics', 'fa-calculator', 75, 'subject_mastery', 1)
-ON CONFLICT (name) DO NOTHING;
+INSERT INTO badge_definitions (id, name_en, name_bn, description_en, description_bn, icon, xp_reward, condition_type, condition_value) VALUES
+    ('first_steps', 'First Steps', 'প্রথম ধাপ', 'Complete your first quiz', 'আপনার প্রথম কুইজ সম্পন্ন করুন', 'fa-baby-carriage', 10, 'quiz_count', 1),
+    ('quiz_master', 'Quiz Master', 'কুইজ মাস্টার', 'Complete 50 quizzes', '৫০টি কুইজ সম্পন্ন করুন', 'fa-crown', 100, 'quiz_count', 50),
+    ('streak_starter', 'Streak Starter', 'স্ট্রিক শুরু', 'Maintain a 3-day streak', '৩ দিনের স্ট্রিক বজায় রাখুন', 'fa-fire', 25, 'streak', 3),
+    ('week_warrior', 'Week Warrior', 'সপ্তাহ যোদ্ধা', 'Maintain a 7-day streak', '৭ দিনের স্ট্রিক বজায় রাখুন', 'fa-fire-flame-curved', 50, 'streak', 7),
+    ('month_champion', 'Month Champion', 'মাসের চ্যাম্পিয়ন', 'Maintain a 30-day streak', '৩০ দিনের স্ট্রিক বজায় রাখুন', 'fa-trophy', 200, 'streak', 30),
+    ('xp_hunter', 'XP Hunter', 'এক্সপি হান্টার', 'Earn 500 XP', '৫০০ এক্সপি অর্জন করুন', 'fa-star', 25, 'xp_total', 500),
+    ('xp_legend', 'XP Legend', 'এক্সপি লেজেন্ড', 'Earn 5000 XP', '৫০০০ এক্সপি অর্জন করুন', 'fa-medal', 100, 'xp_total', 5000),
+    ('science_pro', 'Science Pro', 'বিজ্ঞান প্রো', 'Master Science subjects', 'বিজ্ঞান বিষয়ে দক্ষতা অর্জন করুন', 'fa-flask', 75, 'subject_mastery', 1),
+    ('math_wizard', 'Math Wizard', 'গণিত উইজার্ড', 'Master Mathematics', 'গণিতে দক্ষতা অর্জন করুন', 'fa-calculator', 75, 'subject_mastery', 1)
+ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE badge_definitions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can view badges" ON badge_definitions FOR SELECT USING (true);
@@ -392,7 +391,7 @@ CREATE POLICY "Anyone can view badges" ON badge_definitions FOR SELECT USING (tr
 CREATE TABLE IF NOT EXISTS user_badges (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    badge_id UUID REFERENCES badge_definitions(id) ON DELETE CASCADE,
+    badge_id TEXT REFERENCES badge_definitions(id) ON DELETE CASCADE,
     earned_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(user_id, badge_id)
 );
