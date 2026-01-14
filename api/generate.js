@@ -36,6 +36,14 @@ export default async function handler(req, res) {
                     2. For "fill_gap" type, use EXACTLY 5 underscores (_____) to mark the gap.
                     3. For "order" type, provide the full correct sentence in "answer".
                     4. No Markdown formatting, no code blocks, just raw JSON.
+                    5. For MATH: Use Unicode symbols instead of LaTeX. Examples:
+                       - Squares: x², a², r² (NOT x^2 or $x^2$)
+                       - Cubes: x³, a³ (NOT x^3)
+                       - Fractions: Write as a/b or use ÷
+                       - Pi: Use π (NOT \\pi or $\\pi$)
+                       - Square root: Use √ (NOT \\sqrt)
+                       - Formulas: A = πr², P = 2(l + w), E = mc²
+                       - NEVER use $ signs or LaTeX syntax like \\frac, \\times, etc.
                     
                     Required keys: "type", "question", "topic", "options", "correctIndex", "pairs", "items", "answer", "hint", "explanation".`
         },
