@@ -28,6 +28,32 @@ const matchColors = [
     'border-pink-400'
 ];
 
+// --- QUIZ CONFIG MODAL HANDLERS ---
+function openQuizConfig() {
+    const modal = document.getElementById('quiz-setup-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Reset to default values
+        const subjectSelect = document.getElementById('config-subject');
+        const questionCount = document.getElementById('config-question-count');
+        if (subjectSelect) subjectSelect.selectedIndex = 0;
+        if (questionCount) questionCount.value = '10';
+        // Clear custom count
+        const customCount = document.getElementById('config-custom-count');
+        if (customCount) {
+            customCount.classList.add('hidden');
+            customCount.value = '';
+        }
+    }
+}
+
+function closeQuizConfig() {
+    const modal = document.getElementById('quiz-setup-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
 // --- QUESTION COUNT HANDLER ---
 function handleQuestionCountChange() {
     const dropdown = document.getElementById('config-question-count');
