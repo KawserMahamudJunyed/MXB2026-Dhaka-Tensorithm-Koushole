@@ -137,7 +137,7 @@ async function generateEmbeddings(chunks) {
 
     try {
         const response = await fetch(
-            `https://router.huggingface.co/hf-inference/pipeline/feature-extraction/${HF_EMBEDDING_MODEL}`,
+            `https://api-inference.huggingface.co/models/${HF_EMBEDDING_MODEL}`,
             {
                 method: 'POST',
                 headers: {
