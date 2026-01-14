@@ -298,31 +298,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (dbError) throw dbError;
 
-            showStatus('✅ Upload Successful! Extracting chapters...', 'text-yellow-500');
+            showStatus('✅ Upload Successful! Processing book in background...', 'text-green-500');
 
-            // Auto-extract chapters from the PDF
-            try {
-                const processResponse = await fetch('/api/process-book', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        resourceId: insertedBook.id,
-                        fileUrl: publicUrl
-                    })
-                });
+            // Auto-extract chapters from the PDF (non-blocking with timeout)
+            // Using setTimeout to not block the success message
+            setTimeout(async () => {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 55000); // 55 sec timeout (Vercel max is 60s)
 
-                const processResult = await processResponse.json();
+                    const processResponse = await fetch('/api/process-book', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            resourceId: insertedBook.id,
+                            fileUrl: publicUrl,
+                            sourceType: 'official'
+                        }),
+                        signal: controller.signal
+                    });
 
-                if (processResult.success) {
-                    showStatus(`✅ Book uploaded! ${processResult.chapters?.length || 0} chapters extracted.`, 'text-green-500 font-bold');
-                } else {
-                    console.warn('Chapter extraction warning:', processResult.error);
-                    showStatus('✅ Book uploaded! (Chapter extraction pending)', 'text-green-500');
+                    clearTimeout(timeoutId);
+
+                    const processResult = await processResponse.json();
+
+                    if (processResult.success) {
+                        console.log(`✅ ${processResult.chapters?.length || 0} chapters extracted.`);
+                    } else {
+                        console.warn('Chapter extraction warning:', processResult.error);
+                    }
+                } catch (processError) {
+                    if (processError.name === 'AbortError') {
+                        console.log('⏱️ Processing timed out - will continue in background');
+                    } else {
+                        console.warn('Chapter extraction failed:', processError);
+                    }
                 }
-            } catch (processError) {
-                console.warn('Chapter extraction failed:', processError);
-                showStatus('✅ Book uploaded! (Chapters will be extracted later)', 'text-green-500');
-            }
+            }, 100);
 
             form.reset();
             setTimeout(updateSubjects, 100);
