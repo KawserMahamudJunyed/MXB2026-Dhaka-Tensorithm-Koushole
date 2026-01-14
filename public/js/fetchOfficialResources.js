@@ -124,9 +124,8 @@ async function fetchOfficialResources() {
                         <i class="fas fa-book"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-text-primary font-bold text-sm truncate max-w-[180px] sm:max-w-[280px] md:max-w-[400px]" title="${book.title}">${book.title}</h4>
-                        ${book.title_bn ? `<p class="text-amber text-xs truncate" title="${book.title_bn}">${book.title_bn}</p>` : ''}
-                        <p class="text-text-secondary text-xs truncate">${displaySubject} • ${classLabel}</p>
+                        <h4 class="text-text-primary font-bold text-sm" title="${displayTitle}">${displayTitle}</h4>
+                        <p class="text-text-secondary text-xs">${displaySubject} • ${classLabel}</p>
                     </div>
                     <div class="w-8 h-8 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary group-hover:text-amber group-hover:border-amber transition-all">
                         <i class="fas fa-external-link-alt text-xs"></i>

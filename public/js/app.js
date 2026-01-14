@@ -890,9 +890,8 @@ async function populateChatBookContext(libraryBooks) {
             option.dataset.sourceType = 'library';
             // Use Bangla title if available and language is Bangla
             const displayTitle = (lang === 'bn' && book.title_bn) ? book.title_bn : book.title;
-            const title = displayTitle.length > 25 ? displayTitle.substring(0, 25) + '...' : displayTitle;
             const ragReady = book.chunks_generated ? ' ✓' : ' ⏳';
-            option.textContent = title + ragReady;
+            option.textContent = displayTitle + ragReady;
             libraryGroup.appendChild(option);
         });
         selector.appendChild(libraryGroup);
@@ -946,9 +945,8 @@ async function populateChatBookContext(libraryBooks) {
                     option.dataset.sourceType = 'official';
                     // Use Bangla title if available and language is Bangla
                     const displayTitle = (lang === 'bn' && book.title_bn) ? book.title_bn : book.title;
-                    const title = displayTitle.length > 25 ? displayTitle.substring(0, 25) + '...' : displayTitle;
                     const ragReady = book.chunks_generated ? ' ✓' : ' ⏳';
-                    option.textContent = `${title}${ragReady}`;
+                    option.textContent = `${displayTitle}${ragReady}`;
                     officialGroup.appendChild(option);
                 });
                 selector.appendChild(officialGroup);
