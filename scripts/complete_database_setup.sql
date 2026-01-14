@@ -151,20 +151,21 @@ CREATE POLICY "Users can delete own books" ON library_books FOR DELETE USING (au
 CREATE TABLE IF NOT EXISTS official_resources (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
-    title_bn TEXT, -- Bangla title
+    title_bn TEXT, -- Bangla title (auto-generated for Bangla Medium)
     subject TEXT NOT NULL,
-    class TEXT NOT NULL,
+    class TEXT,
     class_level TEXT, -- For admin.js compatibility
-    subject_group TEXT NOT NULL DEFAULT 'general',
-    version TEXT NOT NULL DEFAULT 'english',
+    subject_group TEXT DEFAULT 'general',
+    version TEXT DEFAULT 'bangla',
     part TEXT, -- 'Part 1', 'Part 2', etc.
     file_url TEXT NOT NULL,
+    cover_url TEXT, -- Book cover image
     file_size_bytes BIGINT,
     is_processed BOOLEAN DEFAULT FALSE,
     chapters_extracted INTEGER DEFAULT 0,
     chunks_generated BOOLEAN DEFAULT FALSE,
     total_chunks INTEGER DEFAULT 0,
-    uploaded_by UUID REFERENCES auth.users(id),
+    uploaded_by TEXT, -- User email, not UUID
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -532,6 +533,59 @@ CREATE POLICY "Authenticated can upload official books" ON storage.objects
     );
 
 -- =====================================================
+-- PART 10: AUTO-GENERATE BANGLA TITLES TRIGGER
+-- =====================================================
+
+-- Function to generate title_bn from bn_translations
+CREATE OR REPLACE FUNCTION generate_title_bn()
+RETURNS TRIGGER AS $$
+DECLARE
+    subject_bn TEXT;
+    class_bn TEXT;
+    part_bn TEXT;
+BEGIN
+    -- Skip Bangla title for English Medium books
+    IF NEW.version = 'english' OR NEW.title LIKE '%English%' THEN
+        NEW.title_bn = NULL;
+        RETURN NEW;
+    END IF;
+    
+    -- Get Bangla subject name from bn_translations
+    SELECT value_bn INTO subject_bn 
+    FROM bn_translations WHERE key_en = NEW.subject;
+    
+    -- Get Bangla class name (e.g., "Class 9-10" -> "নবম-দশম শ্রেণি")
+    SELECT value_bn INTO class_bn 
+    FROM bn_translations WHERE key_en = 'Class ' || COALESCE(NEW.class, NEW.class_level);
+    
+    -- Get Bangla part name (e.g., "Part 1" -> "প্রথম খণ্ড")
+    IF NEW.part IS NOT NULL THEN
+        SELECT value_bn INTO part_bn 
+        FROM bn_translations WHERE key_en = NEW.part;
+    END IF;
+    
+    -- Build full Bangla title
+    IF subject_bn IS NOT NULL THEN
+        NEW.title_bn = subject_bn;
+        IF class_bn IS NOT NULL THEN
+            NEW.title_bn = NEW.title_bn || ' - ' || class_bn;
+        END IF;
+        IF part_bn IS NOT NULL THEN
+            NEW.title_bn = NEW.title_bn || ' - ' || part_bn;
+        END IF;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger on official_resources
+DROP TRIGGER IF EXISTS set_title_bn ON official_resources;
+CREATE TRIGGER set_title_bn
+    BEFORE INSERT OR UPDATE ON official_resources
+    FOR EACH ROW EXECUTE FUNCTION generate_title_bn();
+
+-- =====================================================
 -- ✅ SETUP COMPLETE! Your Supabase is ready for Koushole 🚀
 -- =====================================================
 -- 
@@ -544,10 +598,10 @@ CREATE POLICY "Authenticated can upload official books" ON storage.objects
 --    - SUPABASE_SERVICE_KEY
 --    - VOYAGE_API_KEY
 --    - GROQ_API_KEY
--- ☐ 4. Run the Colab notebook to process books
+-- ☐ 4. Update public/js/supabase-config.js with URL and Anon Key
+-- ☐ 5. Run the Colab notebook to process books
 --
 -- To verify installation:
 -- SELECT * FROM pg_extension WHERE extname = 'vector';
 -- SELECT COUNT(*) FROM badge_definitions; -- Should be 9
 -- =====================================================
-
