@@ -85,7 +85,7 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
 
 ### Prerequisites
 - Node.js (v18+)
-- [Supabase Account](https://supabase.com) (Mumbai region for Bangladesh)
+- [Supabase Account](https://supabase.com) (choose nearest region to your users)
 - [Groq API Key](https://console.groq.com) (free)
 - [Voyage AI API Key](https://dash.voyageai.com) (50M free tokens/month)
 - [HuggingFace API Key](https://huggingface.co/settings/tokens) (for FLUX images)
