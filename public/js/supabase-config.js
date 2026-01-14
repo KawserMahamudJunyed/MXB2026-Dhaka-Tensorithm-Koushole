@@ -3,8 +3,8 @@
 
 // ⚠️ IMPORTANT: Update these values with YOUR Supabase project credentials!
 // Get these from: Supabase Dashboard → Settings → API
-const SUPABASE_URL = 'https://dvibqnovpmpxnrfnhlor.supabase.co';        // ← YOUR_SUPABASE_URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2aWJxbm92cG1weG5yZm5obG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MDU0MDQsImV4cCI6MjA4Mzk4MTQwNH0.dGah6fiMZEmUEAD9RIFZzygd5t8f2CeGT5-GIpYDK0w';  // ← YOUR_SUPABASE_ANON_KEY
+const SUPABASE_URL = 'https://juvxjccngmlenvjloesg.supabase.co';        // ← YOUR_SUPABASE_URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1dnhqY2NuZ21sZW52amxvZXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MDk2OTIsImV4cCI6MjA4Mzk4NTY5Mn0.yj-shpzh2lQ2PqWCTcdojfiB860ppDNlFrT3rzseSEY';  // ← YOUR_SUPABASE_ANON_KEY
 
 console.log("🔌 Supabase Config Loading...");
 console.log("📍 URL:", SUPABASE_URL);
