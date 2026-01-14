@@ -292,6 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     subject_group: group || 'general',
                     part: (bookPart && bookPart !== 'Full') ? bookPart : null,
                     file_url: publicUrl,
+                    file_size_bytes: file.size,
                     cover_url: null,
                     uploaded_by: userEmail,
                     version: version.toLowerCase()
