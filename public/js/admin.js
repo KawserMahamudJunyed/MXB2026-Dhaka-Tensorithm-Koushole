@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     class: classLevel,
                     class_level: classLevel,
                     subject_group: group || 'general',
-                    part: (bookPart && bookPart !== 'Full') ? bookPart : null,
+                    part: (bookPart && bookPart !== 'Full') ? bookPart : 'Full Book',
                     file_url: publicUrl,
                     file_size_bytes: file.size,
                     cover_url: null,

@@ -302,6 +302,7 @@ INSERT INTO bn_translations (key_en, value_bn) VALUES
     ('Part 3', 'তৃতীয় খণ্ড'),
     ('Bangla Medium', 'বাংলা মাধ্যম'),
     ('English Medium', 'ইংরেজি মাধ্যম'),
+    ('Full Book', 'সম্পূর্ণ বই'),
     ('Science', 'বিজ্ঞান বিভাগ'),
     ('Business Studies', 'ব্যবসায় শিক্ষা বিভাগ'),
     ('Humanities', 'মানবিক বিভাগ')
