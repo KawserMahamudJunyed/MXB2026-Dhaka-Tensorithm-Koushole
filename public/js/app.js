@@ -679,6 +679,15 @@ function populatePersonalDetails() {
     setField('profile-class', userProfile.class);
     setField('profile-group', userProfile.group || userProfile.department);
 
+    // Hide group row for Class 6-8 (no groups for these classes)
+    const groupRow = document.getElementById('profile-group-row');
+    const classNum = parseInt(userProfile.class);
+    const isClass6to8 = classNum >= 6 && classNum <= 8;
+
+    if (groupRow) {
+        groupRow.style.display = isClass6to8 ? 'none' : 'flex';
+    }
+
     // For university students, change "Group" label to "Department"
     const isUniversity = userProfile.class === 'University' || userProfile.class === 'বিশ্ববিদ্যালয়';
     const groupLabel = document.getElementById('profile-group-label');

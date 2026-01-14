@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     nickname TEXT,
     nickname_bn TEXT,
     class TEXT DEFAULT '10',
-    group_name TEXT DEFAULT 'Science',
+    group_name TEXT, -- NULL for Class 6-8, Science/Business/Humanities for 9+
     avatar_url TEXT,
     education_level TEXT CHECK (education_level IN ('school', 'college', 'university')),
     subject_group TEXT,
