@@ -131,39 +131,55 @@ async function extractWithGemini(pdfBuffer, title) {
     }
 }
 
-// Helper: Generate embeddings using HuggingFace
+// Helper: Generate embeddings using Gemini (more reliable than HuggingFace)
 async function generateEmbeddings(chunks) {
     console.log(`  🔢 Generating embeddings for ${chunks.length} chunks...`);
 
-    try {
-        const response = await fetch(
-            `https://router.huggingface.co/models/${HF_EMBEDDING_MODEL}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${HF_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    inputs: chunks,
-                    options: { wait_for_model: true }
-                })
+    const embeddings = [];
+
+    // Process one chunk at a time (Gemini embeds one text per call)
+    for (let i = 0; i < chunks.length; i++) {
+        try {
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'models/text-embedding-004',
+                        content: { parts: [{ text: chunks[i].substring(0, 2048) }] } // Max 2048 chars
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                const error = await response.text();
+                // Rate limit - wait and retry
+                if (response.status === 429) {
+                    console.log(`  ⏳ Rate limited, waiting 60s...`);
+                    await new Promise(r => setTimeout(r, 60000));
+                    i--; // Retry this chunk
+                    continue;
+                }
+                console.log(`  ❌ Gemini embed error: ${error.substring(0, 100)}`);
+                continue;
             }
-        );
 
-        if (!response.ok) {
-            const error = await response.text();
-            console.log(`  ❌ HuggingFace API error: ${error.substring(0, 200)}`);
-            return null;
+            const result = await response.json();
+            if (result.embedding?.values) {
+                embeddings.push(result.embedding.values);
+            }
+
+            // Small delay to avoid rate limits
+            await new Promise(r => setTimeout(r, 100));
+
+        } catch (error) {
+            console.log(`  ❌ Embed error ${i}: ${error.message}`);
         }
-
-        const embeddings = await response.json();
-        console.log(`  ✅ Generated ${embeddings.length} embeddings`);
-        return embeddings;
-    } catch (error) {
-        console.log(`  ❌ Embedding error: ${error.message}`);
-        return null;
     }
+
+    console.log(`  ✅ Generated ${embeddings.length}/${chunks.length} embeddings`);
+    return embeddings.length > 0 ? embeddings : null;
 }
 
 // Main processing function for a single book
@@ -218,23 +234,8 @@ async function processBook(book, sourceType) {
             return false;
         }
 
-        // Step 5: Generate embeddings (in batches of 20)
-        const batchSize = 20;
-        const allEmbeddings = [];
-
-        for (let i = 0; i < chunks.length; i += batchSize) {
-            const batch = chunks.slice(i, i + batchSize);
-            const embeddings = await generateEmbeddings(batch);
-
-            if (embeddings) {
-                allEmbeddings.push(...embeddings);
-            } else {
-                console.log(`  ⚠️ Failed batch ${i / batchSize + 1}`);
-            }
-
-            // Rate limit
-            await new Promise(r => setTimeout(r, 1000));
-        }
+        // Step 5: Generate embeddings (Gemini processes one at a time internally)
+        const allEmbeddings = await generateEmbeddings(chunks);
 
         if (allEmbeddings.length === 0) {
             console.log('  ❌ No embeddings generated');
