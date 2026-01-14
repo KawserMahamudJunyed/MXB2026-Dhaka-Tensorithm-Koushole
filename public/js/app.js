@@ -1164,8 +1164,7 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
                     title: file.name,
                     file_type: getFileType(file.type, file.name),
                     file_size_bytes: file.size,
-                    file_url: publicUrl,
-                    index_status: 'processing'
+                    file_url: publicUrl
                 })
                 .select()
                 .single();
@@ -1189,10 +1188,10 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
                 const result = await response.json();
                 if (result.success) {
                     console.log(`✅ Extracted ${result.chapters?.length || 0} chapters`);
-                    // Update index_status to done
+                    // Update is_processed to true
                     await window.supabaseClient
                         .from('library_books')
-                        .update({ index_status: 'done' })
+                        .update({ is_processed: true })
                         .eq('id', insertedBook.id);
                 } else {
                     console.warn('Chapter extraction warning:', result.error);
