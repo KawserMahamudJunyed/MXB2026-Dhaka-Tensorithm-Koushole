@@ -836,8 +836,8 @@ async function fetchLibraryBooks() {
                 id: book.id, // Include ID for RAG chat
                 name: book.title,
                 date: new Date(book.created_at).toLocaleDateString(),
-                status: book.index_status === 'done' ? 'Ready' : 'Processing',
-                color: book.index_status === 'done' ? 'sky' : 'amber',
+                status: book.is_processed ? 'Ready' : 'Processing',
+                color: book.is_processed ? 'sky' : 'amber',
                 file_type: book.file_type || 'pdf',
                 url: book.file_url, // Pass the URL to the renderer
                 chunks_generated: book.chunks_generated || false
