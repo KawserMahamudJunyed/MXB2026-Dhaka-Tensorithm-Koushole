@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (bookPart && bookPart !== 'Full') {
             finalTitle += ` - ${bookPart}`;
         }
-        finalTitle += (version === 'English') ? ' (English Version)' : ' (Bangla Medium)';
+        finalTitle += (version === 'English') ? ' (English Medium)' : ' (Bangla Medium)';
 
         // Show Progress Bar UI
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
