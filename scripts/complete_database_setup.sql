@@ -371,14 +371,22 @@ CREATE TABLE IF NOT EXISTS badge_definitions (
     condition_value INTEGER -- e.g., 7 for 7-day streak
 );
 
--- Insert default badges (matches original database)
+-- Insert default badges (matches original database + new additions)
 INSERT INTO badge_definitions (id, name_en, name_bn, description_en, description_bn, icon, xp_reward, condition_type, condition_value) VALUES
+    -- Original badges
     ('first_quiz', 'First Step', 'প্রথম পদক্ষেপ', NULL, NULL, '🎯', 50, 'quiz_count', 1),
     ('perfect_quiz', 'Perfect Score', 'নিখুঁত স্কোর', NULL, NULL, '💯', 200, 'perfect_score', 1),
     ('streak_3', '3 Day Streak', '৩ দিনের স্ট্রিক', NULL, NULL, '🔥', 100, 'streak', 3),
     ('streak_7', 'Week Warrior', 'সাপ্তাহিক যোদ্ধা', NULL, NULL, '⚔️', 250, 'streak', 7),
     ('streak_30', 'Monthly Master', 'মাসিক মাস্টার', NULL, NULL, '👑', 1000, 'streak', 30),
-    ('topic_master', 'Topic Master', 'টপিক মাস্টার', NULL, NULL, '🏆', 500, 'mastery', 90)
+    ('topic_master', 'Topic Master', 'টপিক মাস্টার', NULL, NULL, '🏆', 500, 'mastery', 90),
+    -- New badges with emoji icons
+    ('quiz_10', '10 Quizzes', '১০ কুইজ', NULL, NULL, '📚', 75, 'quiz_count', 10),
+    ('quiz_50', 'Quiz Expert', 'কুইজ বিশেষজ্ঞ', NULL, NULL, '🧠', 300, 'quiz_count', 50),
+    ('quiz_100', 'Quiz Legend', 'কুইজ কিংবদন্তি', NULL, NULL, '⭐', 500, 'quiz_count', 100),
+    ('xp_500', 'XP Hunter', 'এক্সপি শিকারী', NULL, NULL, '💎', 50, 'xp_total', 500),
+    ('xp_2000', 'XP Master', 'এক্সপি মাস্টার', NULL, NULL, '💰', 150, 'xp_total', 2000),
+    ('xp_5000', 'XP Legend', 'এক্সপি কিংবদন্তি', NULL, NULL, '🌟', 400, 'xp_total', 5000)
 ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE badge_definitions ENABLE ROW LEVEL SECURITY;
