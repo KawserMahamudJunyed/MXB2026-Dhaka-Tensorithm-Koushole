@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS official_resources (
     title_bn TEXT, -- Bangla title
     subject TEXT NOT NULL,
     class TEXT NOT NULL,
+    class_level TEXT, -- For admin.js compatibility
     subject_group TEXT NOT NULL DEFAULT 'general',
     version TEXT NOT NULL DEFAULT 'english',
     part TEXT, -- 'Part 1', 'Part 2', etc.
