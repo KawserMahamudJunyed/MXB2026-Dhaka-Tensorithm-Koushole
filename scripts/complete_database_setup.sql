@@ -26,14 +26,19 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- PART 2: CORE TABLES
 -- =====================================================
 
--- PROFILES TABLE (User data)
+-- PROFILES TABLE (User data - matches original schema)
 CREATE TABLE IF NOT EXISTS profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT,
     full_name TEXT,
+    full_name_bn TEXT,
+    nickname TEXT,
+    nickname_bn TEXT,
+    class TEXT DEFAULT '10',
+    group_name TEXT DEFAULT 'Science',
     avatar_url TEXT,
     education_level TEXT CHECK (education_level IN ('school', 'college', 'university')),
-    class TEXT,
     subject_group TEXT,
     university_name TEXT,
     department TEXT,
@@ -46,9 +51,9 @@ CREATE TABLE IF NOT EXISTS profiles (
 );
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- LEARNING STATS TABLE
 CREATE TABLE IF NOT EXISTS learning_stats (
@@ -319,7 +324,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email)
+    INSERT INTO public.profiles (user_id, email)
     VALUES (NEW.id, NEW.email);
     RETURN NEW;
 END;
@@ -338,18 +343,18 @@ DECLARE
     current_streak INTEGER;
 BEGIN
     SELECT last_activity_date, streak_count INTO last_date, current_streak
-    FROM profiles WHERE id = p_user_id;
+    FROM profiles WHERE user_id = p_user_id;
     
     IF last_date = CURRENT_DATE - INTERVAL '1 day' THEN
         UPDATE profiles SET 
             streak_count = current_streak + 1,
             last_activity_date = CURRENT_DATE
-        WHERE id = p_user_id;
+        WHERE user_id = p_user_id;
     ELSIF last_date != CURRENT_DATE THEN
         UPDATE profiles SET 
             streak_count = 1,
             last_activity_date = CURRENT_DATE
-        WHERE id = p_user_id;
+        WHERE user_id = p_user_id;
     END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
