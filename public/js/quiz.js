@@ -446,8 +446,7 @@ ${accuracy > 80 ? '- Include some CHALLENGING questions' : ''}`;
 - Random Seed: ${randomSeed} (use this to ensure variety)
 - Each question MUST be different and unique
 - Cover DIFFERENT concepts within the topic
-- For MATH/PHYSICS/CHEMISTRY: Use LaTeX format for equations wrapped in $ signs
-  Examples: $F = ma$, $E = mc^2$, $\\frac{a}{b}$, $\\sqrt{x}$, $x^2 + y^2 = z^2$
+- For MATH: Use Unicode symbols (π, ², ³, √) NOT LaTeX. Examples: A = πr², E = mc², x² + y² = z²
 - ${langInstruction}
 
 Mix these question types EVENLY:
@@ -472,11 +471,18 @@ Return ONLY a valid JSON array with ${questionCount} questions. Structure:
 }`;
 
     try {
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 sec timeout
+
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: promptContext }] }] })
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptContext }] }] }),
+            signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         const data = await response.json();
 
@@ -505,7 +511,14 @@ Return ONLY a valid JSON array with ${questionCount} questions. Structure:
 
     } catch (error) {
         console.error("API Error:", error);
-        alert("AI generation failed or key missing. Loading offline backup.");
+
+        // Show appropriate error message
+        if (error.name === 'AbortError') {
+            alert("Quiz generation timed out. Using offline questions instead.");
+        } else {
+            alert("AI generation failed. Loading offline backup.");
+        }
+
         loadMockQuestions();
 
         currentQuestionIndex = 0;
