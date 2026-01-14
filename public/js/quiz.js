@@ -951,3 +951,14 @@ function nextQuestion() {
     currentQuestionIndex++;
     renderQuestion();
 }
+
+// Expose functions to global scope for inline onclick handlers
+window.openQuizConfig = openQuizConfig;
+window.closeQuizConfig = closeQuizConfig;
+window.startCustomQuiz = startCustomQuiz;
+window.checkAnswer = checkAnswer;
+window.nextQuestion = nextQuestion;
+window.selectMatch = selectMatch;
+window.addToOrder = addToOrder;
+window.resetOrder = resetOrder;
+window.handleQuestionCountChange = handleQuestionCountChange;
