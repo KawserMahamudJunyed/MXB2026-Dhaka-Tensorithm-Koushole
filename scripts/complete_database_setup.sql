@@ -469,7 +469,7 @@ CREATE TABLE IF NOT EXISTS subject_translations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     subject_en TEXT NOT NULL,
     subject_bn TEXT NOT NULL,
-    category TEXT, -- 'science', 'arts', 'commerce'
+    category TEXT, -- 'science', 'humanities', 'business_studies'
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(subject_en)
 );
@@ -480,12 +480,12 @@ INSERT INTO subject_translations (subject_en, subject_bn, category) VALUES
     ('Biology', 'জীববিজ্ঞান', 'science'),
     ('Mathematics', 'গণিত', 'science'),
     ('Higher Mathematics', 'উচ্চতর গণিত', 'science'),
-    ('English', 'ইংরেজি', 'arts'),
-    ('Bangla', 'বাংলা', 'arts'),
-    ('History', 'ইতিহাস', 'arts'),
-    ('Geography', 'ভূগোল', 'arts'),
-    ('Economics', 'অর্থনীতি', 'commerce'),
-    ('Accounting', 'হিসাববিজ্ঞান', 'commerce'),
+    ('English', 'ইংরেজি', 'humanities'),
+    ('Bangla', 'বাংলা', 'humanities'),
+    ('History', 'ইতিহাস', 'humanities'),
+    ('Geography', 'ভূগোল', 'humanities'),
+    ('Economics', 'অর্থনীতি', 'business_studies'),
+    ('Accounting', 'হিসাববিজ্ঞান', 'business_studies'),
     ('ICT', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'science'),
     ('General Science', 'সাধারণ বিজ্ঞান', 'science')
 ON CONFLICT (subject_en) DO NOTHING;
