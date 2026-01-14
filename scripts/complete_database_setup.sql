@@ -469,7 +469,7 @@ CREATE TABLE IF NOT EXISTS subject_translations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     subject_en TEXT NOT NULL,
     subject_bn TEXT NOT NULL,
-    category TEXT, -- 'science', 'humanities', 'business_studies'
+    category TEXT, -- 'general', 'science', 'humanities', 'business_studies'
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(subject_en)
 );
@@ -478,16 +478,18 @@ INSERT INTO subject_translations (subject_en, subject_bn, category) VALUES
     ('Physics', 'পদার্থবিজ্ঞান', 'science'),
     ('Chemistry', 'রসায়ন', 'science'),
     ('Biology', 'জীববিজ্ঞান', 'science'),
-    ('Mathematics', 'গণিত', 'science'),
+    ('Mathematics', 'গণিত', 'general'),
     ('Higher Mathematics', 'উচ্চতর গণিত', 'science'),
-    ('English', 'ইংরেজি', 'humanities'),
-    ('Bangla', 'বাংলা', 'humanities'),
+    ('English', 'ইংরেজি', 'general'),
+    ('Bangla', 'বাংলা', 'general'),
     ('History', 'ইতিহাস', 'humanities'),
     ('Geography', 'ভূগোল', 'humanities'),
     ('Economics', 'অর্থনীতি', 'business_studies'),
     ('Accounting', 'হিসাববিজ্ঞান', 'business_studies'),
-    ('ICT', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'science'),
-    ('General Science', 'সাধারণ বিজ্ঞান', 'science')
+    ('ICT', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'general'),
+    ('General Science', 'সাধারণ বিজ্ঞান', 'general'),
+    ('Bangladesh & Global Studies', 'বাংলাদেশ ও বিশ্বপরিচয়', 'general'),
+    ('Religion', 'ধর্ম ও নৈতিক শিক্ষা', 'general')
 ON CONFLICT (subject_en) DO NOTHING;
 
 ALTER TABLE subject_translations ENABLE ROW LEVEL SECURITY;
