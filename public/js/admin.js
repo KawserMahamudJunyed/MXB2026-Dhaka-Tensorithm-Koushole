@@ -287,7 +287,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .insert({
                     title: finalTitle,
                     subject: subject,
+                    class: classLevel,
                     class_level: classLevel,
+                    subject_group: group || 'general',
+                    part: (bookPart && bookPart !== 'Full') ? bookPart : null,
                     file_url: publicUrl,
                     cover_url: null,
                     uploaded_by: userEmail,
