@@ -10,9 +10,14 @@
 import { createClient } from '@supabase/supabase-js';
 import 'dotenv/config';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const API_BASE = process.env.API_BASE || 'https://koushole.vercel.app';
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('❌ Missing SUPABASE_URL or SUPABASE_SERVICE_KEY in .env');
+    process.exit(1);
+}
 
 // Delay between books to avoid rate limits
 const DELAY_BETWEEN_BOOKS = 10000; // 10 seconds

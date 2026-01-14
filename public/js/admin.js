@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const fileName = `${classLevel}_${safeSubject}_${Date.now()}.${fileExt}`;
 
             // Build Upload URL
-            const SUPABASE_URL = window.supabaseClient.supabaseUrl || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
+            const SUPABASE_URL = window.supabaseClient.supabaseUrl;
             const uploadUrl = `${SUPABASE_URL}/storage/v1/object/official-books/${fileName}`;
 
             console.log("📤 Uploading to:", uploadUrl);

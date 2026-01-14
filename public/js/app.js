@@ -1105,7 +1105,7 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
             const accessToken = session.access_token;
 
             // Build Supabase Storage URL
-            const SUPABASE_URL = window.supabaseClient.supabaseUrl || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
+            const SUPABASE_URL = window.supabaseClient.supabaseUrl;
             const bucketName = 'books';
             const filePath = `${user.id}/${safeName}`;
             const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucketName}/${filePath}`;

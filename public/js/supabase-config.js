@@ -1,8 +1,10 @@
 // Supabase Configuration (Non-Module Version)
 // This file uses the global 'supabase' object loaded from CDN
 
-const SUPABASE_URL = 'https://mocbdqgvsunbxmrnllbr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY2JkcWd2c3VuYnhtcm5sbGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxNzU4ODgsImV4cCI6MjA4Mjc1MTg4OH0.kluKPXb0QCeReZUiD1xjV7U7c3zKYmt76qx0OXYYtrg';
+// ⚠️ IMPORTANT: Update these values with YOUR Supabase project credentials!
+// Get these from: Supabase Dashboard → Settings → API
+const SUPABASE_URL = 'https://rtruhlmukfhnytohbgrf.supabase.co';        // ← YOUR_SUPABASE_URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0cnVobG11a2Zobnl0b2hiZ3JmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzODYzMjIsImV4cCI6MjA4Mzk2MjMyMn0.-PuJ7PHiHt8XJ1UJ8gaa_IKt-t2vmOSFih4L5EhB8Tk';  // ← YOUR_SUPABASE_ANON_KEY
 
 console.log("🔌 Supabase Config Loading...");
 console.log("📍 URL:", SUPABASE_URL);

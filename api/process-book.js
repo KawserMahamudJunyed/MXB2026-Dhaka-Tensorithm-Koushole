@@ -66,8 +66,12 @@ export default async function handler(req, res) {
 
     // Initialize clients
     const groqApiKey = process.env.GROQ_API_KEY;
-    const supabaseUrl = process.env.SUPABASE_URL || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
+    const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl) {
+        return res.status(500).json({ error: 'SUPABASE_URL not configured' });
+    }
 
     if (!groqApiKey) {
         return res.status(500).json({ error: 'GROQ_API_KEY not configured' });

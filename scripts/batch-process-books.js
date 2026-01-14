@@ -14,8 +14,13 @@ import { createClient } from '@supabase/supabase-js';
 import 'dotenv/config';
 
 // Configuration
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://mocbdqgvsunbxmrnllbr.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('❌ Missing SUPABASE_URL or SUPABASE_SERVICE_KEY in .env');
+    process.exit(1);
+}
 
 // Use deployed Vercel URL - update this to your actual deployment URL
 const API_BASE = process.env.API_BASE || 'https://koushole.vercel.app';

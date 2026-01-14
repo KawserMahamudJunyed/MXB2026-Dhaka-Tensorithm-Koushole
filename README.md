@@ -17,21 +17,28 @@
 
 Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effective, open-source processing pipeline.
 
+> 💡 **Customizable**: All AI components can be swapped with your preferred tools. The architecture is modular!
+
 ### Core AI Components
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
 | **Chat Tutor** | Llama 4 Scout (Groq) | Socratic teaching method |
 | **Quiz Generator** | Llama 4 Scout (Groq) | Infinite practice questions |
-| **OCR Processing** | Surya OCR (Google Colab) | Best Bangla text extraction |
-| **Embeddings** | Voyage AI (voyage-multilingual-2) | Semantic search for RAG |
+| **Image Generator** | FLUX.1-dev (HuggingFace) | Scientific diagrams on-demand |
+| **Batch OCR** | Surya OCR (Google Colab) | High-accuracy Bangla extraction for official books |
+| **Instant OCR** | Gemini 2.0 Flash | Real-time OCR for user library uploads |
+| **Embeddings** | Voyage AI (voyage-multilingual-2) | Semantic search for RAG (1024-dim) |
 | **Database** | Supabase + pgvector | Vector storage & auth |
+
+> 🚀 **Coming Soon**: Our own dedicated processing API for automatic book processing!
 
 ### RAG Pipeline (Retrieval-Augmented Generation)
 
 ```
-📚 Book Upload → 🔮 Surya OCR (Colab) → 📦 Text Chunking → 🔢 Voyage AI Embeddings → 💾 Supabase
-                                                                                           ↓
+📚 Official Books → 🔮 Surya OCR (Colab - Manual) → 📦 Chunking → 🔢 Voyage AI → 💾 Supabase
+📖 User Library → ⚡ Gemini OCR (Instant) → 📦 Chunking → 🔢 Voyage AI → 💾 Supabase
+                                                                              ↓
 🧑‍🎓 Student Query → 🔍 Vector Search → 📖 Relevant Context → 🤖 Llama 4 → 💬 AI Response
 ```
 
@@ -78,9 +85,11 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
 
 ### Prerequisites
 - Node.js (v18+)
-- Supabase Account (Mumbai region recommended for Bangladesh)
+- [Supabase Account](https://supabase.com) (Mumbai region for Bangladesh)
 - [Groq API Key](https://console.groq.com) (free)
 - [Voyage AI API Key](https://dash.voyageai.com) (50M free tokens/month)
+- [HuggingFace API Key](https://huggingface.co/settings/tokens) (for FLUX images)
+- [Google AI API Key](https://aistudio.google.com) (optional, for Gemini OCR)
 
 ### Installation
 
@@ -95,17 +104,30 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
    npm install
    ```
 
-3. **Environment Configuration**
-   Create a `.env` file:
+3. **Backend Environment (.env file)**
+   Create a `.env` file in root:
    ```env
-   SUPABASE_URL=your_supabase_url
+   # Required
+   SUPABASE_URL=https://your-project.supabase.co
    SUPABASE_ANON_KEY=your_anon_key
    SUPABASE_SERVICE_KEY=your_service_key
    GROQ_API_KEY=your_groq_key
    VOYAGE_API_KEY=your_voyage_key
+   
+   # Optional
+   HF_API_KEY=your_huggingface_key        # For FLUX image generation
+   GEMINI_API_KEY=your_gemini_key         # For Gemini OCR (legacy)
    ```
 
-4. **Run Locally**
+4. **Frontend Configuration**
+   Edit `public/js/supabase-config.js`:
+   ```javascript
+   const SUPABASE_URL = 'https://your-project.supabase.co';  // ← Update this
+   const SUPABASE_ANON_KEY = 'your_anon_key';                // ← Update this
+   ```
+   > ⚠️ **Note**: Frontend runs in browser and cannot access .env files
+
+5. **Run Locally**
    ```bash
    npm run dev
    ```
@@ -176,15 +198,16 @@ Books need to be processed for the AI chat to work. We use **Google Colab** (fre
 
 ## 🛠️ Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| **Frontend** | Vanilla JS, Tailwind CSS |
-| **Backend** | Supabase (Auth, DB, Storage) |
-| **Deployment** | Vercel Serverless Functions |
-| **LLM** | Llama 4 Scout (Groq) |
-| **Embeddings** | Voyage AI (voyage-multilingual-2, 1024-dim) |
-| **OCR** | Surya OCR (Google Colab) |
-| **Vector DB** | pgvector (Supabase) |
+| Component | Technology | Free Tier |
+|-----------|------------|----------|
+| **Frontend** | Vanilla JS, Tailwind CSS | ✅ |
+| **Backend** | Supabase (Auth, DB, Storage) | 500MB DB, 5GB egress |
+| **Deployment** | Vercel Serverless Functions | 100GB bandwidth |
+| **LLM** | Llama 4 Scout (Groq) | 30 req/min |
+| **Embeddings** | Voyage AI (voyage-multilingual-2) | 50M tokens/month |
+| **Image Gen** | FLUX.1-dev (HuggingFace) | Limited |
+| **OCR** | Surya OCR (Google Colab T4) | Free GPU |
+| **Vector DB** | pgvector (Supabase) | Included |
 
 ---
 
@@ -250,6 +273,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - **Voyage AI** for multilingual embeddings
 - **Supabase** for backend infrastructure
 - **Google Colab** for free GPU access
+- **HuggingFace** for FLUX image models
+- **Black Forest Labs** for FLUX.1-dev
 
 ---
 
