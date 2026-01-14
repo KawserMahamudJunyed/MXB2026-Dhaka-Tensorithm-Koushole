@@ -487,7 +487,7 @@ INSERT INTO subject_translations (subject_en, subject_bn, category) VALUES
     ('Economics', 'অর্থনীতি', 'business_studies'),
     ('Accounting', 'হিসাববিজ্ঞান', 'business_studies'),
     ('ICT', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'general'),
-    ('General Science', 'সাধারণ বিজ্ঞান', 'general'),
+    ('Science', 'বিজ্ঞান', 'general'),
     ('Bangladesh & Global Studies', 'বাংলাদেশ ও বিশ্বপরিচয়', 'general'),
     ('Religion', 'ধর্ম ও নৈতিক শিক্ষা', 'general')
 ON CONFLICT (subject_en) DO NOTHING;
