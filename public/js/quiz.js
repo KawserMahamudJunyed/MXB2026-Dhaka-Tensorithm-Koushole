@@ -1,9 +1,42 @@
 // --- IMMEDIATE GLOBAL EXPORTS ---
-// These are placeholder stubs that get overwritten by the full implementations below.
-// Keep these minimal to prevent bugs if the full implementations fail to load.
+// These must be defined FIRST to prevent "undefined" errors on button clicks
+// Even if later parts of the script fail, these core functions will work
 
-window.openQuizConfig = function () { console.warn('openQuizConfig not yet loaded'); };
-window.closeQuizConfig = function () { console.warn('closeQuizConfig not yet loaded'); };
+window.openQuizConfig = function (bookName, presetSubject, presetTopic, bookId, sourceType) {
+    // Set global state for book context
+    if (typeof currentQuizContext !== 'undefined') {
+        currentQuizContext = bookName ? 'Book' : 'General';
+        currentBookName = bookName || '';
+        currentBookId = bookId || null;
+        currentBookSourceType = sourceType || 'library';
+    }
+
+    const modal = document.getElementById('quiz-setup-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        const subjectSelect = document.getElementById('config-subject');
+        const questionCount = document.getElementById('config-question-count');
+        if (subjectSelect) subjectSelect.selectedIndex = 0;
+        if (questionCount) questionCount.value = '10';
+        const customCount = document.getElementById('config-custom-count');
+        if (customCount) {
+            customCount.classList.add('hidden');
+            customCount.value = '';
+        }
+        // Set modal title if book
+        const modalTitle = document.getElementById('modal-book-title');
+        if (modalTitle && bookName) {
+            modalTitle.innerText = `Source: ${bookName}`;
+        }
+    }
+};
+
+window.closeQuizConfig = function () {
+    const modal = document.getElementById('quiz-setup-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+};
 
 // --- QUIZ STATE ---
 let currentQuizQuestions = [];
