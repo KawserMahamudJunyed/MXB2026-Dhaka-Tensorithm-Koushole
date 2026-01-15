@@ -76,11 +76,14 @@ async function loadUserData(userId) {
         // Always fetch auth user to get email
         const { data: { user } } = await window.supabaseClient.auth.getUser();
 
+        // Helper to get name from email
+        const getNameFromEmail = () => user?.email ? user.email.split('@')[0] : 'Student';
+
         if (profile) {
             userProfile = {
-                name: profile.full_name,
+                name: profile.full_name || getNameFromEmail(),
                 nameBn: profile.full_name_bn,
-                nickname: profile.nickname,
+                nickname: profile.nickname || (profile.full_name ? profile.full_name.split(' ')[0] : getNameFromEmail()),
                 nicknameBn: profile.nickname_bn,
                 class: profile.class,
                 group: profile.group_name || profile.group, // Attempt fallback if column name differs
@@ -90,6 +93,11 @@ async function loadUserData(userId) {
         } else {
             // Use auth metadata as fallback
             userProfile = user?.user_metadata || {};
+            // Force name if metadata missing
+            if (!userProfile.name && !userProfile.full_name) {
+                userProfile.name = getNameFromEmail();
+                userProfile.nickname = userProfile.name;
+            }
             userProfile.email = user?.email;
         }
 
