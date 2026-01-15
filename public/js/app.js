@@ -1900,6 +1900,18 @@ function updateUI() {
     setTxt('profile-class', translateClass(userProfile.class));
     setTxt('profile-group', translateSubject(userProfile.group));
 
+    // Dynamic Label for Group/Department
+    const groupLabel = document.getElementById('profile-group-label');
+    if (groupLabel) {
+        const isUni = userProfile.class === 'University' || String(userProfile.class).includes('University') || String(userProfile.class).includes('বিশ্ববিদ্যালয়');
+        if (isUni) {
+            groupLabel.innerText = currentLang === 'bn' ? 'ডিপার্টমেন্ট' : 'Department';
+        } else {
+            // Default is Group, but strictly set it in case it was changed
+            groupLabel.innerText = currentLang === 'bn' ? 'গ্রুপ' : 'Group';
+        }
+    }
+
     // Save for Quiz Config usage
     if (userProfile.group) localStorage.setItem('userGroup', userProfile.group);
     if (userProfile.class) localStorage.setItem('userClass', userProfile.class);
