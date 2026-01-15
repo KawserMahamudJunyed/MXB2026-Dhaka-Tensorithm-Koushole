@@ -551,7 +551,10 @@ body.lang-bn .body-font {
 }
 
 /* High Contrast Selection */
+/* High Contrast Selection */
 ::selection {
-    background: #F59E0B;
-    color: #000000;
+    background: #111827;
+    /* Dark Black/Gray */
+    color: #FFFFFF;
+    /* White Text */
 }
