@@ -450,20 +450,25 @@ async function handleAuth(e) {
 
             console.log("Signup Successful. User:", user);
 
-            // Create profile row in profiles table
+            // Create profile row in profiles table (Use UPSERT to avoid trigger conflict)
             if (user) {
+                const profileData = {
+                    user_id: user.id,
+                    email: email,
+                    full_name: data.name,
+                    full_name_bn: data.nameBn,
+                    nickname: data.nickname,
+                    nickname_bn: data.nicknameBn,
+                    class: data.classLevel,
+                    group_name: finalGroup,
+                    // Map fields for schema completeness
+                    education_level: data.classLevel,
+                    department: data.classLevel === 'University' ? finalGroup : null
+                };
+
                 const { error: profileError } = await window.supabaseClient
                     .from('profiles')
-                    .insert({
-                        user_id: user.id,
-                        email: email,
-                        full_name: data.name,
-                        full_name_bn: data.nameBn,
-                        nickname: data.nickname,
-                        nickname_bn: data.nicknameBn,
-                        class: data.classLevel,
-                        group_name: finalGroup
-                    });
+                    .upsert(profileData, { onConflict: 'user_id' });
 
                 if (profileError) {
                     console.error("Profile insert error:", profileError);
