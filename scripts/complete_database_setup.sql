@@ -174,17 +174,15 @@ CREATE POLICY "Anyone can view official resources" ON official_resources FOR SEL
 CREATE POLICY "Authenticated can insert" ON official_resources FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 CREATE POLICY "Authenticated can update" ON official_resources FOR UPDATE USING (auth.uid() IS NOT NULL);
 
--- BOOK CHAPTERS TABLE
+-- BOOK CHAPTERS TABLE (For ToC extraction)
 CREATE TABLE IF NOT EXISTS book_chapters (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     library_book_id UUID REFERENCES library_books(id) ON DELETE CASCADE,
     resource_id UUID REFERENCES official_resources(id) ON DELETE CASCADE,
     chapter_number INTEGER DEFAULT 0,
-    title_en TEXT,
-    title_bn TEXT,
-    page_start INTEGER,
-    page_end INTEGER,
-    content_extracted BOOLEAN DEFAULT FALSE,
+    title VARCHAR,           -- Chapter title (extracted from ToC)
+    start_page INTEGER,      -- Page where chapter starts
+    end_page INTEGER,        -- Page where chapter ends (optional)
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -604,5 +602,25 @@ CREATE TRIGGER set_title_bn
 --
 -- To verify installation:
 -- SELECT * FROM pg_extension WHERE extname = 'vector';
--- SELECT COUNT(*) FROM badge_definitions; -- Should be 9
+-- SELECT COUNT(*) FROM badge_definitions; -- Should be 12
 -- =====================================================
+
+-- =====================================================
+-- OPTIONAL: RESET COMMANDS (For Re-Processing Books)
+-- =====================================================
+-- Uncomment and run these if you need to re-process books
+
+-- Reset ALL official books (Warning: Deletes all chunks!)
+-- DELETE FROM book_chunks WHERE resource_id IS NOT NULL;
+-- DELETE FROM book_chapters WHERE resource_id IS NOT NULL;
+-- UPDATE official_resources SET chunks_generated = FALSE, is_processed = FALSE;
+
+-- Reset ALL library books (Warning: Deletes all chunks!)
+-- DELETE FROM book_chunks WHERE library_book_id IS NOT NULL;
+-- DELETE FROM book_chapters WHERE library_book_id IS NOT NULL;
+-- UPDATE library_books SET chunks_generated = FALSE, is_processed = FALSE;
+
+-- Reset a specific book by title (Recommended):
+-- UPDATE official_resources 
+-- SET chunks_generated = FALSE, is_processed = FALSE 
+-- WHERE title ILIKE '%Physics%';

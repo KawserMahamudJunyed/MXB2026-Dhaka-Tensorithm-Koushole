@@ -31,9 +31,12 @@ let currentQuestionIndex = 0;
 let selectedDifficulty = 'Medium';
 let currentQuizContext = 'General'; // 'General' or 'Book'
 let currentBookName = '';
+let currentBookId = null;           // UUID of the book for RAG queries
+let currentBookSourceType = 'library'; // 'library' or 'official'
 let currentQuizScore = 0;
 let selectedQuestionCount = 10; // Default question count
 let recentQuestions = []; // Track recent questions to avoid repetition
+
 
 let matchState = {
     selectedItem: null, // { side: 'left'|'right', index: number, elementId: string }
@@ -305,9 +308,11 @@ function updateChapters() {
     }
 }
 
-async function openQuizConfig(bookName = null, presetSubject = null, presetTopic = null) {
+async function openQuizConfig(bookName = null, presetSubject = null, presetTopic = null, bookId = null, sourceType = 'library') {
     currentQuizContext = bookName ? 'Book' : 'General';
     currentBookName = bookName || '';
+    currentBookId = bookId;
+    currentBookSourceType = sourceType;
 
     const modalTitle = document.getElementById('modal-book-title');
     const subjectSelect = document.getElementById('config-subject');
@@ -476,10 +481,52 @@ async function startCustomQuiz() {
     const totalQuizzes = userMemory?.total_quizzes || 0;
 
     let promptContext = "";
-    if (currentQuizContext === 'Book') {
-        promptContext = `Generate ${questionCount} UNIQUE quiz questions based on book "${currentBookName}". Focus on "${topic}".`;
+    let bookContext = "";
+    let useHybridMode = false;
+
+    // Check if we have book content for RAG-enhanced quiz generation
+    if (currentQuizContext === 'Book' && currentBookId) {
+        try {
+            // Fetch relevant book chunks for context (60:40 hybrid mode)
+            const { data: chunks, error } = await window.supabaseClient
+                .from('book_chunks')
+                .select('chunk_text')
+                .eq(currentBookSourceType === 'library' ? 'library_book_id' : 'resource_id', currentBookId)
+                .limit(5);
+
+            if (!error && chunks && chunks.length > 0) {
+                useHybridMode = true;
+                bookContext = chunks.map(c => c.chunk_text).join('\n\n---\n\n');
+                const bookQuestions = Math.ceil(questionCount * 0.6); // 60% from book
+                const aiQuestions = questionCount - bookQuestions; // 40% AI-generated
+
+                promptContext = `**HYBRID QUIZ MODE (60:40 Split)**
+
+📚 BOOK CONTENT (Generate ${bookQuestions} questions from this):
+${bookContext.substring(0, 6000)}
+
+🤖 AI-GENERATED (Generate ${aiQuestions} additional questions):
+- Topic: "${topic}"
+- Subject: ${subject}
+- These should cover related concepts NOT in the book excerpts above
+- Include more advanced or broader conceptual questions
+
+TOTAL: Generate exactly ${questionCount} unique questions.
+The first ${bookQuestions} MUST be directly from the book content above.
+The remaining ${aiQuestions} should be AI-generated based on the topic.`;
+            } else {
+                // No book chunks, fall back to topic-only mode
+                promptContext = `Generate ${questionCount} UNIQUE quiz questions based on book "${currentBookName}". Focus on "${topic}".`;
+            }
+        } catch (ragError) {
+            console.warn('RAG fetch failed, using topic-only mode:', ragError);
+            promptContext = `Generate ${questionCount} UNIQUE quiz questions based on book "${currentBookName}". Focus on "${topic}".`;
+        }
     } else {
-        promptContext = `Generate ${questionCount} UNIQUE quiz questions for Subject: ${subject}, Topic: "${topic}".`;
+        // Standard quiz generation (no books, uses NCTB chapters/topics)
+        promptContext = `Generate ${questionCount} UNIQUE quiz questions for Subject: ${subject}, Topic: "${topic}".
+The topic name is based on the official NCTB curriculum chapters.
+Generate questions appropriate for Bangladeshi students studying this curriculum.`;
     }
 
     // Add student observation for personalization
@@ -501,6 +548,7 @@ ${accuracy > 80 ? '- Include some CHALLENGING questions' : ''}`;
 - Cover DIFFERENT concepts within the topic
 - For MATH: Use Unicode symbols (π, ², ³, √) NOT LaTeX. Examples: A = πr², E = mc², x² + y² = z²
 - ${langInstruction}
+${useHybridMode ? '- HYBRID MODE ACTIVE: Questions from book should reference specific facts/figures from the book content.' : ''}
 
 Mix these question types EVENLY:
 1. Multiple Choice (mcq) - most common
@@ -559,7 +607,12 @@ Return ONLY a valid JSON array with ${questionCount} questions. Structure:
         currentQuizScore = 0;
         document.getElementById('quiz-loading').classList.add('hidden');
         document.getElementById('quiz-content').classList.remove('hidden');
-        document.getElementById('quiz-topic-display').innerText = currentQuizContext === 'Book' ? currentBookName : `${subject} • ${topic}`;
+
+        // Show hybrid mode indicator
+        const modeIndicator = useHybridMode ? ' 📚' : '';
+        document.getElementById('quiz-topic-display').innerText = currentQuizContext === 'Book'
+            ? `${currentBookName}${modeIndicator}`
+            : `${subject} • ${topic}`;
         renderQuestion();
 
     } catch (error) {
@@ -582,6 +635,7 @@ Return ONLY a valid JSON array with ${questionCount} questions. Structure:
         renderQuestion();
     }
 }
+
 
 function loadMockQuestions() {
     currentQuizQuestions = [

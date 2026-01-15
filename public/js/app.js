@@ -1034,6 +1034,8 @@ function renderLibrary() {
         const isReady = book.status === "Ready";
         const statusColor = isReady ? "text-emerald" : "text-amber";
         const icon = book.color === "rose" ? "fa-file-pdf" : "fa-file-alt";
+        // Get book ID for RAG quiz queries
+        const bookId = book.dbId || null;
 
         list.innerHTML += `
         <div class="bg-surface border border-divider rounded-xl p-4 flex items-center justify-between group hover:border-amber/50 transition-colors">
@@ -1050,7 +1052,7 @@ function renderLibrary() {
                 </div>
             </div>
             <button class="w-8 h-8 rounded-full ${isReady ? 'bg-amber text-black hover:scale-110 cursor-pointer shadow-amber-glow' : 'bg-divider text-text-secondary cursor-not-allowed'} flex items-center justify-center transition-transform" 
-                onclick="${isReady ? `openQuizConfig('${book.name}')` : ''}">
+                onclick="${isReady ? `openQuizConfig('${book.name}', null, null, '${bookId}', 'library')` : ''}">
                 <i class="fas fa-play text-xs"></i>
             </button>
         </div>`;

@@ -26,7 +26,7 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
 | **Chat Tutor** | Llama 4 Scout (Groq) | Socratic teaching method |
 | **Quiz Generator** | Llama 4 Scout (Groq) | Infinite practice questions |
 | **Image Generator** | FLUX.1-dev (HuggingFace) | Scientific diagrams on-demand |
-| **Batch OCR** | Surya OCR (Google Colab) | High-accuracy Bangla extraction for official books |
+| **Batch OCR** | EasyOCR (Google Colab) | High-accuracy Bangla extraction for official books |
 | **Instant OCR** | Gemini 2.0 Flash | Real-time OCR for user library uploads |
 | **Embeddings** | Voyage AI (voyage-multilingual-2) | Semantic search for RAG (1024-dim) |
 | **Database** | Supabase + pgvector | Vector storage & auth |
@@ -36,9 +36,9 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
 ### RAG Pipeline (Retrieval-Augmented Generation)
 
 ```
-📚 Official Books → 🔮 Surya OCR (Colab - Manual) → 📦 Chunking → 🔢 Voyage AI → 💾 Supabase
+📚 Official Books → 🔮 EasyOCR (Colab) → 📦 Chunking → 🔢 Voyage AI → 💾 Supabase
 📖 User Library → ⚡ Gemini OCR (Instant) → 📦 Chunking → 🔢 Voyage AI → 💾 Supabase
-                                                                              ↓
+                                                                             ↓
 🧑‍🎓 Student Query → 🔍 Vector Search → 📖 Relevant Context → 🤖 Llama 4 → 💬 AI Response
 ```
 
@@ -52,7 +52,7 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
 | **Official NCTB 2026 Books** | Admin-uploaded textbooks aligned with the latest NCTB curriculum |
 | **RAG-Powered Chat** | Ask questions about any book with AI-powered context retrieval |
 | **Custom Library** | Upload PDFs for personalized quizzes and chat |
-| **Complete Curriculum** | Class 6-8, SSC (Class 9-10) & HSC (Class 11-12) |
+| **Complete Curriculum** | Class 6-8, SSC (Class 9-10), HSC (Class 11-12), & University |
 | **Group-Based Filtering** | Science, Business Studies, Humanities |
 
 ### 📝 Smart Assessment
@@ -62,6 +62,7 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
 | **Custom Question Count** | Choose 5-50 questions per quiz |
 | **Question Variety** | MCQ, Matching, Ordering, Fill-in-Blank |
 | **Adaptive Difficulty** | AI adjusts based on performance |
+| **Hybrid Quiz Mode** | 60% from book content + 40% AI-generated (when books available) |
 
 ### 🎮 Gamification
 | Feature | Description |
@@ -139,7 +140,7 @@ Koushole employs a sophisticated **Agentic AI Architecture** with a cost-effecti
 
 ### One-Command Setup
 
-1. Create a new Supabase project (Mumbai region for Bangladesh)
+1. Create a new Supabase project (choose nearest region to your users)
 2. Open **SQL Editor** in Supabase Dashboard
 3. Copy entire contents of [`scripts/complete_database_setup.sql`](scripts/complete_database_setup.sql)
 4. Paste and click **Run**
@@ -153,16 +154,18 @@ Go to **Storage** → **New Bucket**:
 ### Tables Created
 | Table | Description |
 |-------|-------------|
-| `profiles` | User profiles with education info |
+| `profiles` | User profiles with education info (name, nickname, class, group) |
 | `learning_stats` | Daily progress tracking |
 | `quiz_attempts` | Quiz history and scores |
 | `chat_history` | AI tutor conversations |
 | `library_books` | User uploaded books |
 | `book_chunks` | RAG chunks with 1024-dim embeddings |
+| `book_chapters` | ToC extraction with chapter titles & page numbers |
 | `official_resources` | Admin uploaded NCTB books |
 | `badge_definitions` | 12 achievement badges |
 | `user_badges` | Earned badges per user |
 | `topic_mastery` | Subject mastery tracking |
+| `bn_translations` | Bangla translations for subjects & classes |
 
 ---
 
@@ -181,10 +184,12 @@ Books need to be processed for the AI chat to work. We use **Google Colab** (fre
 ```
 1. Download PDF from Supabase Storage
 2. Convert to images (150 DPI)
-3. Surya OCR (Bangla + English)
-4. Chunk text (2000 chars, 200 overlap)
-5. Generate embeddings (Voyage AI)
-6. Store in book_chunks table
+3. EasyOCR (Bangla + English)
+4. Extract Table of Contents (ToC)
+5. Chunk text (2000 chars, 200 overlap)
+6. Link chunks to chapters
+7. Generate embeddings (Voyage AI)
+8. Store in book_chunks table
 ```
 
 ### Processing Time
@@ -194,19 +199,21 @@ Books need to be processed for the AI chat to work. We use **Google Colab** (fre
 | Medium | 100-200 | ~10 minutes |
 | Large | 200-400 | ~20 minutes |
 
+> 💡 **Tip**: You can use different OCR engines! We provide EasyOCR by default, but you can swap it for PaddleOCR, Surya OCR, or Gemini Vision based on your needs.
+
 ---
 
 ## 🛠️ Tech Stack
 
 | Component | Technology | Free Tier |
 |-----------|------------|----------|
-| **Frontend** | Vanilla JS, Tailwind CSS | ✅ |
+| **Frontend** | Vanilla JS, TailwindCSS | ✅ |
 | **Backend** | Supabase (Auth, DB, Storage) | 500MB DB, 5GB egress |
 | **Deployment** | Vercel Serverless Functions | 100GB bandwidth |
 | **LLM** | Llama 4 Scout (Groq) | 30 req/min |
 | **Embeddings** | Voyage AI (voyage-multilingual-2) | 50M tokens/month |
 | **Image Gen** | FLUX.1-dev (HuggingFace) | Limited |
-| **OCR** | Surya OCR (Google Colab T4) | Free GPU |
+| **OCR** | EasyOCR (Google Colab T4) | Free GPU |
 | **Vector DB** | pgvector (Supabase) | Included |
 
 ---
@@ -220,13 +227,14 @@ koushole-app/
 │   ├── generate.js             # Quiz generation
 │   └── rag-chat.js             # RAG-powered chat with book context
 ├── notebooks/
-│   └── koushole_rag_processor.ipynb  # Colab notebook for book processing
+│   └── koushole_rag_processor.ipynb  # Colab notebook (EasyOCR + ToC)
 ├── public/
 │   ├── index.html              # Main app
 │   ├── admin.html              # Admin panel
 │   └── js/
 │       ├── app.js              # Main app logic
 │       ├── quiz.js             # Quiz functionality
+│       ├── data.js             # Translations (EN/বাংলা)
 │       └── subjects.js         # NCTB curriculum data
 ├── scripts/
 │   └── complete_database_setup.sql  # Full DB setup (all-in-one)
@@ -275,6 +283,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - **Google Colab** for free GPU access
 - **HuggingFace** for FLUX image models
 - **Black Forest Labs** for FLUX.1-dev
+- **EasyOCR** for Bangla text extraction
 
 ---
 
