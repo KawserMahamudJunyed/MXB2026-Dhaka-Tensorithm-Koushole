@@ -552,9 +552,22 @@ body.lang-bn .body-font {
 
 /* High Contrast Selection */
 /* High Contrast Selection */
+/* High Contrast Selection - FORCE OVERRIDE */
 ::selection {
-    background: #111827;
-    /* Dark Black/Gray */
-    color: #FFFFFF;
+    background: #111827 !important;
+    /* Dark Black */
+    color: #FFFFFF !important;
     /* White Text */
+}
+
+::-moz-selection {
+    background: #111827 !important;
+    color: #FFFFFF !important;
+}
+
+/* Specific override for text inside Amber containers */
+.bg-amber ::selection,
+.bg-amber *::selection {
+    background: #000000 !important;
+    color: #FFFFFF !important;
 }
