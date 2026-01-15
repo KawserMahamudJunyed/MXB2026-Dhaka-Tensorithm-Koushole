@@ -1504,7 +1504,7 @@ async function sendMessage() {
     let bookContextLabel = '';
     if (isRagMode) {
         const selectedOption = bookContextSelect.options[bookContextSelect.selectedIndex];
-        bookContextLabel = `<div class="text-[10px] text-sky mt-1"><i class="fas fa-book"></i> ${selectedOption.text}</div>`;
+        bookContextLabel = `<div class="text-[10px] text-blue-900 font-bold mt-1 border-t border-black/10 pt-1"><i class="fas fa-book"></i> ${selectedOption.text}</div>`;
     }
 
     chatContainer.innerHTML += `
