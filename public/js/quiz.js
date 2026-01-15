@@ -1,42 +1,72 @@
 // --- IMMEDIATE GLOBAL EXPORTS ---
 // These must be defined FIRST to prevent "undefined" errors on button clicks
-// Even if later parts of the script fail, these core functions will work
-// Version: 2026-01-15-v3 (HOTFIX for openQuizConfig)
+// Version: 2026-01-15-v4 (Fixed subject/chapter loading)
 
+console.log('🎯 quiz.js loading...');
+
+// Immediate stub that works even before full script parses
+// This will be overwritten by the full async version at the end
 window.openQuizConfig = function (bookName, presetSubject, presetTopic, bookId, sourceType) {
-    // Set global state for book context
-    if (typeof currentQuizContext !== 'undefined') {
-        currentQuizContext = bookName ? 'Book' : 'General';
-        currentBookName = bookName || '';
-        currentBookId = bookId || null;
-        currentBookSourceType = sourceType || 'library';
-    }
+    console.log('📝 openQuizConfig (stub) called:', { bookName, bookId });
 
     const modal = document.getElementById('quiz-setup-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        const subjectSelect = document.getElementById('config-subject');
-        const questionCount = document.getElementById('config-question-count');
-        if (subjectSelect) subjectSelect.selectedIndex = 0;
-        if (questionCount) questionCount.value = '10';
-        const customCount = document.getElementById('config-custom-count');
-        if (customCount) {
-            customCount.classList.add('hidden');
-            customCount.value = '';
-        }
-        // Set modal title if book
-        const modalTitle = document.getElementById('modal-book-title');
-        if (modalTitle && bookName) {
-            modalTitle.innerText = `Source: ${bookName}`;
+    const subjectSelect = document.getElementById('config-subject');
+    const topicSelect = document.getElementById('config-topic');
+    const modalTitle = document.getElementById('modal-book-title');
+
+    if (!modal) {
+        console.error('❌ quiz-setup-modal not found!');
+        return;
+    }
+
+    // Show modal
+    modal.classList.remove('hidden');
+
+    // Set title
+    if (modalTitle) {
+        modalTitle.innerText = bookName ? `Source: ${bookName}` : (typeof currentLang !== 'undefined' && currentLang === 'bn' ? 'কাস্টম সেটআপ' : 'Custom Setup');
+    }
+
+    // Populate subjects using subjects.js
+    if (subjectSelect && window.getSubjects && !bookName) {
+        const userGroup = localStorage.getItem('userGroup') || 'Science';
+        const userClass = localStorage.getItem('userClass') || '9';
+        const subjects = window.getSubjects(userGroup, userClass);
+
+        subjectSelect.innerHTML = '';
+        subjects.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.innerText = name;
+            subjectSelect.appendChild(opt);
+        });
+        subjectSelect.disabled = false;
+
+        // Populate chapters for first subject
+        if (topicSelect && window.getChapters && subjects.length > 0) {
+            const chapters = window.getChapters(subjects[0], userGroup, userClass);
+            topicSelect.innerHTML = '<option value="all">All Chapters</option>';
+            if (chapters && chapters.length > 0) {
+                chapters.forEach(ch => {
+                    const opt = document.createElement('option');
+                    opt.value = ch.id;
+                    opt.innerText = (typeof currentLang !== 'undefined' && currentLang === 'bn') ? ch.bn : ch.en;
+                    topicSelect.appendChild(opt);
+                });
+            }
         }
     }
+
+    console.log('✅ Quiz modal opened with subjects');
 };
 
 window.closeQuizConfig = function () {
     const modal = document.getElementById('quiz-setup-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
+    if (modal) modal.classList.add('hidden');
+};
+
+window.startCustomQuiz = function () {
+    console.warn('⚠️ startCustomQuiz stub - full version loading...');
 };
 
 // --- QUIZ STATE ---
