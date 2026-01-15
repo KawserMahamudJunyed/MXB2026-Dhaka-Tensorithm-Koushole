@@ -592,6 +592,38 @@ CREATE TRIGGER set_title_bn
     FOR EACH ROW EXECUTE FUNCTION generate_title_bn();
 
 -- =====================================================
+-- PART 11: USER MANAGEMENT TRIGGERS (CRITICAL)
+-- =====================================================
+
+-- Function to handle new user signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- 1. Create Profile
+    INSERT INTO public.profiles (user_id, email, full_name, avatar_url, updated_at)
+    VALUES (
+        new.id,
+        new.email,
+        new.raw_user_meta_data->>'full_name',
+        new.raw_user_meta_data->>'avatar_url',
+        NOW()
+    );
+
+    -- 2. Create Initial Learning Stats
+    INSERT INTO public.learning_stats (user_id, total_xp, created_at)
+    VALUES (new.id, 0, NOW());
+
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to call the function on signup
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- =====================================================
 -- ✅ SETUP COMPLETE! Your Supabase is ready for Koushole 🚀
 -- =====================================================
 -- 

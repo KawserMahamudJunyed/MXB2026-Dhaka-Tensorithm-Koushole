@@ -740,10 +740,13 @@ function updateGreeting() {
     }
 
     // Construct greeting based on lang
+    let displayNick = nick ? String(nick).trim() : '';
+    if (!displayNick) displayNick = currentLang === 'bn' ? 'শিক্ষার্থী' : 'Student';
+
     if (currentLang === 'bn') {
-        greetingEl.innerHTML = `${greetingBn}, ${nick || 'শিক্ষার্থী'}! ${emoji}`;
+        greetingEl.innerHTML = `${greetingBn}, ${displayNick}! ${emoji}`;
     } else {
-        greetingEl.innerHTML = `${greetingEn}, ${nick || 'Student'}! ${emoji}`;
+        greetingEl.innerHTML = `${greetingEn}, ${displayNick}! ${emoji}`;
     }
 
     // Update Profile Name in View
