@@ -124,10 +124,10 @@ function setLanguage(lang) {
     const classSelect = document.querySelector('select[name="classLevel"]');
     if (classSelect) {
         const classOptions = {
-            '9': { en: 'Class 9', bn: '৯ম শ্রেণী' },
-            '10': { en: 'Class 10', bn: '১০ম শ্রেণী' },
-            '11': { en: 'Class 11', bn: '১১শ শ্রেণী' },
-            '12': { en: 'Class 12', bn: '১২শ শ্রেণী' }
+            '9': { en: 'Class 9', bn: '৯ম শ্রেণি' },
+            '10': { en: 'Class 10', bn: '১০ম শ্রেণি' },
+            '11': { en: 'Class 11', bn: '১১শ শ্রেণি' },
+            '12': { en: 'Class 12', bn: '১২শ শ্রেণি' }
         };
         classSelect.querySelectorAll('option').forEach(opt => {
             if (classOptions[opt.value]) {
