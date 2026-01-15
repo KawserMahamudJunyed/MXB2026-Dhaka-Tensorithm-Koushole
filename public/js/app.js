@@ -2245,15 +2245,36 @@ async function checkDailyReminder() {
         return;
     }
 
-    const messages = [
-        "Time to keep your streak alive! 🔥",
-        "Ready to learn something new today? 🚀",
-        "A quiz a day keeps the bad grades away! 📚",
-        "Your future self will thank you for studying today! ✨"
-    ];
-    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+    // Smart Enthusiastic Messages based on Performance
+    let message = "Ready to unlock your potential? 🚀 The best time to study is NOW!";
 
-    await createNotification('reminder', 'Study Reminder', randomMsg);
+    if (userMemory) {
+        if (userMemory.day_streak > 3) {
+            message = `🔥 incredible! Your ${userMemory.day_streak}-day streak is on fire! Don't let it cool down now!`;
+        } else if (userMemory.accuracy_percentage > 0 && userMemory.accuracy_percentage < 60) {
+            message = `💪 Mistakes are proof you are trying! Let's boost that ${userMemory.accuracy_percentage}% accuracy together!`;
+        } else if (userMemory.total_xp > 1000) {
+            message = `🏆 You're an XP Legend! Come back and break your own record!`;
+        } else if (userMemory.last_quiz_date) {
+            const daysSince = Math.floor((now - new Date(userMemory.last_quiz_date).getTime()) / (1000 * 60 * 60 * 24));
+            if (daysSince > 1) {
+                message = `👀 We miss you! It's been ${daysSince} days. Your brain is craving a challenge!`;
+            }
+        }
+    }
+
+    // Fallback variability
+    if (message.includes("unlock")) {
+        const alts = [
+            "🧠 Curiosity is the engine of achievement. Fuel it now!",
+            "⚡ It's been 6 hours... The perfect time to recharge your brain cells!",
+            "🌟 Success is the sum of small efforts repeated daily. One quiz?",
+            "📅 High time for high scores! Jump back in!"
+        ];
+        message = alts[Math.floor(Math.random() * alts.length)];
+    }
+
+    await createNotification('reminder', '⚡ Study Boost', message);
 
     localStorage.setItem('last_reminder_timestamp', now.toString());
 }
