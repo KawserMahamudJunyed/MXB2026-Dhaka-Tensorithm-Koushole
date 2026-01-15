@@ -425,6 +425,8 @@ async function handleAuth(e) {
                 } else {
                     finalGroup = data.department;
                 }
+            } else if (['6', '7', '8'].includes(data.classLevel)) {
+                finalGroup = null; // Junior classes have no group
             }
 
             // Supabase Sign Up - Storing metadata is CRITICAL for the nickname requirement

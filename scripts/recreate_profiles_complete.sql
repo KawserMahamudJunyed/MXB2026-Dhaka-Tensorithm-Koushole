@@ -27,7 +27,7 @@ CREATE TABLE public.profiles (
     
     -- Education Details
     class TEXT DEFAULT '10',
-    group_name TEXT DEFAULT 'Science',
+    group_name TEXT, -- Valid for 9-10, 11-12, Uni. Null for 6-8.
     -- "group" TEXT, -- Removed to avoid ambiguity. App uses group_name.
     education_level TEXT,
     subject_group TEXT,
