@@ -1,29 +1,9 @@
 // --- IMMEDIATE GLOBAL EXPORTS ---
-// These must be defined FIRST to prevent "undefined" errors on button clicks
-// Even if later parts of the script fail, these core functions will work
+// These are placeholder stubs that get overwritten by the full implementations below.
+// Keep these minimal to prevent bugs if the full implementations fail to load.
 
-window.openQuizConfig = function () {
-    const modal = document.getElementById('quiz-setup-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        const subjectSelect = document.getElementById('config-subject');
-        const questionCount = document.getElementById('config-question-count');
-        if (subjectSelect) subjectSelect.selectedIndex = 0;
-        if (questionCount) questionCount.value = '10';
-        const customCount = document.getElementById('config-custom-count');
-        if (customCount) {
-            customCount.classList.add('hidden');
-            customCount.value = '';
-        }
-    }
-};
-
-window.closeQuizConfig = function () {
-    const modal = document.getElementById('quiz-setup-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-};
+window.openQuizConfig = function () { console.warn('openQuizConfig not yet loaded'); };
+window.closeQuizConfig = function () { console.warn('closeQuizConfig not yet loaded'); };
 
 // --- QUIZ STATE ---
 let currentQuizQuestions = [];
@@ -36,7 +16,6 @@ let currentBookSourceType = 'library'; // 'library' or 'official'
 let currentQuizScore = 0;
 let selectedQuestionCount = 10; // Default question count
 let recentQuestions = []; // Track recent questions to avoid repetition
-
 
 let matchState = {
     selectedItem: null, // { side: 'left'|'right', index: number, elementId: string }
@@ -58,31 +37,6 @@ const matchColors = [
     'border-pink-400'
 ];
 
-// --- QUIZ CONFIG MODAL HANDLERS ---
-function openQuizConfig() {
-    const modal = document.getElementById('quiz-setup-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        // Reset to default values
-        const subjectSelect = document.getElementById('config-subject');
-        const questionCount = document.getElementById('config-question-count');
-        if (subjectSelect) subjectSelect.selectedIndex = 0;
-        if (questionCount) questionCount.value = '10';
-        // Clear custom count
-        const customCount = document.getElementById('config-custom-count');
-        if (customCount) {
-            customCount.classList.add('hidden');
-            customCount.value = '';
-        }
-    }
-}
-
-function closeQuizConfig() {
-    const modal = document.getElementById('quiz-setup-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-}
 
 // --- QUESTION COUNT HANDLER ---
 function handleQuestionCountChange() {
@@ -135,7 +89,7 @@ async function saveQuizResultsToDatabase(earnedXP, accuracyPercent) {
                 topic: topic,
                 difficulty: selectedDifficulty || 'Medium',
                 score_percentage: accuracyPercent,
-                correct_count: currentQuizScore,
+                correct_answers: currentQuizScore,
                 total_questions: currentQuizQuestions.length,
                 xp_earned: earnedXP
             });

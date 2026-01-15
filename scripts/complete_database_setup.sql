@@ -55,17 +55,20 @@ CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.ui
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- LEARNING STATS TABLE
+-- LEARNING STATS TABLE (Aggregated per-user)
 CREATE TABLE IF NOT EXISTS learning_stats (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    subject TEXT NOT NULL,
-    chapter TEXT,
-    total_questions INTEGER DEFAULT 0,
-    correct_answers INTEGER DEFAULT 0,
-    xp_earned INTEGER DEFAULT 0,
-    date DATE DEFAULT CURRENT_DATE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    total_xp INTEGER DEFAULT 0,
+    accuracy_percentage INTEGER DEFAULT 0,
+    total_quizzes_completed INTEGER DEFAULT 0,
+    total_questions_answered INTEGER DEFAULT 0,
+    total_correct_answers INTEGER DEFAULT 0,
+    day_streak INTEGER DEFAULT 0,
+    longest_streak INTEGER DEFAULT 0,
+    last_quiz_date DATE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE learning_stats ENABLE ROW LEVEL SECURITY;
@@ -73,12 +76,13 @@ CREATE POLICY "Users can view own stats" ON learning_stats FOR SELECT USING (aut
 CREATE POLICY "Users can insert own stats" ON learning_stats FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own stats" ON learning_stats FOR UPDATE USING (auth.uid() = user_id);
 
--- QUIZ ATTEMPTS TABLE
+-- QUIZ ATTEMPTS TABLE (History of all quiz attempts)
 CREATE TABLE IF NOT EXISTS quiz_attempts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     subject TEXT NOT NULL,
-    chapter TEXT,
+    topic TEXT,                    -- Chapter or topic name
+    difficulty TEXT DEFAULT 'Medium',
     total_questions INTEGER NOT NULL,
     correct_answers INTEGER NOT NULL,
     score_percentage DECIMAL(5,2),
@@ -86,6 +90,9 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
     time_taken_seconds INTEGER,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Index for faster queries by date
+CREATE INDEX IF NOT EXISTS quiz_attempts_user_date_idx ON quiz_attempts(user_id, created_at DESC);
 
 ALTER TABLE quiz_attempts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own attempts" ON quiz_attempts FOR SELECT USING (auth.uid() = user_id);
