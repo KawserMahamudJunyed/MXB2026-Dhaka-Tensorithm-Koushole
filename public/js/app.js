@@ -768,19 +768,22 @@ function updateGreeting() {
         }
 
         if (isUniversity) {
-            const dept = group || (currentLang === 'bn' ? 'বিভাগ নির্বাচন করা হয়নি' : 'No Dept Selected');
+            const deptTranslated = translateSubject(group) || (currentLang === 'bn' ? 'বিভাগ নির্বাচন করা হয়নি' : 'No Dept Selected');
             const uniLabel = currentLang === 'bn' ? 'বিশ্ববিদ্যালয়' : 'University';
             const suffix = currentLang === 'bn' ? 'ডিপার্টমেন্ট' : 'Department';
-            profileGroup.innerText = `${uniLabel} • ${dept} ${suffix}`;
+            profileGroup.innerText = `${uniLabel} • ${deptTranslated} ${suffix}`;
         } else if (isJunior) {
             // Class 6-8: No group needed
-            profileGroup.innerText = currentLang === 'bn' ? `শ্রেণি ${cls}` : `Class ${cls}`;
+            const clsTranslated = translateClass(cls);
+            profileGroup.innerText = currentLang === 'bn' ? `${clsTranslated} শ্রেণি` : `Class ${cls}`;
         } else {
             // Class 9-12: Show group
-            const displayGroup = group || (currentLang === 'bn' ? 'গ্রুপ নির্বাচন করা হয়নি' : 'No Group');
-            const clsLabel = currentLang === 'bn' ? 'শ্রেণি' : 'Class';
-            const suffix = currentLang === 'bn' ? 'গ্রুপ' : 'Group';
-            profileGroup.innerText = `${clsLabel} ${cls} • ${displayGroup} ${suffix}`;
+            const clsTranslated = translateClass(cls);
+            const groupTranslated = translateSubject(group) || (currentLang === 'bn' ? 'গ্রুপ নির্বাচন করা হয়নি' : 'No Group');
+            const suffix = currentLang === 'bn' ? 'বিভাগ' : 'Group';
+            profileGroup.innerText = currentLang === 'bn'
+                ? `${clsTranslated} শ্রেণি • ${groupTranslated} ${suffix}`
+                : `Class ${cls} • ${group || 'No Group'} ${suffix}`;
         }
     }
 }

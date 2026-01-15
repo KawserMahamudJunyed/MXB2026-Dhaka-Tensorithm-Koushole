@@ -19,6 +19,41 @@ function localNum(num) {
     return toBanglaNum(num);
 }
 
+// Helper to translate class numbers to Bangla ordinals
+function translateClass(cls) {
+    if (currentLang !== 'bn') return cls;
+    const classMap = {
+        '6': '৬ষ্ঠ', '7': '৭ম', '8': '৮ম',
+        '9': '৯ম', '10': '১০ম', '11': '১১শ', '12': '১২শ',
+        'University': 'বিশ্ববিদ্যালয়'
+    };
+    return classMap[String(cls).trim()] || toBanglaNum(cls);
+}
+
+// Helper to translate subjects/groups to Bangla
+function translateSubject(subject) {
+    if (currentLang !== 'bn' || !subject) return subject;
+    const subjectMap = {
+        'Science': 'বিজ্ঞান',
+        'Humanities': 'মানবিক',
+        'Business Studies': 'ব্যবসায় শিক্ষা',
+        'Mathematics': 'গণিত',
+        'Physics': 'পদার্থবিজ্ঞান',
+        'Chemistry': 'রসায়ন',
+        'Biology': 'জীববিজ্ঞান',
+        'English': 'ইংরেজি',
+        'Economics': 'অর্থনীতি',
+        'Accounting': 'হিসাববিজ্ঞান',
+        'CSE': 'কম্পিউটার সায়েন্স',
+        'EEE': 'ইলেকট্রিক্যাল ইঞ্জিনিয়ারিং',
+        'BBA': 'বিবিএ',
+        'Law': 'আইন',
+        'Medical': 'মেডিকেল',
+        'MBBS': 'এমবিবিএস'
+    };
+    return subjectMap[subject] || subject;
+}
+
 // --- THEME LOGIC ---
 function syncThemeIcons() {
     const html = document.documentElement;
