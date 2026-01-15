@@ -676,8 +676,12 @@ function populatePersonalDetails() {
     setField('profile-nickname-en', userProfile.nickname);
     setField('profile-nickname-bn', userProfile.nicknameBn);
     setField('profile-email', userProfile.email);
-    setField('profile-class', userProfile.class);
-    setField('profile-group', userProfile.group || userProfile.department);
+
+    // Translate class and group for Bangla display
+    const displayClass = translateClass(userProfile.class);
+    const displayGroup = translateSubject(userProfile.group || userProfile.department);
+    setField('profile-class', displayClass);
+    setField('profile-group', displayGroup);
 
     // Hide group row for Class 6-8 (no groups for these classes)
     const groupRow = document.getElementById('profile-group-row');
@@ -1875,8 +1879,10 @@ function updateUI() {
     setTxt('profile-nickname-en', userProfile.nickname);
     setTxt('profile-nickname-bn', userProfile.nicknameBn);
     setTxt('profile-email', userProfile.email || '-');
-    setTxt('profile-class', userProfile.class);
-    setTxt('profile-group', userProfile.group);
+
+    // Translate class and group for Bangla display
+    setTxt('profile-class', translateClass(userProfile.class));
+    setTxt('profile-group', translateSubject(userProfile.group));
 
     // Save for Quiz Config usage
     if (userProfile.group) localStorage.setItem('userGroup', userProfile.group);
