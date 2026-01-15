@@ -382,7 +382,7 @@ async function openQuizConfig(bookName = null, presetSubject = null, presetTopic
                 try {
                     const { data: chapters } = await window.supabaseClient
                         .from('book_chapters')
-                        .select('id, chapter_number, title_en, title_bn')
+                        .select('id, chapter_number, title')
                         .eq('library_book_id', bookId)
                         .order('chapter_number');
 
@@ -390,9 +390,7 @@ async function openQuizConfig(bookName = null, presetSubject = null, presetTopic
                         chapters.forEach(chap => {
                             const opt = document.createElement('option');
                             opt.value = chap.id;
-                            opt.innerText = currentLang === 'bn' ?
-                                (chap.title_bn || chap.title_en) :
-                                (chap.title_en || chap.title_bn);
+                            opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
                             topicSelect.appendChild(opt);
                         });
                     } else {
@@ -401,14 +399,53 @@ async function openQuizConfig(bookName = null, presetSubject = null, presetTopic
                 } catch (e) {
                     console.warn('Could not fetch book chapters:', e);
                 }
-            } else if (window.getChapters) {
-                const chapters = window.getChapters(subjectValue, userGroup, userClass);
-                chapters.forEach(chap => {
-                    const opt = document.createElement('option');
-                    opt.value = chap.id;
-                    opt.innerText = currentLang === 'bn' ? chap.bn : chap.en;
-                    topicSelect.appendChild(opt);
-                });
+            } else {
+                // For regular subjects: First check if there's an official resource with chapters in DB
+                let dbChaptersFound = false;
+
+                try {
+                    // Find official resource matching this subject and class
+                    const { data: resources } = await window.supabaseClient
+                        .from('official_resources')
+                        .select('id, chapters_extracted')
+                        .eq('subject', subjectValue)
+                        .eq('class', userClass)
+                        .limit(1);
+
+                    if (resources && resources.length > 0 && resources[0].chapters_extracted > 0) {
+                        // Fetch chapters from database
+                        const { data: chapters } = await window.supabaseClient
+                            .from('book_chapters')
+                            .select('id, chapter_number, title')
+                            .eq('resource_id', resources[0].id)
+                            .order('chapter_number');
+
+                        if (chapters && chapters.length > 0) {
+                            dbChaptersFound = true;
+                            chapters.forEach(chap => {
+                                const opt = document.createElement('option');
+                                opt.value = chap.id;
+                                opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
+                                topicSelect.appendChild(opt);
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch official book chapters:', e);
+                }
+
+                // Fallback to predefined chapters from subjects.js
+                if (!dbChaptersFound && window.getChapters) {
+                    const chapters = window.getChapters(subjectValue, userGroup, userClass);
+                    if (chapters && chapters.length > 0) {
+                        chapters.forEach(chap => {
+                            const opt = document.createElement('option');
+                            opt.value = chap.id;
+                            opt.innerText = currentLang === 'bn' ? chap.bn : chap.en;
+                            topicSelect.appendChild(opt);
+                        });
+                    }
+                }
             }
         }
 
@@ -511,9 +548,21 @@ The remaining ${aiQuestions} should be AI-generated based on the topic.`;
         }
     } else {
         // Standard quiz generation (no books, uses NCTB chapters/topics)
-        promptContext = `Generate ${questionCount} UNIQUE quiz questions for Subject: ${subject}, Topic: "${topic}".
-The topic name is based on the official NCTB curriculum chapters.
-Generate questions appropriate for Bangladeshi students studying this curriculum.`;
+        promptContext = `Generate ${questionCount} UNIQUE quiz questions.
+
+**STRICT SUBJECT REQUIREMENT:**
+- Subject: "${subject}" 
+- Chapter/Topic: "${topic}"
+- ALL ${questionCount} questions MUST be about "${subject}" ONLY
+- Do NOT include questions from other subjects
+- This is for Bangladeshi NCTB curriculum
+
+For example:
+- If subject is "Physics", ask about motion, energy, electricity, etc.
+- If subject is "Bangla 1st Paper", ask about literature, poems, prose, etc.
+- If subject is "Mathematics", ask about algebra, geometry, calculus, etc.
+
+NEVER mix subjects. Every single question must be relevant to "${subject}".`;
     }
 
     // Add student observation for personalization
@@ -528,14 +577,26 @@ ${accuracy > 80 ? '- Include some CHALLENGING questions' : ''}`;
         promptContext += `\n- Weak Areas: ${userMemory.weaknesses.join(', ')}. Include 2-3 questions targeting these.`;
     }
 
-    promptContext += `\n\nIMPORTANT:
+    promptContext += `\n\n**CRITICAL RULES:**
 - Difficulty: ${selectedDifficulty}
 - Random Seed: ${randomSeed} (use this to ensure variety)
 - Each question MUST be different and unique
-- Cover DIFFERENT concepts within the topic
-- For MATH: Use Unicode symbols (π, ², ³, √) NOT LaTeX. Examples: A = πr², E = mc², x² + y² = z²
+- ALL questions MUST be about "${subject}" - no exceptions!
+- You can use your knowledge and training data to create accurate questions about this subject
 - ${langInstruction}
-${useHybridMode ? '- HYBRID MODE ACTIVE: Questions from book should reference specific facts/figures from the book content.' : ''}
+${useHybridMode ? '- HYBRID MODE: 60% from book content, 40% from your knowledge about the topic.' : '- 100% AI MODE: Use your training knowledge to create accurate, curriculum-relevant questions.'}
+
+**FORMATTING (Very Important):**
+- CHEMISTRY: Use Unicode subscripts for formulas
+  ✓ H₂O (water), CO₂ (carbon dioxide), H₂SO₄ (sulfuric acid), NaCl, CH₄
+  ✗ H2O, CO2, H2SO4 (WRONG)
+- MATH: Use Unicode superscripts for powers/exponents
+  ✓ a², x³, r², πr², E=mc², (a+b)²
+  ✗ a^2, x^3, a2 (WRONG)
+- PHYSICS: Combine both as needed
+  ✓ v² = u² + 2as, F = ma, PV = nRT
+- Use these Unicode characters: ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁰ (superscript) and ₀ ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉ (subscript)
+- Other symbols: π (pi), √ (sqrt), × (multiply), ÷ (divide), ° (degree), Δ (delta)
 
 Mix these question types EVENLY:
 1. Multiple Choice (mcq) - most common
