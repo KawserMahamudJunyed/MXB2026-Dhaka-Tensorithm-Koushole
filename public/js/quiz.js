@@ -1,6 +1,7 @@
 // --- IMMEDIATE GLOBAL EXPORTS ---
 // These must be defined FIRST to prevent "undefined" errors on button clicks
 // Even if later parts of the script fail, these core functions will work
+// Version: 2026-01-15-v3 (HOTFIX for openQuizConfig)
 
 window.openQuizConfig = function (bookName, presetSubject, presetTopic, bookId, sourceType) {
     // Set global state for book context
