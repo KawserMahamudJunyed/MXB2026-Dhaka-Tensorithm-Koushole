@@ -118,17 +118,32 @@ async function fetchOfficialResources() {
                     classLabel = `শ্রেণি ${toBanglaNum(book.class_level)}`;
                 }
 
+                // Escape title for onclick
+                const safeTitle = displayTitle.replace(/'/g, "\\'");
+
                 return `
-                <div class="flex items-center gap-4 bg-surface p-3 rounded-xl border border-divider hover:border-amber/50 transition-colors group cursor-pointer" onclick="window.open('${book.file_url}', '_blank')">
-                    <div class="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center text-amber text-lg shrink-0 group-hover:scale-110 transition-transform">
+                <div class="flex items-center gap-4 bg-surface p-3 rounded-xl border border-divider hover:border-amber/50 transition-colors group">
+                    <div class="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center text-amber text-lg shrink-0 group-hover:scale-110 transition-transform cursor-pointer" onclick="openQuizConfig('${safeTitle}', null, null, '${book.id}', 'official')">
                         <i class="fas fa-book"></i>
                     </div>
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 cursor-pointer" onclick="openQuizConfig('${safeTitle}', null, null, '${book.id}', 'official')">
                         <h4 class="text-text-primary font-bold text-sm" title="${displayTitle}">${displayTitle}</h4>
                         <p class="text-text-secondary text-xs">${displaySubject} • ${classLabel}</p>
                     </div>
-                    <div class="w-8 h-8 rounded-full bg-surface border border-divider flex items-center justify-center text-text-secondary group-hover:text-amber group-hover:border-amber transition-all">
-                        <i class="fas fa-external-link-alt text-xs"></i>
+                    <div class="flex items-center gap-2">
+                         <!-- Quiz Button -->
+                        <button onclick="openQuizConfig('${safeTitle}', null, null, '${book.id}', 'official')" 
+                                class="w-8 h-8 rounded-full bg-amber/10 text-amber hover:bg-amber hover:text-black transition-all flex items-center justify-center shadow-sm" 
+                                title="Take Quiz">
+                            <i class="fas fa-play text-xs"></i>
+                        </button>
+                        
+                        <!-- Read Button -->
+                        <button onclick="window.open('${book.file_url}', '_blank')" 
+                                class="w-8 h-8 rounded-full bg-surface border border-divider text-text-secondary hover:border-emerald hover:text-emerald transition-all flex items-center justify-center" 
+                                title="Read Book">
+                            <i class="fas fa-external-link-alt text-xs"></i>
+                        </button>
                     </div>
                 </div>`;
             }).join('');
