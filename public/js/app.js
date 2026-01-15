@@ -769,16 +769,18 @@ function updateGreeting() {
 
         if (isUniversity) {
             const dept = group || (currentLang === 'bn' ? 'বিভাগ নির্বাচন করা হয়নি' : 'No Dept Selected');
+            const uniLabel = currentLang === 'bn' ? 'বিশ্ববিদ্যালয়' : 'University';
             const suffix = currentLang === 'bn' ? 'ডিপার্টমেন্ট' : 'Department';
-            profileGroup.innerText = `${cls} • ${dept} ${suffix}`;
+            profileGroup.innerText = `${uniLabel} • ${dept} ${suffix}`;
         } else if (isJunior) {
             // Class 6-8: No group needed
             profileGroup.innerText = currentLang === 'bn' ? `শ্রেণি ${cls}` : `Class ${cls}`;
         } else {
             // Class 9-12: Show group
             const displayGroup = group || (currentLang === 'bn' ? 'গ্রুপ নির্বাচন করা হয়নি' : 'No Group');
+            const clsLabel = currentLang === 'bn' ? 'শ্রেণি' : 'Class';
             const suffix = currentLang === 'bn' ? 'গ্রুপ' : 'Group';
-            profileGroup.innerText = `Class ${cls} • ${displayGroup} ${suffix}`;
+            profileGroup.innerText = `${clsLabel} ${cls} • ${displayGroup} ${suffix}`;
         }
     }
 }
@@ -1883,7 +1885,7 @@ function updateUI() {
                 `<span class="px-2 py-1 rounded-full bg-rose/10 text-rose text-xs border border-rose/30">${w}</span>`
             ).join(' ');
         } else {
-            weaknessCloud.innerHTML = '<span class="text-xs text-text-secondary italic">Keep learning to discover focus areas!</span>';
+            weaknessCloud.innerHTML = `<span class="text-xs text-text-secondary italic">${t('noFocusAreas')}</span>`;
         }
     }
 
@@ -1893,7 +1895,7 @@ function updateUI() {
         if (userMemory.badges && userMemory.badges.length > 0) {
             badgesContainer.innerHTML = userMemory.badges.map(b => renderBadge(b)).join('');
         } else {
-            badgesContainer.innerHTML = '<span class="text-xs text-text-secondary italic">Earn badges by completing quizzes!</span>';
+            badgesContainer.innerHTML = `<span class="text-xs text-text-secondary italic">${t('earnBadgesEmpty')}</span>`;
         }
     }
 
