@@ -929,8 +929,26 @@ async function populateChatBookContext(libraryBooks) {
     try {
         if (window.supabaseClient) {
             // Get user's class and group (same logic as fetchOfficialResources.js)
-            let userClass = localStorage.getItem('userClass') || '10';
+            // Robust User Class Detection (Priority: LocalStorage -> User Metadata -> DB Profile -> Default)
+            let userClass = localStorage.getItem('userClass');
             let userGroup = localStorage.getItem('userGroup') || 'Science';
+
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
+
+            if (!userClass && user) {
+                userClass = user.user_metadata?.class;
+            }
+
+            if (!userClass && user) {
+                const { data: profile } = await window.supabaseClient
+                    .from('profiles')
+                    .select('class')
+                    .eq('user_id', user.id)
+                    .single();
+                if (profile) userClass = profile.class;
+            }
+
+            if (!userClass) userClass = '10'; // Default
 
             // Determine target classes (e.g. "9" also matches "9-10")
             let targetClasses = [userClass];
@@ -942,7 +960,7 @@ async function populateChatBookContext(libraryBooks) {
 
             const { data: officialBooks } = await window.supabaseClient
                 .from('official_resources')
-                .select('id, title, title_bn, subject, class_level') // chunks_generated might be missing
+                .select('id, title, title_bn, subject, class_level')
                 .in('class_level', targetClasses)
                 .eq('version', targetVersion)
                 .order('title', { ascending: true });
