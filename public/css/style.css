@@ -553,21 +553,27 @@ body.lang-bn .body-font {
 /* High Contrast Selection */
 /* High Contrast Selection */
 /* High Contrast Selection - FORCE OVERRIDE */
+/* Global Selection - Default Amber */
 ::selection {
-    background: #111827 !important;
-    /* Dark Black */
-    color: #FFFFFF !important;
-    /* White Text */
+    background: #F59E0B;
+    /* Amber */
+    color: #000000;
+    /* Black Text */
 }
 
 ::-moz-selection {
-    background: #111827 !important;
+    background: #F59E0B;
+    color: #000000;
+}
+
+/* Specific override for text inside Amber containers - FORCE BLACK */
+.bg-amber ::selection,
+.bg-amber *::selection {
+    background: #000000 !important;
     color: #FFFFFF !important;
 }
 
-/* Specific override for text inside Amber containers */
-.bg-amber ::selection,
-.bg-amber *::selection {
+.bg-amber::-moz-selection {
     background: #000000 !important;
     color: #FFFFFF !important;
 }
