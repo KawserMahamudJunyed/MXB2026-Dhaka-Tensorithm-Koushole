@@ -102,6 +102,15 @@ BEGIN
     VALUES (new.id, 0, NOW())
     ON CONFLICT (user_id) DO NOTHING;
 
+    -- Send Welcome Notification 🚀
+    INSERT INTO public.notifications (user_id, type, title, message)
+    VALUES (
+        new.id, 
+        'system', 
+        'Welcome to Koushole! 🎓', 
+        'We are excited to have you here! Start by setting up your profile or taking your first quiz to earn a badge.'
+    );
+
     RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
