@@ -844,8 +844,13 @@ async function fetchLibraryBooks() {
         }
 
         if (data && data.length > 0) {
-            // Filter out books with null URLs (failed uploads or old fake data)
-            const validBooks = data.filter(book => book.file_url && book.file_url.startsWith('http'));
+            // Debug: Log all books before filtering
+            console.log('📚 Library books before filter:', data.map(b => ({ id: b.id, title: b.title, file_url: b.file_url?.substring(0, 50) })));
+
+            // Filter out books with null URLs (accept both http/https and relative paths)
+            const validBooks = data.filter(book => book.file_url && (book.file_url.startsWith('http') || book.file_url.startsWith('/')));
+
+            console.log('📚 Valid library books after filter:', validBooks.length);
 
             if (validBooks.length === 0) {
                 // Show empty state if all were invalid
@@ -857,6 +862,8 @@ async function fetchLibraryBooks() {
                          <p data-key="noBooksYet">No books uploaded yet. Upload a book above to get started!</p>
                      </div>`;
                 }
+                // STILL populate chat selector with official books
+                populateChatBookContext([]);
                 return;
             }
 

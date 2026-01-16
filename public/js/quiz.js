@@ -1096,7 +1096,7 @@ function nextQuestion() {
 }
 
 // Expose functions to global scope for inline onclick handlers
-window.openQuizConfig = openQuizConfig;
+// Note: openQuizConfig is already assigned to window at line 320
 window.closeQuizConfig = closeQuizConfig;
 window.startCustomQuiz = startCustomQuiz;
 window.checkAnswer = checkAnswer;
