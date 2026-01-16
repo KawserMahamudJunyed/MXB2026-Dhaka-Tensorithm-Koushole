@@ -879,6 +879,9 @@ async function fetchLibraryBooks() {
             }));
             renderLibrary();
 
+            // Expose to window for language switch access (utils.js)
+            window.libraryBooks = validBooks;
+
             // Populate chat book context selector for RAG
             populateChatBookContext(validBooks);
         } else {
