@@ -561,8 +561,8 @@ NEVER mix subjects. Every single question must be relevant to "${subject}".`;
 ${accuracy < 60 ? '- Focus on EASIER questions with more hints' : ''}
 ${accuracy > 80 ? '- Include some CHALLENGING questions' : ''}`;
 
-    if (userMemory.weaknesses && userMemory.weaknesses.length > 0) {
-        promptContext += `\n- Weak Areas: ${userMemory.weaknesses.join(', ')}. Include 2-3 questions targeting these.`;
+    if (window.userMemory?.weaknesses && window.userMemory.weaknesses.length > 0) {
+        promptContext += `\n- Weak Areas: ${window.userMemory.weaknesses.join(', ')}. Include 2-3 questions targeting these.`;
     }
 
     promptContext += `\n\n**CRITICAL RULES:**
@@ -1072,14 +1072,14 @@ function checkAnswer(type, selectedIdx = null) {
         currentQuizScore++;
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 }, colors: ['#10B981'] });
         document.getElementById('quiz-progress').style.width = `${((currentQuestionIndex + 1) / currentQuizQuestions.length) * 100}%`;
-        if (userMemory.weaknesses.includes(q.topic)) {
-            userMemory.weaknesses = userMemory.weaknesses.filter(w => w !== q.topic);
+        if (window.userMemory?.weaknesses?.includes(q.topic)) {
+            window.userMemory.weaknesses = window.userMemory.weaknesses.filter(w => w !== q.topic);
             saveMemory();
         }
         setTimeout(() => document.getElementById('feedback-area').classList.remove('hidden'), 500);
     } else {
-        if (q.topic && !userMemory.weaknesses.includes(q.topic)) {
-            userMemory.weaknesses.push(q.topic);
+        if (q.topic && window.userMemory?.weaknesses && !window.userMemory.weaknesses.includes(q.topic)) {
+            window.userMemory.weaknesses.push(q.topic);
             saveMemory();
         }
 
