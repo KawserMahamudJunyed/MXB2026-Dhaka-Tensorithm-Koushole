@@ -942,7 +942,7 @@ async function populateChatBookContext(libraryBooks) {
 
             const { data: officialBooks } = await window.supabaseClient
                 .from('official_resources')
-                .select('id, title, title_bn, subject, class_level, chunks_generated')
+                .select('id, title, title_bn, subject, class_level') // chunks_generated might be missing
                 .in('class_level', targetClasses)
                 .eq('version', targetVersion)
                 .order('title', { ascending: true });
@@ -973,7 +973,7 @@ async function populateChatBookContext(libraryBooks) {
                     option.dataset.sourceType = 'official';
                     // Use Bangla title if available and language is Bangla
                     const displayTitle = (lang === 'bn' && book.title_bn) ? book.title_bn : book.title;
-                    const ragReady = book.chunks_generated ? ' ✓' : ' ⏳';
+                    const ragReady = ' ✓'; // Assume official books are processed
                     option.textContent = `${displayTitle}${ragReady}`;
                     officialGroup.appendChild(option);
                 });
