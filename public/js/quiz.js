@@ -480,7 +480,7 @@ async function startCustomQuiz() {
     const topic = document.getElementById('config-topic').value || "General";
     const questionCount = getSelectedQuestionCount();
 
-    const langInstruction = currentLang === 'bn'
+    const langInstruction = window.currentLang === 'bn'
         ? "Output questions entirely in Bangla language, BUT use English digits (0-9) for all numbers. Do not use Bangla numerals."
         : "Output in English.";
 
@@ -488,22 +488,22 @@ async function startCustomQuiz() {
     const randomSeed = Math.floor(Math.random() * 10000);
 
     // Get student performance for personalization
-    const streak = userMemory?.day_streak || 0;
-    const accuracy = userMemory?.accuracy || 50;
-    const totalQuizzes = userMemory?.total_quizzes || 0;
+    const streak = window.userMemory?.day_streak || 0;
+    const accuracy = window.userMemory?.accuracy || 50;
+    const totalQuizzes = window.userMemory?.total_quizzes || 0;
 
     let promptContext = "";
     let bookContext = "";
     let useHybridMode = false;
 
     // Check if we have book content for RAG-enhanced quiz generation
-    if (currentQuizContext === 'Book' && currentBookId) {
+    if (window.currentQuizContext === 'Book' && window.currentBookId) {
         try {
             // Fetch relevant book chunks for context (60:40 hybrid mode)
             const { data: chunks, error } = await window.supabaseClient
                 .from('book_chunks')
                 .select('chunk_text')
-                .eq(currentBookSourceType === 'library' ? 'library_book_id' : 'resource_id', currentBookId)
+                .eq(window.currentBookSourceType === 'library' ? 'library_book_id' : 'resource_id', window.currentBookId)
                 .limit(5);
 
             if (!error && chunks && chunks.length > 0) {
@@ -528,11 +528,11 @@ The first ${bookQuestions} MUST be directly from the book content above.
 The remaining ${aiQuestions} should be AI-generated based on the topic.`;
             } else {
                 // No book chunks, fall back to topic-only mode
-                promptContext = `Generate ${questionCount} UNIQUE quiz questions based on book "${currentBookName}". Focus on "${topic}".`;
+                promptContext = `Generate ${questionCount} UNIQUE quiz questions based on book "${window.currentBookName}". Focus on "${topic}".`;
             }
         } catch (ragError) {
             console.warn('RAG fetch failed, using topic-only mode:', ragError);
-            promptContext = `Generate ${questionCount} UNIQUE quiz questions based on book "${currentBookName}". Focus on "${topic}".`;
+            promptContext = `Generate ${questionCount} UNIQUE quiz questions based on book "${window.currentBookName}". Focus on "${topic}".`;
         }
     } else {
         // Standard quiz generation (no books, uses NCTB chapters/topics)

@@ -18,6 +18,7 @@ const DEFAULT_STATS = {
 
 // Global Memory Objects
 let userMemory = JSON.parse(JSON.stringify(DEFAULT_STATS));
+window.userMemory = userMemory; // Expose for quiz.js
 
 // Wait for Supabase client to be ready then set up auth listener
 function waitForSupabase(callback, maxWait = 5000) {
