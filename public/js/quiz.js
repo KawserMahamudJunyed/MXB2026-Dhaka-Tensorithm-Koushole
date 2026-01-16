@@ -282,7 +282,7 @@ async function checkAndAwardBadges(userId, quizCount, streak, lastScore) {
                 .update({ badges: newBadges })
                 .eq('user_id', userId);
 
-            userMemory.badges = newBadges;
+            window.userMemory.badges = newBadges;
             console.log("✅ Badges updated:", newBadges);
         }
 
@@ -308,12 +308,23 @@ function updateChapters() {
     const topicSelect = document.getElementById('config-topic');
     topicSelect.innerHTML = '';
 
-    if (subjectChapters[subject]) {
-        subjectChapters[subject].forEach(chapter => {
-            topicSelect.innerHTML += `<option value="${chapter}">${chapter}</option>`;
-        });
+    // Use window.getChapters from subjects.js instead of undefined subjectChapters
+    const userGroup = localStorage.getItem('userGroup') || 'Science';
+    const userClass = localStorage.getItem('userClass') || '9';
+
+    if (window.getChapters) {
+        const chapters = window.getChapters(subject, userGroup, userClass);
+        topicSelect.innerHTML = '<option value="all">All Chapters</option>';
+        if (chapters && chapters.length > 0) {
+            chapters.forEach(ch => {
+                const opt = document.createElement('option');
+                opt.value = ch.id;
+                opt.innerText = (typeof currentLang !== 'undefined' && currentLang === 'bn') ? ch.bn : ch.en;
+                topicSelect.appendChild(opt);
+            });
+        }
     } else {
-        topicSelect.innerHTML = `<option value="General">General Review</option>`;
+        topicSelect.innerHTML = '<option value="General">General Review</option>';
     }
 }
 
