@@ -1730,7 +1730,10 @@ async function initLearningChart() {
         welcomeOverlay.classList.remove('hidden');
     }
 
-    learningChart = new Chart(ctx, {
+    if (window.learningChart instanceof Chart) {
+        window.learningChart.destroy();
+    }
+    window.learningChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: chartData.labels,

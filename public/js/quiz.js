@@ -317,7 +317,7 @@ function updateChapters() {
     }
 }
 
-async function openQuizConfig(bookName = null, presetSubject = null, presetTopic = null, bookId = null, sourceType = 'library') {
+window.openQuizConfig = async function (bookName = null, presetSubject = null, presetTopic = null, bookId = null, sourceType = 'library') {
     currentQuizContext = bookName ? 'Book' : 'General';
     currentBookName = bookName || '';
     currentBookId = bookId;
