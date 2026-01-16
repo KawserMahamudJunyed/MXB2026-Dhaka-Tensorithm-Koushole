@@ -355,6 +355,10 @@ window.openQuizConfig = async function (bookName = null, presetSubject = null, p
 
     // Function to populate chapters for selected subject
     async function populateChapters(subjectValue) {
+        // Get user class and group from localStorage
+        const userClass = localStorage.getItem('userClass') || '9';
+        const userGroup = localStorage.getItem('userGroup') || 'Science';
+
         topicSelect.innerHTML = `<option value="all">${currentLang === 'bn' ? 'সব অধ্যায়' : 'All Chapters'}</option>`;
 
         // CASE 1: Library Book
