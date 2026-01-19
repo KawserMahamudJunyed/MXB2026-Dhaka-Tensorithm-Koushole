@@ -1,4 +1,26 @@
-// --- QUIZ STATE ---
+// ============================================================
+// 🚨 IMMEDIATE GLOBAL EXPORTS - Define BEFORE anything else
+// These stubs ensure functions exist even if script partially fails
+// ============================================================
+window.openQuizConfig = window.openQuizConfig || function () {
+    console.log('⏳ openQuizConfig stub called - full script still loading...');
+    const modal = document.getElementById('quiz-setup-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    } else {
+        alert('Quiz is loading, please wait a moment and try again.');
+    }
+};
+
+window.closeQuizConfig = window.closeQuizConfig || function () {
+    const modal = document.getElementById('quiz-setup-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.startCustomQuiz = window.startCustomQuiz || function () {
+    console.log('⏳ startCustomQuiz stub called - full script still loading...');
+    alert('Quiz is still loading. Please wait a moment.');
+};
 
 // --- QUIZ STATE ---
 let currentQuizQuestions = [];
