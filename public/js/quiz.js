@@ -926,10 +926,11 @@ function selectMatch(side, idx) {
     // Use consistent dark background for both matched items
     const colorClass = matchColors[matchState.colorIndex % matchColors.length];
 
+    // Use bg-midnight for consistent dark background on all matched pairs
     const firstBtn = document.getElementById(firstItem.elementId);
-    firstBtn.className = `match-item w-full p-3 rounded-lg text-sm font-bold mb-2 text-${firstItem.side === 'left' ? 'left' : 'right'} transition-all relative match-paired bg-surface/80 border-2 ${colorClass}`;
+    firstBtn.className = `match-item w-full p-3 rounded-lg text-sm font-bold mb-2 text-${firstItem.side === 'left' ? 'left' : 'right'} transition-all relative match-paired bg-midnight border-2 ${colorClass}`;
 
-    btn.className = `match-item w-full p-3 rounded-lg text-sm font-bold mb-2 text-${side === 'left' ? 'left' : 'right'} transition-all relative match-paired bg-surface/80 border-2 ${colorClass}`;
+    btn.className = `match-item w-full p-3 rounded-lg text-sm font-bold mb-2 text-${side === 'left' ? 'left' : 'right'} transition-all relative match-paired bg-midnight border-2 ${colorClass}`;
 
     const leftIdx = side === 'left' ? idx : firstItem.index;
     const rightIdx = side === 'right' ? idx : firstItem.index;
@@ -1022,8 +1023,11 @@ function checkAnswer(type, selectedIdx = null) {
             correctSentence = q.correctOrder.join(' ').trim();
         }
 
-        // Compare case-insensitive to be safe, though usually exact match matters
-        isCorrect = userSentence.replace(/\s+/g, ' ').toLowerCase() === correctSentence.replace(/\s+/g, ' ').toLowerCase();
+        // Normalize both answers: remove punctuation, extra spaces, and compare case-insensitively
+        const normalize = (str) => str.replace(/[,;:.!?]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+        isCorrect = normalize(userSentence) === normalize(correctSentence);
+
+        console.log('📋 Order Check:', { user: normalize(userSentence), correct: normalize(correctSentence), isCorrect });
 
         // Show feedback on words
         const dropZone = document.getElementById('order-drop-zone');
@@ -1076,10 +1080,18 @@ function checkAnswer(type, selectedIdx = null) {
             }
         }
 
-        // Show correct answer if wrong (use the actual value, not undefined field)
+        // Show clear feedback for voice/text answers
         const display = document.getElementById('quiz-answer-display');
-        if (!isCorrect && correctAns && display) {
-            display.innerHTML += `<br><span class="text-emerald text-sm">Correct: ${q.answer || q.correctAnswer}</span>`;
+        if (display) {
+            const correctAnswerDisplay = q.answer || q.correctAnswer;
+            if (isCorrect) {
+                display.innerHTML += `<br><span class="text-emerald font-bold text-lg">✅ Correct!</span>`;
+            } else {
+                display.innerHTML += `<br><span class="text-rose font-bold text-lg">❌ Wrong</span>`;
+                if (correctAnswerDisplay) {
+                    display.innerHTML += `<br><span class="text-emerald text-sm">Correct Answer: ${correctAnswerDisplay}</span>`;
+                }
+            }
         }
     }
 

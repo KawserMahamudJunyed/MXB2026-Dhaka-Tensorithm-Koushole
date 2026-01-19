@@ -53,7 +53,10 @@ waitForSupabase(() => {
             currentUserId = null;
             userMemory = JSON.parse(JSON.stringify(DEFAULT_STATS));
         }
-        checkAuth();
+        // Only change view on meaningful auth events
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+            checkAuth();
+        }
         updateUI();
     });
 });
