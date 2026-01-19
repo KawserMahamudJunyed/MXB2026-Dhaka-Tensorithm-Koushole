@@ -1013,7 +1013,7 @@ function checkAnswer(type, selectedIdx = null) {
     } else if (type === 'order') {
         // Check if order matches the correct answer
         const q = currentQuizQuestions[currentQuestionIndex];
-        const userSentence = orderedItems.join(' ').trim();
+        const userItems = orderedItems.map(item => item.toLowerCase().trim());
 
         // Handle both string answer and array correctOrder (legacy/fallback)
         let correctSentence = "";
@@ -1023,11 +1023,46 @@ function checkAnswer(type, selectedIdx = null) {
             correctSentence = q.correctOrder.join(' ').trim();
         }
 
-        // Normalize both answers: remove punctuation, extra spaces, and compare case-insensitively
-        const normalize = (str) => str.replace(/[,;:.!?]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
-        isCorrect = normalize(userSentence) === normalize(correctSentence);
+        // Normalize for comparison
+        const normalize = (str) => str.replace(/[,;:.!?=+]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+        const normalizedCorrect = normalize(correctSentence);
+        const normalizedUser = normalize(orderedItems.join(' '));
 
-        console.log('📋 Order Check:', { user: normalize(userSentence), correct: normalize(correctSentence), isCorrect });
+        // Method 1: Direct comparison (after normalization)
+        if (normalizedUser === normalizedCorrect) {
+            isCorrect = true;
+        }
+        // Method 2: Check if user's items appear in correct sequence within the answer
+        else {
+            // Get the available items from the question (what user could select)
+            const availableItems = (q.items || []).map(item => normalize(item));
+
+            // Find the expected order of available items within the correct answer
+            let expectedOrder = [];
+            for (const item of availableItems) {
+                const pos = normalizedCorrect.indexOf(item);
+                if (pos !== -1) {
+                    expectedOrder.push({ item, pos });
+                }
+            }
+            expectedOrder.sort((a, b) => a.pos - b.pos);
+            const expectedSequence = expectedOrder.map(e => e.item);
+
+            // Check if user's selection matches the expected sequence
+            const userNormalized = userItems.map(u => normalize(u));
+            if (userNormalized.length === expectedSequence.length &&
+                userNormalized.every((item, idx) => item === expectedSequence[idx])) {
+                isCorrect = true;
+            }
+        }
+
+        console.log('📋 Order Check:', {
+            userItems: orderedItems,
+            correct: correctSentence,
+            normalizedUser,
+            normalizedCorrect,
+            isCorrect
+        });
 
         // Show feedback on words
         const dropZone = document.getElementById('order-drop-zone');

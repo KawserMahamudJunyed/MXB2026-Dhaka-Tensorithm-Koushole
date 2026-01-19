@@ -518,8 +518,8 @@ const nctbCurriculum = {
 
 
 const matchColors = [
-    'border-sky-500 bg-sky-100/10 text-sky',       // Blue
-    'border-purple-500 bg-purple-100/10 text-purple-400', // Purple
-    'border-pink-500 bg-pink-100/10 text-pink-400',     // Pink
-    'border-indigo-500 bg-indigo-100/10 text-indigo-400'  // Indigo
+    'border-sky-500 text-sky-400',       // Blue
+    'border-purple-500 text-purple-400', // Purple
+    'border-pink-500 text-pink-400',     // Pink
+    'border-indigo-500 text-indigo-400'  // Indigo
 ];
