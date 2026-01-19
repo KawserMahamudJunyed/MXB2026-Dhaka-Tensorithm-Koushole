@@ -42,17 +42,7 @@ let matchState = {
 
 let orderedItems = [];
 
-// Color classes for matching pairs (border colors)
-const matchColors = [
-    'border-amber',
-    'border-sky',
-    'border-emerald',
-    'border-rose',
-    'border-violet',
-    'border-cyan',
-    'border-orange-400',
-    'border-pink-400'
-];
+// Note: matchColors is defined in data.js (loaded before this file)
 
 
 // --- QUESTION COUNT HANDLER ---
