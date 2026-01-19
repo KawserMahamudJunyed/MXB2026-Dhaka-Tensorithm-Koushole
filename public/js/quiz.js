@@ -422,10 +422,16 @@ window.openQuizConfig = async function (bookName = null, presetSubject = null, p
             const userClass = localStorage.getItem('userClass') || '9';
 
             if (window.getSubjects) {
-                const subjects = window.getSubjects(userGroup, userClass);
-                subjectSelect.innerHTML = subjects.map(s =>
-                    `<option value="${s.id}">${typeof currentLang !== 'undefined' && currentLang === 'bn' ? s.bn : s.en}</option>`
-                ).join('');
+                const subjectNames = window.getSubjects(userGroup, userClass);
+                console.log('📚 Subjects loaded:', subjectNames);
+                subjectSelect.innerHTML = subjectNames.map(subjectName => {
+                    // Get subject data for translation
+                    const subjectData = window.getSubjectData ? window.getSubjectData(subjectName, userGroup, userClass) : null;
+                    const displayName = (typeof currentLang !== 'undefined' && currentLang === 'bn' && subjectData?.bn)
+                        ? subjectData.bn
+                        : subjectName;
+                    return `<option value="${subjectName}">${displayName}</option>`;
+                }).join('');
             } else {
                 subjectSelect.innerHTML = `
                     <option value="Physics">Physics</option>
