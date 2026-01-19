@@ -271,14 +271,14 @@ function updateChapters() {
 window.openQuizConfig = async function (bookName = null, presetSubject = null, presetTopic = null, bookId = null, sourceType = 'library') {
     console.log('🎯 openQuizConfig called:', { bookName, presetSubject, presetTopic, bookId, sourceType });
 
-    try {
-        // Check if Supabase is ready
-        if (!window.supabaseClient) {
-            console.error('❌ Supabase client not initialized!');
-            alert('System not ready. Please refresh the page.');
-            return;
-        }
+    // Check if Supabase is ready
+    if (!window.supabaseClient) {
+        console.error('❌ Supabase client not initialized!');
+        alert('System not ready. Please refresh the page.');
+        return;
+    }
 
+    try {
         currentQuizContext = bookName ? 'Book' : 'General';
         currentBookName = bookName || '';
         currentBookId = bookId;
@@ -295,21 +295,117 @@ window.openQuizConfig = async function (bookName = null, presetSubject = null, p
             return;
         }
 
+        // Function to populate chapters for selected subject (defined inside for scope access)
+        async function populateChapters(subjectValue) {
+            const userClass = localStorage.getItem('userClass') || '9';
+            const userGroup = localStorage.getItem('userGroup') || 'Science';
+
+            topicSelect.innerHTML = `<option value="all">${typeof currentLang !== 'undefined' && currentLang === 'bn' ? 'সব অধ্যায়' : 'All Chapters'}</option>`;
+
+            // CASE 1: Library Book
+            if (subjectValue.startsWith('library:')) {
+                const bookIdValue = subjectValue.replace('library:', '');
+                try {
+                    const { data: chapters } = await window.supabaseClient
+                        .from('book_chapters')
+                        .select('id, chapter_number, title')
+                        .eq('library_book_id', bookIdValue)
+                        .order('chapter_number');
+
+                    if (chapters && chapters.length > 0) {
+                        chapters.forEach(chap => {
+                            const opt = document.createElement('option');
+                            opt.value = chap.id;
+                            opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
+                            topicSelect.appendChild(opt);
+                        });
+                    } else {
+                        topicSelect.innerHTML = `<option value="all">${typeof currentLang !== 'undefined' && currentLang === 'bn' ? 'সম্পূর্ণ বই' : 'Entire Book'}</option>`;
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch book chapters:', e);
+                }
+            }
+            // CASE 2: Official Book
+            else if (subjectValue.startsWith('official:')) {
+                const bookIdValue = subjectValue.replace('official:', '');
+                try {
+                    const { data: chapters } = await window.supabaseClient
+                        .from('book_chapters')
+                        .select('id, chapter_number, title')
+                        .eq('resource_id', bookIdValue)
+                        .order('chapter_number');
+
+                    if (chapters && chapters.length > 0) {
+                        chapters.forEach(chap => {
+                            const opt = document.createElement('option');
+                            opt.value = chap.id;
+                            opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
+                            topicSelect.appendChild(opt);
+                        });
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch official chapters:', e);
+                }
+            }
+            // CASE 3: General Subject
+            else {
+                let dbChaptersFound = false;
+                try {
+                    const { data: resources } = await window.supabaseClient
+                        .from('official_resources')
+                        .select('id, chapters_extracted')
+                        .eq('subject', subjectValue)
+                        .eq('class', userClass)
+                        .limit(1);
+
+                    if (resources && resources.length > 0 && resources[0].chapters_extracted > 0) {
+                        const { data: chapters } = await window.supabaseClient
+                            .from('book_chapters')
+                            .select('id, chapter_number, title')
+                            .eq('resource_id', resources[0].id)
+                            .order('chapter_number');
+
+                        if (chapters && chapters.length > 0) {
+                            dbChaptersFound = true;
+                            chapters.forEach(chap => {
+                                const opt = document.createElement('option');
+                                opt.value = chap.id;
+                                opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
+                                topicSelect.appendChild(opt);
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch official book chapters:', e);
+                }
+
+                // Fallback to predefined chapters from subjects.js
+                if (!dbChaptersFound && window.getChapters) {
+                    const chapters = window.getChapters(subjectValue, userGroup, userClass);
+                    if (chapters && chapters.length > 0) {
+                        chapters.forEach(chap => {
+                            const opt = document.createElement('option');
+                            opt.value = chap.id;
+                            opt.innerText = typeof currentLang !== 'undefined' && currentLang === 'bn' ? chap.bn : chap.en;
+                            topicSelect.appendChild(opt);
+                        });
+                    }
+                }
+            }
+        }
+
+        // Setup mode-specific UI
         if (bookName) {
             modalTitle.innerText = `Source: ${bookName}`;
-            // Use prefix to help populateChapters identify the source
             const prefix = sourceType === 'library' ? 'library:' : 'official:';
             const val = bookId ? `${prefix}${bookId}` : 'Book';
             subjectSelect.innerHTML = `<option value="${val}">${bookName}</option>`;
             subjectSelect.disabled = true;
-            // Trigger population immediately
-            populateChapters(val);
         } else {
-            // General mode - populate with subjects based on user's group
             modalTitle.innerText = typeof currentLang !== 'undefined' && currentLang === 'bn' ? 'কাস্টম সেটআপ' : 'Custom Setup';
             subjectSelect.disabled = false;
 
-            // Get subjects from window.getSubjects (from subjects.js)
             const userGroup = localStorage.getItem('userGroup') || 'Science';
             const userClass = localStorage.getItem('userClass') || '9';
 
@@ -319,7 +415,6 @@ window.openQuizConfig = async function (bookName = null, presetSubject = null, p
                     `<option value="${s.id}">${typeof currentLang !== 'undefined' && currentLang === 'bn' ? s.bn : s.en}</option>`
                 ).join('');
             } else {
-                // Fallback to basic subjects
                 subjectSelect.innerHTML = `
                     <option value="Physics">Physics</option>
                     <option value="Chemistry">Chemistry</option>
@@ -330,131 +425,31 @@ window.openQuizConfig = async function (bookName = null, presetSubject = null, p
             }
         }
 
-        // 🎯 CRITICAL: Actually show the modal!
+        // Handle subject change
+        subjectSelect.onchange = () => {
+            populateChapters(subjectSelect.value);
+        };
+
+        // Set presets if provided
+        if (presetSubject) {
+            subjectSelect.value = presetSubject;
+        }
+
+        // Populate chapters for current selection
+        await populateChapters(subjectSelect.value);
+
+        if (presetTopic) {
+            topicSelect.value = presetTopic;
+        }
+
+        // 🎯 CRITICAL: Show the modal!
         modal.classList.remove('hidden');
         console.log('✅ Quiz config modal opened successfully');
+
     } catch (error) {
         console.error('❌ openQuizConfig error:', error);
         alert('Failed to open quiz setup: ' + error.message);
     }
-
-    // ... (lines 314-396 omitted for brevity, assuming they remain similar or I target specific block) ...
-
-    // Function to populate chapters for selected subject
-    async function populateChapters(subjectValue) {
-        // Get user class and group from localStorage
-        const userClass = localStorage.getItem('userClass') || '9';
-        const userGroup = localStorage.getItem('userGroup') || 'Science';
-
-        topicSelect.innerHTML = `<option value="all">${currentLang === 'bn' ? 'সব অধ্যায়' : 'All Chapters'}</option>`;
-
-        // CASE 1: Library Book
-        if (subjectValue.startsWith('library:')) {
-            const bookId = subjectValue.replace('library:', '');
-            try {
-                const { data: chapters } = await window.supabaseClient
-                    .from('book_chapters')
-                    .select('id, chapter_number, title')
-                    .eq('library_book_id', bookId)
-                    .order('chapter_number');
-
-                if (chapters && chapters.length > 0) {
-                    chapters.forEach(chap => {
-                        const opt = document.createElement('option');
-                        opt.value = chap.id;
-                        opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
-                        topicSelect.appendChild(opt);
-                    });
-                } else {
-                    topicSelect.innerHTML = `<option value="all">${currentLang === 'bn' ? 'সম্পূর্ণ বই' : 'Entire Book'}</option>`;
-                }
-            } catch (e) {
-                console.warn('Could not fetch book chapters:', e);
-            }
-        }
-        // CASE 2: Official Book (Known ID)
-        else if (subjectValue.startsWith('official:')) {
-            const bookId = subjectValue.replace('official:', '');
-            try {
-                const { data: chapters } = await window.supabaseClient
-                    .from('book_chapters')
-                    .select('id, chapter_number, title')
-                    .eq('resource_id', bookId)
-                    .order('chapter_number');
-
-                if (chapters && chapters.length > 0) {
-                    chapters.forEach(chap => {
-                        const opt = document.createElement('option');
-                        opt.value = chap.id;
-                        opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
-                        topicSelect.appendChild(opt);
-                    });
-                }
-            } catch (e) {
-                console.warn('Could not fetch official chapters:', e);
-            }
-        }
-        // CASE 3: General Subject (No specific book ID)
-        else {
-            let dbChaptersFound = false;
-            try {
-                // Try to find matching official resource by header
-                const { data: resources } = await window.supabaseClient
-                    .from('official_resources')
-                    .select('id, chapters_extracted')
-                    .eq('subject', subjectValue)
-                    .eq('class', userClass)
-                    .limit(1);
-
-                if (resources && resources.length > 0 && resources[0].chapters_extracted > 0) {
-                    const { data: chapters } = await window.supabaseClient
-                        .from('book_chapters')
-                        .select('id, chapter_number, title')
-                        .eq('resource_id', resources[0].id)
-                        .order('chapter_number');
-
-                    if (chapters && chapters.length > 0) {
-                        dbChaptersFound = true;
-                        chapters.forEach(chap => {
-                            const opt = document.createElement('option');
-                            opt.value = chap.id;
-                            opt.innerText = chap.title || `Chapter ${chap.chapter_number}`;
-                            topicSelect.appendChild(opt);
-                        });
-                    }
-                }
-            } catch (e) {
-                console.warn('Could not fetch official book chapters:', e);
-            }
-
-            // Fallback to predefined chapters from subjects.js
-            if (!dbChaptersFound && window.getChapters) {
-                const chapters = window.getChapters(subjectValue, userGroup, userClass);
-                if (chapters && chapters.length > 0) {
-                    chapters.forEach(chap => {
-                        const opt = document.createElement('option');
-                        opt.value = chap.id;
-                        opt.innerText = currentLang === 'bn' ? chap.bn : chap.en;
-                        topicSelect.appendChild(opt);
-                    });
-                }
-            }
-        }
-    }
-
-    // Handle subject change for chapters
-    subjectSelect.onchange = () => {
-        populateChapters(subjectSelect.value);
-    };
-
-    // Populate chapters for first subject (after onchange is set)
-    if (presetSubject) {
-        subjectSelect.value = presetSubject;
-    }
-    // Always populate chapters for current selection
-    await populateChapters(subjectSelect.value);
-
-    if (presetTopic) topicSelect.value = presetTopic;
 }
 
 function closeQuizConfig() {
