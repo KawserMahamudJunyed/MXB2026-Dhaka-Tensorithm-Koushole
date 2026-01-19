@@ -269,26 +269,73 @@ function updateChapters() {
 }
 
 window.openQuizConfig = async function (bookName = null, presetSubject = null, presetTopic = null, bookId = null, sourceType = 'library') {
-    currentQuizContext = bookName ? 'Book' : 'General';
-    currentBookName = bookName || '';
-    currentBookId = bookId;
-    currentBookSourceType = sourceType;
+    console.log('🎯 openQuizConfig called:', { bookName, presetSubject, presetTopic, bookId, sourceType });
 
-    const modalTitle = document.getElementById('modal-book-title');
-    const subjectSelect = document.getElementById('config-subject');
-    const topicSelect = document.getElementById('config-topic');
+    try {
+        // Check if Supabase is ready
+        if (!window.supabaseClient) {
+            console.error('❌ Supabase client not initialized!');
+            alert('System not ready. Please refresh the page.');
+            return;
+        }
 
-    if (bookName) {
-        modalTitle.innerText = `Source: ${bookName}`;
-        // Use prefix to help populateChapters identify the source
-        const prefix = sourceType === 'library' ? 'library:' : 'official:';
-        const val = bookId ? `${prefix}${bookId}` : 'Book';
-        subjectSelect.innerHTML = `<option value="${val}">${bookName}</option>`;
-        subjectSelect.disabled = true;
-        // Trigger population immediately
-        populateChapters(val);
-    } else {
-        // ... (existing code for general mode) ...
+        currentQuizContext = bookName ? 'Book' : 'General';
+        currentBookName = bookName || '';
+        currentBookId = bookId;
+        currentBookSourceType = sourceType;
+
+        const modal = document.getElementById('quiz-setup-modal');
+        const modalTitle = document.getElementById('modal-book-title');
+        const subjectSelect = document.getElementById('config-subject');
+        const topicSelect = document.getElementById('config-topic');
+
+        if (!modal || !subjectSelect || !topicSelect) {
+            console.error('❌ Quiz modal elements not found!');
+            alert('Quiz setup error. Please refresh the page.');
+            return;
+        }
+
+        if (bookName) {
+            modalTitle.innerText = `Source: ${bookName}`;
+            // Use prefix to help populateChapters identify the source
+            const prefix = sourceType === 'library' ? 'library:' : 'official:';
+            const val = bookId ? `${prefix}${bookId}` : 'Book';
+            subjectSelect.innerHTML = `<option value="${val}">${bookName}</option>`;
+            subjectSelect.disabled = true;
+            // Trigger population immediately
+            populateChapters(val);
+        } else {
+            // General mode - populate with subjects based on user's group
+            modalTitle.innerText = typeof currentLang !== 'undefined' && currentLang === 'bn' ? 'কাস্টম সেটআপ' : 'Custom Setup';
+            subjectSelect.disabled = false;
+
+            // Get subjects from window.getSubjects (from subjects.js)
+            const userGroup = localStorage.getItem('userGroup') || 'Science';
+            const userClass = localStorage.getItem('userClass') || '9';
+
+            if (window.getSubjects) {
+                const subjects = window.getSubjects(userGroup, userClass);
+                subjectSelect.innerHTML = subjects.map(s =>
+                    `<option value="${s.id}">${typeof currentLang !== 'undefined' && currentLang === 'bn' ? s.bn : s.en}</option>`
+                ).join('');
+            } else {
+                // Fallback to basic subjects
+                subjectSelect.innerHTML = `
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="Biology">Biology</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="English">English</option>
+                `;
+            }
+        }
+
+        // 🎯 CRITICAL: Actually show the modal!
+        modal.classList.remove('hidden');
+        console.log('✅ Quiz config modal opened successfully');
+    } catch (error) {
+        console.error('❌ openQuizConfig error:', error);
+        alert('Failed to open quiz setup: ' + error.message);
     }
 
     // ... (lines 314-396 omitted for brevity, assuming they remain similar or I target specific block) ...

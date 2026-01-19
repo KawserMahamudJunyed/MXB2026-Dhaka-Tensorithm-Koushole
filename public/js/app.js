@@ -589,7 +589,7 @@ async function loadChatHistory() {
             .from('chat_history')
             .select('*')
             .eq('user_id', currentUserId)
-            .order('created_at', { ascending: false })
+            .order('created_at', { ascending: true })
             .limit(50);
 
         if (error) throw error;
@@ -1575,16 +1575,24 @@ async function sendMessage() {
         const selectedOption = bookContextSelect?.options[bookContextSelect.selectedIndex];
         const sourceType = selectedOption?.dataset?.sourceType || 'library';
 
+        // Get user's class/group for age-appropriate responses
+        const currentUserClass = userProfile?.class || localStorage.getItem('userClass') || 'Unknown';
+        const currentUserGroup = userProfile?.group || localStorage.getItem('userGroup') || 'Science';
+
         const requestBody = isRagMode
             ? {
                 message: text,
                 bookId: selectedBookId,
                 sourceType: sourceType,
-                history: { weaknesses: userMemory.weaknesses }
+                history: { weaknesses: userMemory.weaknesses },
+                userClass: currentUserClass,
+                userGroup: currentUserGroup
             }
             : {
                 message: text,
-                history: { weaknesses: userMemory.weaknesses }
+                history: { weaknesses: userMemory.weaknesses },
+                userClass: currentUserClass,
+                userGroup: currentUserGroup
             };
 
         const response = await fetch(apiEndpoint, {

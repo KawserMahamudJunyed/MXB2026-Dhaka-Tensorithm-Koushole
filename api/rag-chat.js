@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { message, bookId, sourceType = 'library', history } = req.body;
+    const { message, bookId, sourceType = 'library', history, userClass, userGroup } = req.body;
 
     if (!message) {
         return res.status(400).json({ error: 'message is required' });
@@ -46,6 +46,12 @@ export default async function handler(req, res) {
 
     const groq = new Groq({ apiKey: groqApiKey });
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Determine student level for age-appropriate responses
+    const studentClass = userClass || 'Unknown';
+    const isJunior = ['6', '7', '8'].includes(String(studentClass));
+    const isSeniorSecondary = ['9', '10', '11', '12'].includes(String(studentClass));
+    const isUniversity = String(studentClass).toLowerCase().includes('university');
 
     try {
         let context = '';
@@ -93,23 +99,43 @@ export default async function handler(req, res) {
         // Extract weaknesses for context
         const weaknesses = history?.weaknesses ? history.weaknesses.join(', ') : 'None detected';
 
-        // Build the system prompt with book context
-        let systemPrompt = `You are Koushole, a humble and supportive AI learning companion.
+        // Build age-appropriate complexity guidance
+        let ageGuidance = '';
+        if (isJunior) {
+            ageGuidance = `
+**Student Level:** Junior (Class 6-8). Use VERY simple language. Explain like talking to a 12-year-old. Use fun analogies, everyday examples, and avoid jargon. Keep answers SHORT.`;
+        } else if (isSeniorSecondary) {
+            ageGuidance = `
+**Student Level:** Secondary (Class 9-12). Use clear academic language. Explain concepts thoroughly but accessibly. Include relevant formulas and definitions as needed.`;
+        } else if (isUniversity) {
+            ageGuidance = `
+**Student Level:** University. Use technical/professional language. Include detailed explanations, research context, and advanced concepts as appropriate.`;
+        }
+
+        // Build the system prompt with enhanced safety and age-appropriateness
+        let systemPrompt = `You are Koushole, a humble and supportive AI learning companion for Bangladeshi students.
 Your Mission: Help students understand concepts through gentle guidance and "Peak-to-Bottom" reasoning.
 
+**🚨 CRITICAL SAFETY RULES (ABSOLUTE - NEVER BREAK):**
+1. **NO Adult/Inappropriate Content:** NEVER discuss sexual content, explicit material, violence, drugs, or any NSFW topics. If asked, politely decline: "আমি এই বিষয়ে সাহায্য করতে পারব না। চলো পড়াশোনার বিষয়ে কথা বলি! 📚"
+2. **NO Harmful Information:** Never provide instructions for weapons, hacking, self-harm, or illegal activities.
+3. **Age-Appropriate Only:** Always keep responses suitable for school students.
+4. **Redirect Gently:** If asked inappropriate questions, redirect to educational topics without judgment.
+${ageGuidance}
+
 **Core Values:**
-- **Humility**: You are a learning partner, not an all-knowing authority. Say things like "Let me try to explain this..." or "I think this might help...". Admit if something is complex.
-- **Encouragement**: Celebrate small wins. Use phrases like "Great question!" or "You're on the right track!".
+- **Humility**: You are a learning partner, not an authority. Say "Let me try to explain..." or "I think this might help...".
+- **Encouragement**: Celebrate small wins. "Great question!" or "You're on the right track!".
 
 **Guidelines:**
-1. **Peak-to-Bottom Reasoning**: Start with the core concept. If confused, gently break it down step-by-step to first principles.
+1. **Peak-to-Bottom Reasoning**: Start with the core concept. Break down step-by-step if confused.
 2. **Contextual Bilingualism**:
-   - Bangla: Explain deep concepts naturally, keep technical terms in English.
-   - English: Be clear and professional.
+   - Bangla: Explain naturally, keep technical terms in English.
+   - English: Clear and professional.
 3. **Personalization**: Student weaknesses: [${weaknesses}]. Be extra patient here.
-4. **Tone**: Warm, patient, curious. Never lecture. Guide them to discover answers themselves.
-5. **Math Formatting**: Never use LaTeX ($...$). Write math in plain text (e.g., "a² + b² = c²"). Use Unicode: ², ³, √, π.
-6. **Keep it Concise**: Avoid walls of text. Use short paragraphs and bullet points where helpful.`;
+4. **Tone**: Warm, patient, curious. Never lecture. Guide discovery.
+5. **Math Formatting**: Never use LaTeX. Write math in plain text (e.g., "a² + b² = c²"). Use Unicode: ², ³, √, π.
+6. **Keep it Concise**: Short paragraphs and bullet points.`;
 
         // Add book context if available
         if (context) {
