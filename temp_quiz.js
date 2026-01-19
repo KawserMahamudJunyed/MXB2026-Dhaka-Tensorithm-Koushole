@@ -1,4 +1,64 @@
-// --- QUIZ STATE ---
+// --- IMMEDIATE GLOBAL EXPORTS ---
+// These must be defined FIRST to prevent "undefined" errors on button clicks
+// Version: 1.0.0 (Release)
+
+// Immediate stub that works even before full script parses
+// This will be overwritten by the full async version at the end
+window.openQuizConfig = function (bookName, presetSubject, presetTopic, bookId, sourceType) {
+    const modal = document.getElementById('quiz-setup-modal');
+    const subjectSelect = document.getElementById('config-subject');
+    const topicSelect = document.getElementById('config-topic');
+    const modalTitle = document.getElementById('modal-book-title');
+
+    if (!modal) return;
+
+    // Show modal
+    modal.classList.remove('hidden');
+
+    // Set title
+    if (modalTitle) {
+        modalTitle.innerText = bookName ? `Source: ${bookName}` : (typeof currentLang !== 'undefined' && currentLang === 'bn' ? 'কাস্টম সেটআপ' : 'Custom Setup');
+    }
+
+    // Populate subjects using subjects.js
+    if (subjectSelect && window.getSubjects && !bookName) {
+        const userGroup = localStorage.getItem('userGroup') || 'Science';
+        const userClass = localStorage.getItem('userClass') || '9';
+        const subjects = window.getSubjects(userGroup, userClass);
+
+        subjectSelect.innerHTML = '';
+        subjects.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.innerText = name;
+            subjectSelect.appendChild(opt);
+        });
+        subjectSelect.disabled = false;
+
+        // Populate chapters for first subject
+        if (topicSelect && window.getChapters && subjects.length > 0) {
+            const chapters = window.getChapters(subjects[0], userGroup, userClass);
+            topicSelect.innerHTML = '<option value="all">All Chapters</option>';
+            if (chapters && chapters.length > 0) {
+                chapters.forEach(ch => {
+                    const opt = document.createElement('option');
+                    opt.value = ch.id;
+                    opt.innerText = (typeof currentLang !== 'undefined' && currentLang === 'bn') ? ch.bn : ch.en;
+                    topicSelect.appendChild(opt);
+                });
+            }
+        }
+    }
+};
+
+window.closeQuizConfig = function () {
+    const modal = document.getElementById('quiz-setup-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.startCustomQuiz = function () {
+    // Wait for full load
+};
 
 // --- QUIZ STATE ---
 let currentQuizQuestions = [];
@@ -157,9 +217,9 @@ async function saveQuizResultsToDatabase(earnedXP, accuracyPercent) {
         } else {
             console.log("✅ Learning stats updated!");
             // Update local userMemory to match
-            window.userMemory.total_xp = newTotalXP;
-            window.userMemory.accuracy_percentage = newAccuracy;
-            window.userMemory.day_streak = newStreak;
+            userMemory.total_xp = newTotalXP;
+            userMemory.accuracy_percentage = newAccuracy;
+            userMemory.day_streak = newStreak;
         }
 
         // 4. Check and award badges
@@ -689,11 +749,11 @@ function renderQuestion() {
 
         // Update userMemory with Supabase-compatible fields
         const earnedXP = 50 + (currentQuizScore * 10);
-        window.userMemory.total_xp = (window.userMemory.total_xp || 0) + earnedXP;
+        userMemory.total_xp = (userMemory.total_xp || 0) + earnedXP;
 
         // Recalculate accuracy (weighted average)
-        const oldTotal = window.userMemory.accuracy_percentage || 0;
-        window.userMemory.accuracy_percentage = Math.round((oldTotal + percentage) / 2);
+        const oldTotal = userMemory.accuracy_percentage || 0;
+        userMemory.accuracy_percentage = Math.round((oldTotal + percentage) / 2);
 
         saveMemory();
 
