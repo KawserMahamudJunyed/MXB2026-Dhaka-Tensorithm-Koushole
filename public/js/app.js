@@ -1437,106 +1437,116 @@ async function fetchBadgeDefinitions() {
     }
 }
 
-// Visual styling for badges (icons, gradients) - kept in code since DB doesn't have these columns
-// All colors use 500-shade for consistent brightness/visibility
+// Visual styling for badges - Unique, professional colors matching badge themes
 const BADGE_STYLES = {
+    // 🎯 First Step - Green (new beginnings, growth, starting fresh)
     first_quiz: {
         icon: '🎯',
         name: 'First Step',
         nameBn: 'প্রথম পদক্ষেপ',
-        gradient: 'from-orange-500 to-amber-500',
-        borderColor: 'border-orange-500/50',
-        textColor: 'text-orange-400'
+        gradient: 'from-emerald-400 to-green-500',
+        borderColor: 'border-emerald-500/50',
+        textColor: 'text-emerald-400'
     },
+    // 🔥 3 Day Streak - Fire orange/red (heat, burning motivation)
     streak_3: {
         icon: '🔥',
         name: '3 Day Streak',
         nameBn: '৩ দিন স্ট্রিক',
-        gradient: 'from-red-500 to-orange-500',
-        borderColor: 'border-red-500/50',
-        textColor: 'text-red-400'
+        gradient: 'from-orange-400 to-red-500',
+        borderColor: 'border-orange-500/50',
+        textColor: 'text-orange-400'
     },
+    // ⚔️ Week Warrior - Steel blue (strength, warrior spirit)
     streak_7: {
         icon: '⚔️',
         name: 'Week Warrior',
         nameBn: 'সাপ্তাহিক যোদ্ধা',
-        gradient: 'from-violet-500 to-purple-500',
-        borderColor: 'border-violet-500/50',
-        textColor: 'text-violet-400'
+        gradient: 'from-slate-400 to-blue-500',
+        borderColor: 'border-slate-500/50',
+        textColor: 'text-slate-400'
     },
+    // 👑 Monthly Master - Royal gold (royalty, mastery)
     streak_30: {
         icon: '👑',
         name: 'Monthly Master',
         nameBn: 'মাসিক মাস্টার',
-        gradient: 'from-amber-500 to-yellow-500',
-        borderColor: 'border-amber-500/50',
-        textColor: 'text-amber-400'
+        gradient: 'from-yellow-400 to-amber-500',
+        borderColor: 'border-yellow-500/50',
+        textColor: 'text-yellow-400'
     },
+    // 💯 Perfect Score - Rose/pink (perfection, excellence)
     perfect_quiz: {
         icon: '💯',
         name: 'Perfect Score',
         nameBn: 'নিখুঁত স্কোর',
-        gradient: 'from-pink-500 to-rose-500',
-        borderColor: 'border-pink-500/50',
-        textColor: 'text-pink-400'
+        gradient: 'from-rose-400 to-pink-500',
+        borderColor: 'border-rose-500/50',
+        textColor: 'text-rose-400'
     },
+    // 🏆 Topic Master - Bronze/copper (trophy, achievement)
     topic_master: {
         icon: '🏆',
         name: 'Topic Master',
         nameBn: 'টপিক মাস্টার',
-        gradient: 'from-cyan-500 to-sky-500',
-        borderColor: 'border-cyan-500/50',
-        textColor: 'text-cyan-400'
+        gradient: 'from-amber-400 to-orange-500',
+        borderColor: 'border-amber-500/50',
+        textColor: 'text-amber-400'
     },
-    // Quiz Count Badges
+    // Quiz Count Badges - Blue progression (learning journey)
     quiz_10: {
         icon: '🔟',
         name: '10 Quizzes',
         nameBn: '১০ কুইজ',
-        gradient: 'from-blue-500 to-indigo-500',
-        borderColor: 'border-blue-500/50',
-        textColor: 'text-blue-400'
+        gradient: 'from-sky-400 to-blue-500',
+        borderColor: 'border-sky-500/50',
+        textColor: 'text-sky-400'
     },
+    // 🏆 Quiz Expert - Deep purple (expertise, wisdom)
     quiz_50: {
         icon: '🏆',
         name: 'Quiz Expert',
         nameBn: 'কুইজ বিশেষজ্ঞ',
-        gradient: 'from-purple-500 to-fuchsia-500',
-        borderColor: 'border-purple-500/50',
-        textColor: 'text-purple-400'
+        gradient: 'from-violet-400 to-purple-500',
+        borderColor: 'border-violet-500/50',
+        textColor: 'text-violet-400'
     },
+    // 👑 Quiz Legend - Royal purple/gold (legendary status)
     quiz_100: {
         icon: '👑',
         name: 'Quiz Legend',
         nameBn: 'কুইজ কিংবদন্তি',
-        gradient: 'from-yellow-500 to-orange-500',
-        borderColor: 'border-yellow-500/50',
-        textColor: 'text-yellow-400'
+        gradient: 'from-fuchsia-400 to-purple-500',
+        borderColor: 'border-fuchsia-500/50',
+        textColor: 'text-fuchsia-400'
     },
-    // XP Badges
+    // XP Badges - Electric/energy theme
+    // ⚡ XP Hunter - Electric yellow (energy, lightning)
     xp_500: {
         icon: '⚡',
         name: 'XP Hunter',
         nameBn: 'এক্সপি শিকারী',
-        gradient: 'from-amber-500 to-orange-500',
-        borderColor: 'border-amber-500/50',
-        textColor: 'text-amber-400'
+        gradient: 'from-yellow-300 to-amber-400',
+        borderColor: 'border-yellow-400/50',
+        textColor: 'text-yellow-400'
     },
+    // 💎 XP Master - Diamond cyan/teal (precious, valuable)
     xp_2000: {
         icon: '💎',
         name: 'XP Master',
         nameBn: 'এক্সপি মাস্টার',
-        gradient: 'from-sky-500 to-blue-500',
-        borderColor: 'border-sky-500/50',
-        textColor: 'text-sky-400'
+        gradient: 'from-cyan-400 to-teal-500',
+        borderColor: 'border-cyan-500/50',
+        textColor: 'text-cyan-400'
     },
+    // 🌟 XP Legend - Warm gold/sunset (stardom, legendary)
     xp_5000: {
         icon: '🌟',
         name: 'XP Legend',
         nameBn: 'এক্সপি কিংবদন্তি',
-        gradient: 'from-rose-500 to-red-500',
-        borderColor: 'border-rose-500/50',
-        textColor: 'text-rose-400'
+        gradient: 'from-amber-300 to-yellow-400',
+        borderColor: 'border-amber-400/50',
+        textColor: 'text-amber-300'
     }
 };
 
