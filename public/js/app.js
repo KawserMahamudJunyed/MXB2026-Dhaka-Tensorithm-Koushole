@@ -1576,9 +1576,11 @@ function renderBadge(badgeId) {
                     <!-- Rotating Ring -->
                     <div class="absolute inset-[-4px] rounded-full border border-dashed opacity-0 group-hover:opacity-100 transition-opacity animate-spin-slow" style="border-color: ${accentColor}40;"></div>
                     
-                    <!-- Icon Circle -->
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-gray-100 to-white dark:from-[#333] dark:to-[#111] border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-3xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] select-none">${style.icon}</span>
+                    <!-- Icon Circle with solid background to block glow bleed -->
+                    <div class="w-16 h-16 rounded-full bg-white dark:bg-[#1A1A1A] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-b from-gray-50 to-gray-100 dark:from-[#2A2A2A] dark:to-[#1A1A1A] flex items-center justify-center">
+                            <span class="text-3xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] select-none">${style.icon}</span>
+                        </div>
                     </div>
                     
                     <!-- Verified Check (uses accent color) -->
