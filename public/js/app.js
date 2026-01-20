@@ -1438,49 +1438,45 @@ async function fetchBadgeDefinitions() {
 }
 
 // Visual styling for badges (icons, gradients) - kept in code since DB doesn't have these columns
+// All colors use 500-shade for consistent brightness/visibility
 const BADGE_STYLES = {
     first_quiz: {
         icon: '🎯',
         name: 'First Step',
         nameBn: 'প্রথম পদক্ষেপ',
-        gradient: 'from-emerald-500 to-teal-600',
-        bgColor: 'bg-gradient-to-br from-emerald-500/20 to-teal-600/20',
-        borderColor: 'border-emerald-500/50',
-        textColor: 'text-emerald-400'
+        gradient: 'from-orange-500 to-amber-500',
+        borderColor: 'border-orange-500/50',
+        textColor: 'text-orange-400'
     },
     streak_3: {
         icon: '🔥',
         name: '3 Day Streak',
         nameBn: '৩ দিন স্ট্রিক',
-        gradient: 'from-orange-500 to-red-600',
-        bgColor: 'bg-gradient-to-br from-orange-500/20 to-red-600/20',
-        borderColor: 'border-orange-500/50',
-        textColor: 'text-orange-400'
+        gradient: 'from-red-500 to-orange-500',
+        borderColor: 'border-red-500/50',
+        textColor: 'text-red-400'
     },
     streak_7: {
         icon: '⚔️',
         name: 'Week Warrior',
         nameBn: 'সাপ্তাহিক যোদ্ধা',
-        gradient: 'from-purple-500 to-indigo-600',
-        bgColor: 'bg-gradient-to-br from-purple-500/20 to-indigo-600/20',
-        borderColor: 'border-purple-500/50',
-        textColor: 'text-purple-400'
+        gradient: 'from-violet-500 to-purple-500',
+        borderColor: 'border-violet-500/50',
+        textColor: 'text-violet-400'
     },
     streak_30: {
         icon: '👑',
         name: 'Monthly Master',
         nameBn: 'মাসিক মাস্টার',
-        gradient: 'from-amber-500 to-yellow-600',
-        bgColor: 'bg-gradient-to-br from-amber-500/20 to-yellow-600/20',
+        gradient: 'from-amber-500 to-yellow-500',
         borderColor: 'border-amber-500/50',
-        textColor: 'text-amber'
+        textColor: 'text-amber-400'
     },
     perfect_quiz: {
         icon: '💯',
         name: 'Perfect Score',
         nameBn: 'নিখুঁত স্কোর',
-        gradient: 'from-pink-500 to-rose-600',
-        bgColor: 'bg-gradient-to-br from-pink-500/20 to-rose-600/20',
+        gradient: 'from-pink-500 to-rose-500',
         borderColor: 'border-pink-500/50',
         textColor: 'text-pink-400'
     },
@@ -1488,8 +1484,7 @@ const BADGE_STYLES = {
         icon: '🏆',
         name: 'Topic Master',
         nameBn: 'টপিক মাস্টার',
-        gradient: 'from-cyan-500 to-blue-600',
-        bgColor: 'bg-gradient-to-br from-cyan-500/20 to-blue-600/20',
+        gradient: 'from-cyan-500 to-sky-500',
         borderColor: 'border-cyan-500/50',
         textColor: 'text-cyan-400'
     },
@@ -1498,8 +1493,7 @@ const BADGE_STYLES = {
         icon: '🔟',
         name: '10 Quizzes',
         nameBn: '১০ কুইজ',
-        gradient: 'from-blue-500 to-sky-600',
-        bgColor: 'bg-gradient-to-br from-blue-500/20 to-sky-600/20',
+        gradient: 'from-blue-500 to-indigo-500',
         borderColor: 'border-blue-500/50',
         textColor: 'text-blue-400'
     },
@@ -1507,45 +1501,40 @@ const BADGE_STYLES = {
         icon: '🏆',
         name: 'Quiz Expert',
         nameBn: 'কুইজ বিশেষজ্ঞ',
-        gradient: 'from-indigo-500 to-violet-600',
-        bgColor: 'bg-gradient-to-br from-indigo-500/20 to-violet-600/20',
-        borderColor: 'border-indigo-500/50',
-        textColor: 'text-indigo-400'
+        gradient: 'from-purple-500 to-fuchsia-500',
+        borderColor: 'border-purple-500/50',
+        textColor: 'text-purple-400'
     },
     quiz_100: {
         icon: '👑',
         name: 'Quiz Legend',
         nameBn: 'কুইজ কিংবদন্তি',
-        gradient: 'from-amber-500 to-orange-600',
-        bgColor: 'bg-gradient-to-br from-amber-500/20 to-orange-600/20',
-        borderColor: 'border-amber-500/50',
-        textColor: 'text-amber'
+        gradient: 'from-yellow-500 to-orange-500',
+        borderColor: 'border-yellow-500/50',
+        textColor: 'text-yellow-400'
     },
     // XP Badges
     xp_500: {
         icon: '⚡',
         name: 'XP Hunter',
         nameBn: 'এক্সপি শিকারী',
-        gradient: 'from-yellow-500 to-amber-600',
-        bgColor: 'bg-gradient-to-br from-yellow-500/20 to-amber-600/20',
-        borderColor: 'border-yellow-500/50',
-        textColor: 'text-yellow-400'
+        gradient: 'from-amber-500 to-orange-500',
+        borderColor: 'border-amber-500/50',
+        textColor: 'text-amber-400'
     },
     xp_2000: {
         icon: '💎',
         name: 'XP Master',
         nameBn: 'এক্সপি মাস্টার',
-        gradient: 'from-teal-500 to-cyan-600',
-        bgColor: 'bg-gradient-to-br from-teal-500/20 to-cyan-600/20',
-        borderColor: 'border-teal-500/50',
-        textColor: 'text-teal-400'
+        gradient: 'from-sky-500 to-blue-500',
+        borderColor: 'border-sky-500/50',
+        textColor: 'text-sky-400'
     },
     xp_5000: {
         icon: '🌟',
         name: 'XP Legend',
         nameBn: 'এক্সপি কিংবদন্তি',
-        gradient: 'from-rose-500 to-pink-600',
-        bgColor: 'bg-gradient-to-br from-rose-500/20 to-pink-600/20',
+        gradient: 'from-rose-500 to-red-500',
         borderColor: 'border-rose-500/50',
         textColor: 'text-rose-400'
     }
