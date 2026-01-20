@@ -1295,24 +1295,46 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
 
             console.log("Public URL generated:", publicUrl);
 
-            // 3. Insert metadata into DB (get back the ID for chapter extraction)
-            const { data: insertedBook, error: insertError } = await window.supabaseClient
-                .from('library_books')
-                .insert({
-                    user_id: user.id,
-                    title: file.name,
-                    file_type: getFileType(file.type, file.name),
-                    file_size_bytes: file.size,
-                    file_url: publicUrl
-                })
-                .select()
-                .single();
+            // 3. Insert metadata into DB with retry logic
+            let insertedBook = null;
+            let insertError = null;
+
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                console.log(`Database Insert Attempt ${attempt}/3...`);
+                const result = await window.supabaseClient
+                    .from('library_books')
+                    .insert({
+                        user_id: user.id,
+                        title: file.name,
+                        file_type: getFileType(file.type, file.name),
+                        file_size_bytes: file.size,
+                        file_url: publicUrl,
+                        is_processed: false
+                    })
+                    .select()
+                    .single();
+
+                if (result.error) {
+                    console.error(`Database Insert Error (Attempt ${attempt}):`, result.error);
+                    insertError = result.error;
+                    if (attempt < 3) {
+                        await new Promise(r => setTimeout(r, 1000 * attempt)); // Wait 1s, 2s, 3s
+                    }
+                } else {
+                    insertedBook = result.data;
+                    insertError = null;
+                    break;
+                }
+            }
 
             if (insertError) {
-                console.error("Database Insert Error:", insertError);
+                console.error("All Database Insert Attempts Failed:", insertError);
+                // Show specific error to user
+                const errorMsg = insertError.message || insertError.code || 'Database error';
+                alert(`Failed to save book to library: ${errorMsg}\n\nFile was uploaded to storage but database entry failed. Please check RLS policies.`);
                 throw insertError;
             }
-            console.log("Database Insert Success, extracting chapters...");
+            console.log("Database Insert Success:", insertedBook?.id);
 
             // 4. Auto-extract chapters from the PDF (background, don't block UI)
             fetch('/api/process-book', {
