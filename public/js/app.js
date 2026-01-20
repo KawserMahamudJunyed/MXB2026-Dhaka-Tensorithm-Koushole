@@ -1363,7 +1363,9 @@ document.getElementById('book-upload-input').addEventListener('change', async fu
                 `;
             }
 
-            // OPTIMIZED: Skip full library refresh - UI already updated above
+            // Refresh library from database to ensure book appears
+            await fetchLibraryBooks();
+            console.log("✅ Library refreshed after upload");
 
         } catch (err) {
             console.error("Full Upload Process Failed:", err);
