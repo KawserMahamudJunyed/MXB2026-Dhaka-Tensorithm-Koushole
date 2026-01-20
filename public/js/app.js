@@ -43,6 +43,7 @@ waitForSupabase(() => {
             isAuthenticated = true;
             currentUserId = session.user.id;
             await loadUserData(currentUserId); // Fetch from Supabase
+            fetchBadgeDefinitions(); // Load badge names from DB
             // Load user-specific data immediately when session restores
             fetchLibraryBooks();
             fetchChatHistory();
@@ -1328,7 +1329,38 @@ function updateProfileUI() {
     if (typeof updateUniversityUI === 'function') updateUniversityUI();
 }
 
-// Badge definitions with icons and colors
+// Badge definitions with icons and colors (visual styling - fallback if DB doesn't have these)
+let cachedBadgeDefinitions = null;
+
+async function fetchBadgeDefinitions() {
+    if (cachedBadgeDefinitions) return cachedBadgeDefinitions;
+
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('badge_definitions')
+            .select('*');
+
+        if (error) throw error;
+
+        // Convert array to object keyed by id
+        cachedBadgeDefinitions = {};
+        for (const badge of data) {
+            cachedBadgeDefinitions[badge.id] = {
+                name: badge.name_en,
+                nameBn: badge.name_bn,
+                description: badge.description_en,
+                descriptionBn: badge.description_bn
+            };
+        }
+        console.log('✅ Badge definitions loaded from DB:', Object.keys(cachedBadgeDefinitions).length);
+        return cachedBadgeDefinitions;
+    } catch (err) {
+        console.warn('Could not fetch badge definitions:', err);
+        return {};
+    }
+}
+
+// Visual styling for badges (icons, gradients) - kept in code since DB doesn't have these columns
 const BADGE_STYLES = {
     first_quiz: {
         icon: '🎯',
@@ -1383,10 +1415,67 @@ const BADGE_STYLES = {
         bgColor: 'bg-gradient-to-br from-cyan-500/20 to-blue-600/20',
         borderColor: 'border-cyan-500/50',
         textColor: 'text-cyan-400'
+    },
+    // Quiz Count Badges
+    quiz_10: {
+        icon: '🔟',
+        name: '10 Quizzes',
+        nameBn: '১০ কুইজ',
+        gradient: 'from-blue-500 to-sky-600',
+        bgColor: 'bg-gradient-to-br from-blue-500/20 to-sky-600/20',
+        borderColor: 'border-blue-500/50',
+        textColor: 'text-blue-400'
+    },
+    quiz_50: {
+        icon: '🏆',
+        name: 'Quiz Expert',
+        nameBn: 'কুইজ বিশেষজ্ঞ',
+        gradient: 'from-indigo-500 to-violet-600',
+        bgColor: 'bg-gradient-to-br from-indigo-500/20 to-violet-600/20',
+        borderColor: 'border-indigo-500/50',
+        textColor: 'text-indigo-400'
+    },
+    quiz_100: {
+        icon: '👑',
+        name: 'Quiz Legend',
+        nameBn: 'কুইজ কিংবদন্তি',
+        gradient: 'from-amber-500 to-orange-600',
+        bgColor: 'bg-gradient-to-br from-amber-500/20 to-orange-600/20',
+        borderColor: 'border-amber-500/50',
+        textColor: 'text-amber'
+    },
+    // XP Badges
+    xp_500: {
+        icon: '⚡',
+        name: 'XP Hunter',
+        nameBn: 'এক্সপি শিকারী',
+        gradient: 'from-yellow-500 to-amber-600',
+        bgColor: 'bg-gradient-to-br from-yellow-500/20 to-amber-600/20',
+        borderColor: 'border-yellow-500/50',
+        textColor: 'text-yellow-400'
+    },
+    xp_2000: {
+        icon: '💎',
+        name: 'XP Master',
+        nameBn: 'এক্সপি মাস্টার',
+        gradient: 'from-teal-500 to-cyan-600',
+        bgColor: 'bg-gradient-to-br from-teal-500/20 to-cyan-600/20',
+        borderColor: 'border-teal-500/50',
+        textColor: 'text-teal-400'
+    },
+    xp_5000: {
+        icon: '🌟',
+        name: 'XP Legend',
+        nameBn: 'এক্সপি কিংবদন্তি',
+        gradient: 'from-rose-500 to-pink-600',
+        bgColor: 'bg-gradient-to-br from-rose-500/20 to-pink-600/20',
+        borderColor: 'border-rose-500/50',
+        textColor: 'text-rose-400'
     }
 };
 
 function renderBadge(badgeId) {
+    // Get visual styling from code
     const style = BADGE_STYLES[badgeId] || {
         icon: '⭐',
         name: badgeId,
@@ -1396,7 +1485,11 @@ function renderBadge(badgeId) {
         textColor: 'text-slate-200'
     };
 
-    const displayName = currentLang === 'bn' ? style.nameBn : style.name;
+    // Override name with DB definition if available
+    const dbDef = cachedBadgeDefinitions?.[badgeId];
+    const displayName = currentLang === 'bn'
+        ? (dbDef?.nameBn || style.nameBn)
+        : (dbDef?.name || style.name);
 
     return `
         <div class="flex-shrink-0 group cursor-pointer badge-float">
@@ -2435,58 +2528,3 @@ window.switchTab = function (viewName) {
         updateUniversityUI();
     }
 };
-
-/* Re-implementing Signup Logic to ensure robustness */
-function setupSignupLogic() {
-    const classSelect = document.getElementById('signup-class');
-    const groupContainer = document.getElementById('group-container');
-    const groupSelect = document.getElementById('signup-group');
-
-    const deptContainer = document.getElementById('dept-container');
-    const deptSelect = document.getElementById('signup-dept');
-
-    const customDeptContainer = document.getElementById('custom-dept-container');
-    const customDeptInput = document.getElementById('signup-custom-dept');
-
-    if (!classSelect) return;
-
-    // Reset Function
-    const resetFields = () => {
-        if (groupContainer) groupContainer.classList.add('hidden');
-        if (groupSelect) { groupSelect.disabled = true; groupSelect.required = false; groupSelect.value = ""; }
-
-        if (deptContainer) deptContainer.classList.add('hidden');
-        if (deptSelect) { deptSelect.disabled = true; deptSelect.required = false; deptSelect.value = ""; }
-
-        if (customDeptContainer) customDeptContainer.classList.add('hidden');
-        if (customDeptInput) { customDeptInput.disabled = true; customDeptInput.required = false; customDeptInput.value = ""; }
-    };
-
-    classSelect.addEventListener('change', function () {
-        resetFields();
-        const val = this.value;
-
-        if (val === 'University') {
-            // Show Department
-            if (deptContainer) deptContainer.classList.remove('hidden');
-            if (deptSelect) { deptSelect.disabled = false; deptSelect.required = true; }
-        } else if (['9', '10', '11', '12'].includes(val)) {
-            // Show Group
-            if (groupContainer) groupContainer.classList.remove('hidden');
-            if (groupSelect) { groupSelect.disabled = false; groupSelect.required = true; }
-        }
-    });
-
-    // Department Change Listener
-    if (deptSelect) {
-        deptSelect.addEventListener('change', function () {
-            if (this.value === 'Other') {
-                if (customDeptContainer) customDeptContainer.classList.remove('hidden');
-                if (customDeptInput) { customDeptInput.disabled = false; customDeptInput.required = true; }
-            } else {
-                if (customDeptContainer) customDeptContainer.classList.add('hidden');
-                if (customDeptInput) { customDeptInput.disabled = true; customDeptInput.required = false; }
-            }
-        });
-    }
-}

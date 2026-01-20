@@ -175,7 +175,7 @@ async function saveQuizResultsToDatabase(earnedXP, accuracyPercent) {
         }
 
         // 4. Check and award badges
-        await checkAndAwardBadges(user.id, newQuizCount, newStreak, accuracyPercent);
+        await checkAndAwardBadges(user.id, newQuizCount, newStreak, accuracyPercent, newTotalXP);
 
     } catch (err) {
         console.error("Database save error:", err);
@@ -183,7 +183,7 @@ async function saveQuizResultsToDatabase(earnedXP, accuracyPercent) {
 }
 
 // --- BADGE SYSTEM ---
-async function checkAndAwardBadges(userId, quizCount, streak, lastScore) {
+async function checkAndAwardBadges(userId, quizCount, streak, lastScore, totalXP = 0) {
     if (!window.supabaseClient) return;
 
     try {
@@ -198,7 +198,7 @@ async function checkAndAwardBadges(userId, quizCount, streak, lastScore) {
         const newBadges = [...currentBadges];
         let badgeAwarded = false;
 
-        // Check conditions
+        // --- Quiz Count Badges ---
         if (quizCount >= 1 && !currentBadges.includes('first_quiz')) {
             newBadges.push('first_quiz');
             badgeAwarded = true;
@@ -206,6 +206,28 @@ async function checkAndAwardBadges(userId, quizCount, streak, lastScore) {
             if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: First Step!', 'Congratulations! You completed your first quiz.');
         }
 
+        if (quizCount >= 10 && !currentBadges.includes('quiz_10')) {
+            newBadges.push('quiz_10');
+            badgeAwarded = true;
+            showBadgeNotification('🔟', '10 Quizzes!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: 10 Quizzes', 'You completed 10 quizzes!');
+        }
+
+        if (quizCount >= 50 && !currentBadges.includes('quiz_50')) {
+            newBadges.push('quiz_50');
+            badgeAwarded = true;
+            showBadgeNotification('🏆', 'Quiz Expert!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: Quiz Expert', 'You completed 50 quizzes! Amazing!');
+        }
+
+        if (quizCount >= 100 && !currentBadges.includes('quiz_100')) {
+            newBadges.push('quiz_100');
+            badgeAwarded = true;
+            showBadgeNotification('👑', 'Quiz Legend!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: Quiz Legend', 'You completed 100 quizzes! Legendary!');
+        }
+
+        // --- Streak Badges ---
         if (streak >= 3 && !currentBadges.includes('streak_3')) {
             newBadges.push('streak_3');
             badgeAwarded = true;
@@ -220,11 +242,41 @@ async function checkAndAwardBadges(userId, quizCount, streak, lastScore) {
             if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: Week Warrior', 'One whole week of consistency!');
         }
 
+        if (streak >= 30 && !currentBadges.includes('streak_30')) {
+            newBadges.push('streak_30');
+            badgeAwarded = true;
+            showBadgeNotification('🏅', 'Monthly Master!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: Monthly Master', '30 days in a row! Incredible dedication!');
+        }
+
+        // --- Perfect Score Badge ---
         if (lastScore === 100 && !currentBadges.includes('perfect_quiz')) {
             newBadges.push('perfect_quiz');
             badgeAwarded = true;
             showBadgeNotification('💯', 'Perfect Score!');
             if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: Perfect Score', 'You got 100% on a quiz! Amazing!');
+        }
+
+        // --- XP Badges ---
+        if (totalXP >= 500 && !currentBadges.includes('xp_500')) {
+            newBadges.push('xp_500');
+            badgeAwarded = true;
+            showBadgeNotification('⚡', 'XP Hunter!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: XP Hunter', 'You earned 500 XP!');
+        }
+
+        if (totalXP >= 2000 && !currentBadges.includes('xp_2000')) {
+            newBadges.push('xp_2000');
+            badgeAwarded = true;
+            showBadgeNotification('💎', 'XP Master!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: XP Master', 'You earned 2000 XP!');
+        }
+
+        if (totalXP >= 5000 && !currentBadges.includes('xp_5000')) {
+            newBadges.push('xp_5000');
+            badgeAwarded = true;
+            showBadgeNotification('🌟', 'XP Legend!');
+            if (typeof createNotification === 'function') createNotification('badge', 'Badge Unlocked: XP Legend', 'You earned 5000 XP! Legendary!');
         }
 
         // Save new badges
