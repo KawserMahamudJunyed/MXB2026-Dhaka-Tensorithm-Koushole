@@ -1443,10 +1443,10 @@ const BADGE_STYLES = {
         icon: '🎯',
         name: 'First Step',
         nameBn: 'প্রথম পদক্ষেপ',
-        gradient: 'from-emerald-500 to-teal-600',
-        bgColor: 'bg-gradient-to-br from-emerald-500/20 to-teal-600/20',
-        borderColor: 'border-emerald-500/50',
-        textColor: 'text-emerald-400'
+        gradient: 'from-orange-500 to-red-600',
+        bgColor: 'bg-gradient-to-br from-orange-500/20 to-red-600/20',
+        borderColor: 'border-orange-500/50',
+        textColor: 'text-orange-400'
     },
     streak_3: {
         icon: '🔥',
