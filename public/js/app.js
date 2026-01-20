@@ -1559,8 +1559,12 @@ function renderBadge(badgeId) {
         nameBn: badgeId,
         gradient: 'from-gray-500 to-slate-600',
         borderColor: 'border-slate-500',
-        textColor: 'text-slate-200'
+        textColor: 'text-slate-200',
+        accentColor: '#64748B'
     };
+
+    // Get accent color for the bottom bar
+    const accentColor = getColorFromGradient(style.gradient);
 
     // Override name with DB definition if available
     const dbDef = cachedBadgeDefinitions?.[badgeId];
@@ -1569,39 +1573,35 @@ function renderBadge(badgeId) {
         : (dbDef?.name || style.name);
 
     return `
-        <div class="flex-shrink-0 group cursor-pointer badge-float">
-            <!-- Glass Card Container -->
-            <div class="relative w-28 h-36 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-white/10 p-3 flex flex-col items-center justify-between shadow-xl overflow-hidden group-hover:shadow-[0_0_30px_-5px_var(--glow-color)] transition-all duration-500"
-                 style="--glow-color: ${getColorFromGradient(style.gradient)}">
+        <div class="flex-shrink-0 group cursor-pointer">
+            <!-- Badge Card -->
+            <div class="relative w-28 h-36 rounded-2xl bg-gray-100 dark:bg-[#1A1A1A] border border-gray-200 dark:border-white/10 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg" style="--accent: ${accentColor}">
                 
-                <!-- Shining Beam Effect -->
-                <div class="absolute inset-0 bg-gradient-to-tr from-gray-400/0 dark:from-white/0 via-gray-400/5 dark:via-white/5 to-gray-400/0 dark:to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <!-- Colored Bottom Bar -->
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${style.gradient}"></div>
                 
-                <!-- Background Glow -->
-                <div class="absolute top-[-20%] left-[-20%] w-[140%] h-[140%] bg-gradient-to-br ${style.gradient} opacity-20 blur-2xl rounded-full group-hover:opacity-30 transition-opacity"></div>
+                <!-- Highlight Glow (on hover) -->
+                <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: radial-gradient(circle at 50% 0%, ${accentColor}15 0%, transparent 60%);"></div>
                 
-                <!-- Badge Icon Container -->
-                <div class="relative z-10 mt-2">
-                    <!-- Rotating Ring -->
-                    <div class="absolute inset-[-4px] rounded-full border border-dashed border-white/30 animate-spin-slow opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
+                <!-- Badge Icon Area -->
+                <div class="flex-1 flex items-center justify-center pt-4 relative z-10">
                     <!-- Icon Circle -->
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-gray-100 to-white dark:from-[#333] dark:to-[#111] border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-3xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] select-none">${style.icon}</span>
-                    </div>
-                    
-                    <!-- Verified Check -->
-                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_2px_5px_rgba(0,0,0,0.3)] border-2 border-[#1A1A1A]">
-                        <i class="fas fa-check text-white text-[10px]"></i>
+                    <div class="relative">
+                        <div class="w-14 h-14 rounded-full bg-white dark:bg-[#2A2A2A] border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow" style="box-shadow: 0 4px 15px ${accentColor}30;">
+                            <span class="text-2xl select-none">${style.icon}</span>
+                        </div>
+                        <!-- Check Badge -->
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-sm border border-white dark:border-[#1A1A1A]" style="background: ${accentColor};">
+                            <i class="fas fa-check text-white text-[8px]"></i>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Text Content -->
-                <div class="z-10 text-center w-full mb-1">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-500 dark:from-white dark:to-gray-400 mb-0.5 group-hover:to-gray-700 dark:group-hover:to-white transition-colors">
+                
+                <!-- Badge Name -->
+                <div class="w-full px-2 pb-3 text-center relative z-10">
+                    <h4 class="text-[10px] font-bold uppercase tracking-wider text-gray-800 dark:text-white truncate">
                         ${displayName}
                     </h4>
-                    <div class="h-0.5 w-8 mx-auto bg-gradient-to-r ${style.gradient} rounded-full opacity-50 group-hover:w-16 group-hover:opacity-100 transition-all duration-300"></div>
                 </div>
             </div>
         </div>
@@ -1611,11 +1611,18 @@ function renderBadge(badgeId) {
 // Helper to extract a color for shadow from the gradient string (approximation)
 function getColorFromGradient(gradientClass) {
     if (gradientClass.includes('emerald')) return '#10B981';
+    if (gradientClass.includes('teal')) return '#14B8A6';
     if (gradientClass.includes('orange')) return '#F97316';
     if (gradientClass.includes('purple')) return '#8B5CF6';
     if (gradientClass.includes('amber')) return '#F59E0B';
+    if (gradientClass.includes('yellow')) return '#EAB308';
     if (gradientClass.includes('pink')) return '#EC4899';
+    if (gradientClass.includes('rose')) return '#F43F5E';
     if (gradientClass.includes('cyan')) return '#06B6D4';
+    if (gradientClass.includes('blue')) return '#3B82F6';
+    if (gradientClass.includes('indigo')) return '#6366F1';
+    if (gradientClass.includes('sky')) return '#0EA5E9';
+    if (gradientClass.includes('red')) return '#EF4444';
     return '#64748B';
 }
 
