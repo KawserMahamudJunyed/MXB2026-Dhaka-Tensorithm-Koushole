@@ -120,12 +120,16 @@ async function loadUserData(userId) {
         if (stats) {
             userMemory = {
                 total_xp: stats.total_xp || 0,
+                total_quizzes_completed: stats.total_quizzes_completed || 0,
                 day_streak: stats.day_streak || 0,
                 accuracy_percentage: stats.accuracy_percentage || 0,
                 weaknesses: stats.weaknesses || [],
                 badges: stats.badges || []
             };
             console.log("Loaded Stats:", userMemory);
+
+            // Retroactively check for missing badges
+            await checkMissingBadges(userId, stats);
         } else {
             // New user - create initial stats row
             console.log("New user - creating initial stats");
@@ -148,6 +152,79 @@ async function loadUserData(userId) {
 
     } catch (err) {
         console.error("loadUserData error:", err);
+    }
+}
+
+// Retroactively check and award missing badges on app load
+async function checkMissingBadges(userId, stats) {
+    const currentBadges = stats.badges || [];
+    const newBadges = [...currentBadges];
+    let badgeAwarded = false;
+
+    const totalXP = stats.total_xp || 0;
+    const quizCount = stats.total_quizzes_completed || 0;
+    const streak = stats.day_streak || 0;
+
+    // XP Badges
+    if (totalXP >= 500 && !currentBadges.includes('xp_500')) {
+        newBadges.push('xp_500');
+        badgeAwarded = true;
+        console.log('🏅 Retroactively awarding XP Hunter badge');
+    }
+    if (totalXP >= 2000 && !currentBadges.includes('xp_2000')) {
+        newBadges.push('xp_2000');
+        badgeAwarded = true;
+    }
+    if (totalXP >= 5000 && !currentBadges.includes('xp_5000')) {
+        newBadges.push('xp_5000');
+        badgeAwarded = true;
+    }
+
+    // Quiz Count Badges
+    if (quizCount >= 10 && !currentBadges.includes('quiz_10')) {
+        newBadges.push('quiz_10');
+        badgeAwarded = true;
+    }
+    if (quizCount >= 50 && !currentBadges.includes('quiz_50')) {
+        newBadges.push('quiz_50');
+        badgeAwarded = true;
+    }
+    if (quizCount >= 100 && !currentBadges.includes('quiz_100')) {
+        newBadges.push('quiz_100');
+        badgeAwarded = true;
+    }
+
+    // Streak Badges
+    if (streak >= 3 && !currentBadges.includes('streak_3')) {
+        newBadges.push('streak_3');
+        badgeAwarded = true;
+    }
+    if (streak >= 7 && !currentBadges.includes('streak_7')) {
+        newBadges.push('streak_7');
+        badgeAwarded = true;
+    }
+    if (streak >= 30 && !currentBadges.includes('streak_30')) {
+        newBadges.push('streak_30');
+        badgeAwarded = true;
+    }
+
+    // Save if any badges were awarded
+    if (badgeAwarded) {
+        try {
+            const { error } = await window.supabaseClient
+                .from('learning_stats')
+                .update({ badges: newBadges })
+                .eq('user_id', userId);
+
+            if (!error) {
+                userMemory.badges = newBadges;
+                console.log('✅ Retroactively awarded badges:', newBadges.filter(b => !currentBadges.includes(b)));
+            } else {
+                console.error('Failed to save retroactive badges:', error);
+            }
+        } catch (err) {
+            console.error('Error saving retroactive badges:', err);
+        }
     }
 }
 
